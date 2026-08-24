@@ -17,8 +17,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const pendentes = await db.motorista.count({ where: { statusAprovacao: "PENDENTE" } });
 
   const navItems: DashboardNavItem[] = [
-    { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/admin/aprovacoes", label: "Aprovações", icon: ShieldCheck, badge: pendentes },
+    { href: "/admin", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" strokeWidth={1.75} /> },
+    {
+      href: "/admin/aprovacoes",
+      label: "Aprovações",
+      icon: <ShieldCheck className="h-4 w-4" strokeWidth={1.75} />,
+      badge: pendentes,
+    },
   ];
 
   return (

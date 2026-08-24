@@ -19,8 +19,8 @@ export default async function MotoristaLayout({ children }: { children: React.Re
   if (!motorista) redirect("/entrar");
 
   const navItems: DashboardNavItem[] = [
-    { href: "/motorista", label: "Leads", icon: Inbox },
-    { href: "/motorista/perfil", label: "Meu perfil", icon: UserRound },
+    { href: "/motorista", label: "Leads", icon: <Inbox className="h-4 w-4" strokeWidth={1.75} /> },
+    { href: "/motorista/perfil", label: "Meu perfil", icon: <UserRound className="h-4 w-4" strokeWidth={1.75} /> },
   ];
 
   return (

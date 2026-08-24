@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, type LucideIcon } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import LogoutButton from "@/components/logout-button";
 import { cn } from "@/lib/utils";
@@ -10,7 +10,12 @@ import { cn } from "@/lib/utils";
 export type DashboardNavItem = {
   href: string;
   label: string;
-  icon: LucideIcon;
+  // JSX já renderizado (ex.: <LayoutDashboard className="h-4 w-4" />), não a
+  // referência do componente — os layouts que montam essa lista são Server
+  // Components, e uma função não atravessa a fronteira pra este client
+  // component (React: "Functions cannot be passed directly to Client
+  // Components"). Um elemento React já resolvido, sim.
+  icon: React.ReactNode;
   badge?: number;
 };
 
@@ -33,7 +38,7 @@ function NavLinks({ navItems, pathname }: { navItems: DashboardNavItem[]; pathna
             )}
           >
             <span className="flex items-center gap-2.5">
-              <item.icon className="h-4 w-4" strokeWidth={1.75} />
+              {item.icon}
               {item.label}
             </span>
             {!!item.badge && (
