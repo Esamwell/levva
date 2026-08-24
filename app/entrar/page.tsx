@@ -1,10 +1,13 @@
 "use client";
 
 /**
- * Login sem senha: telefone -> código de 6 dígitos via WhatsApp -> sessão.
- * Usado tanto por pai quanto motorista quanto admin — o papel já está
- * gravado no User, então após confirmar o código a gente redireciona
- * pro painel certo (ou pro ?redirect= que o middleware.ts anexou).
+ * Login único para os três papéis: e-mail e senha.
+ *
+ * Não existe "entrar como pai" ou "entrar como admin" — o papel já está
+ * gravado no User, então depois de autenticar o servidor diz para onde ir.
+ * Uma tela só evita que alguém descubra o tipo de uma conta testando a
+ * porta errada, e o middleware garante que ninguém entre em painel de
+ * outro papel forçando a URL.
  */
 
 import { useState, Suspense } from "react";
@@ -15,50 +18,28 @@ function EntrarForm() {
   const params = useSearchParams();
   const redirect = params.get("redirect");
 
-  const [etapa, setEtapa] = useState<"telefone" | "codigo">("telefone");
-  const [telefone, setTelefone] = useState("");
-  const [codigo, setCodigo] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [mostrarSenha, setMostrarSenha] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
-  async function solicitarCodigo(e: React.FormEvent) {
+  async function entrar(e: React.FormEvent) {
     e.preventDefault();
     setErro(null);
     setCarregando(true);
     try {
-      const res = await fetch("/api/auth/solicitar-codigo", {
+      const res = await fetch("/api/auth/entrar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ telefone }),
-      });
-      if (!res.ok) throw new Error();
-      setEtapa("codigo");
-    } catch {
-      setErro("Não deu pra enviar o código. Confere o número e tenta de novo.");
-    } finally {
-      setCarregando(false);
-    }
-  }
-
-  async function confirmarCodigo(e: React.FormEvent) {
-    e.preventDefault();
-    setErro(null);
-    setCarregando(true);
-    try {
-      const res = await fetch("/api/auth/confirmar-codigo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ telefone, codigo }),
+        body: JSON.stringify({ email, senha }),
       });
       const data = await res.json();
       if (!res.ok) {
-        setErro(data.error || "Código inválido.");
+        setErro(data.error || "Não foi possível entrar.");
         return;
       }
-      const destino =
-        redirect ||
-        (data.role === "PAI" ? "/pai" : data.role === "MOTORISTA" ? "/motorista" : "/admin");
-      router.push(destino);
+      router.push(redirect || data.destino);
       router.refresh();
     } catch {
       setErro("Algo deu errado. Tenta de novo.");
@@ -68,70 +49,96 @@ function EntrarForm() {
   }
 
   return (
-    <div className="min-h-screen bg-cream flex items-center justify-center px-6">
+    <div className="min-h-screen bg-cream flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-sm">
         <a href="/" className="font-serif text-2xl text-navy">
           levva<span className="text-amber">.</span>
         </a>
 
         <div className="mt-8 rounded-card border border-cream-line bg-white p-8">
-          {etapa === "telefone" ? (
-            <form onSubmit={solicitarCodigo} className="space-y-4">
-              <div>
-                <h1 className="font-serif text-2xl text-navy">Entrar</h1>
-                <p className="mt-1 text-sm text-ink-soft">
-                  Sem senha. A gente manda um código pelo seu WhatsApp.
-                </p>
-              </div>
+          <form onSubmit={entrar} className="space-y-4">
+            <div>
+              <h1 className="font-serif text-2xl text-navy">Entrar</h1>
+              <p className="mt-1 text-sm text-ink-soft">
+                Use o e-mail e a senha que você cadastrou.
+              </p>
+            </div>
+
+            <div>
+              <label htmlFor="email" className="text-xs font-semibold text-ink-soft">
+                E-mail
+              </label>
               <input
+                id="email"
                 required
-                value={telefone}
-                onChange={(e) => setTelefone(e.target.value)}
-                placeholder="(71) 9xxxx-xxxx"
-                className="w-full rounded-lg border border-cream-line px-4 py-2.5 outline-none focus:border-amber"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="voce@email.com"
+                className="mt-1 w-full rounded-lg border border-cream-line px-4 py-2.5 outline-none focus:border-amber"
               />
-              {erro && <p className="text-sm text-red-600">{erro}</p>}
-              <button
-                disabled={carregando}
-                className="w-full rounded-full bg-amber py-2.5 text-sm font-bold text-navy disabled:opacity-50"
-              >
-                {carregando ? "Enviando..." : "Receber código"}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={confirmarCodigo} className="space-y-4">
-              <div>
-                <h1 className="font-serif text-2xl text-navy">Digite o código</h1>
-                <p className="mt-1 text-sm text-ink-soft">
-                  Mandamos um código de 6 dígitos pro WhatsApp {telefone}.
-                </p>
+            </div>
+
+            <div>
+              <label htmlFor="senha" className="text-xs font-semibold text-ink-soft">
+                Senha
+              </label>
+              <div className="relative mt-1">
+                <input
+                  id="senha"
+                  required
+                  type={mostrarSenha ? "text" : "password"}
+                  autoComplete="current-password"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full rounded-lg border border-cream-line px-4 py-2.5 pr-16 outline-none focus:border-amber"
+                />
+                <button
+                  type="button"
+                  onClick={() => setMostrarSenha((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-soft hover:text-navy"
+                >
+                  {mostrarSenha ? "Ocultar" : "Mostrar"}
+                </button>
               </div>
-              <input
-                required
-                inputMode="numeric"
-                maxLength={6}
-                value={codigo}
-                onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ""))}
-                placeholder="000000"
-                className="w-full rounded-lg border border-cream-line px-4 py-2.5 text-center font-mono text-lg tracking-[0.3em] outline-none focus:border-amber"
-              />
-              {erro && <p className="text-sm text-red-600">{erro}</p>}
-              <button
-                disabled={carregando || codigo.length !== 6}
-                className="w-full rounded-full bg-amber py-2.5 text-sm font-bold text-navy disabled:opacity-50"
-              >
-                {carregando ? "Confirmando..." : "Confirmar e entrar"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setEtapa("telefone")}
-                className="w-full text-center text-xs text-ink-soft"
-              >
-                Errei o número, voltar
-              </button>
-            </form>
-          )}
+            </div>
+
+            {erro && (
+              <p role="alert" className="text-sm text-red-600">
+                {erro}
+              </p>
+            )}
+
+            <button
+              disabled={carregando}
+              className="w-full rounded-full bg-amber py-2.5 text-sm font-bold text-navy disabled:opacity-50"
+            >
+              {carregando ? "Entrando..." : "Entrar"}
+            </button>
+
+            <a
+              href="/recuperar-senha"
+              className="block text-center text-xs text-ink-soft hover:text-navy"
+            >
+              Esqueci minha senha
+            </a>
+          </form>
         </div>
+
+        <p className="mt-6 text-center text-sm text-ink-soft">
+          É motorista e ainda não tem conta?{" "}
+          <a href="/motorista/cadastro" className="font-semibold text-sage">
+            Cadastre-se
+          </a>
+        </p>
+        <p className="mt-2 text-center text-sm text-ink-soft">
+          Procurando transporte?{" "}
+          <a href="/pai" className="font-semibold text-sage">
+            Buscar sem cadastro
+          </a>
+        </p>
       </div>
     </div>
   );

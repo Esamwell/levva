@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 type Motorista = {
   id: string;
   nome: string;
-  telefone: string;
+  telefone: string | null;
   cnhNumero: string;
   cnhCategoria: string;
   cnhDocUrl: string | null;
@@ -53,7 +53,7 @@ export default function AprovacoesList({ motoristas }: { motoristas: Motorista[]
             <div>
               <p className="font-serif text-lg">{m.nome}</p>
               <p className="text-xs text-white/60">
-                {m.telefone} · CNH {m.cnhCategoria} nº {m.cnhNumero}
+                {m.telefone ?? "sem telefone"} · CNH {m.cnhCategoria} nº {m.cnhNumero}
               </p>
               <p className="mt-1 text-xs text-white/60">
                 {m.veiculos.map((v) => `${v.modelo} (${v.placa})`).join(", ")}

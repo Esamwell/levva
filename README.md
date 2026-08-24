@@ -2,8 +2,8 @@
 
 Plataforma de intermediação de transporte escolar em Salvador/BA.
 App completo — landing, os 3 painéis (pai / motorista / admin), login
-sem senha por OTP, upload de documentos, geocoding e busca por região,
-tudo ligado a um banco Postgres de verdade.
+por e-mail e senha, upload protegido de documentos, geocoding e busca
+por região, tudo ligado a um banco Postgres de verdade.
 
 ## Stack
 
@@ -12,6 +12,8 @@ tudo ligado a um banco Postgres de verdade.
 - **Prisma + PostgreSQL** — schema em `prisma/schema.prisma`
 - **Zod** — validação de dados nas API routes
 - **jose** — JWT de sessão (cookie httpOnly)
+- **bcryptjs** — hash de senha
+- **Nodemailer** — e-mail transacional (redefinição de senha, avisos)
 - **Nominatim (OSM)** — geocoding de endereço, sem custo
 
 ## Estrutura
@@ -19,7 +21,9 @@ tudo ligado a um banco Postgres de verdade.
 ```
 app/
   page.tsx                → landing page (pública)
-  entrar/                  → login por OTP (telefone -> código -> sessão)
+  entrar/                  → login único (e-mail + senha), redireciona por papel
+  recuperar-senha/          → pede o link de redefinição
+  redefinir-senha/           → escolhe a nova senha a partir do link
   pai/
     page.tsx                → busca (pública, sem cadastro obrigatório)
     dashboard/               → histórico de solicitações (autenticado)
@@ -31,27 +35,37 @@ app/
                                 público de /cadastro; não afeta a URL.
   admin/                    → aprovação de motoristas + métricas (MRR etc)
   api/
-    auth/                     → solicitar-codigo, confirmar-codigo, sair
+    auth/                     → entrar, sair, recuperar, redefinir
     motoristas/                → POST cria cadastro (chamado por /motorista/cadastro)
     motorista/perfil/           → PUT atualiza perfil público + escolas atendidas
     motorista/leads/[id]/        → PATCH muda status de um lead
     admin/motoristas/[id]/        → aprovar/reprovar (protegido por sessão ADMIN)
     busca/                     → POST geocodifica + lista motoristas compatíveis
-    leads/                     → POST cria lead (cria o pai na hora, sem fricção)
-    upload/                    → POST recebe documentos (CNH, curso, etc.)
+    leads/                     → POST cria lead (cadastra o pai com senha, se novo)
+    upload/                    → POST recebe documentos (exige sessão de motorista)
+    documentos/[...caminho]/    → GET serve documento com checagem de papel
     escolas/                   → GET autocomplete de escolas
 lib/
   geo.ts                    → Haversine + geocoding real via Nominatim
   plano.ts                   → regra de enquadramento Básico/Frota + preços
-  auth.ts                     → OTP via WhatsApp Cloud API + sessão JWT
-  storage.ts                   → upload local (public/uploads), pronto pra
-                                  trocar por S3/R2 trocando só essa função
+  auth.ts                     → senha (bcrypt), sessão em banco + JWT,
+                                  limite de tentativas, recuperação de senha
+  session-edge.ts              → só a checagem de JWT, sem Prisma nem bcrypt.
+                                  É o que o middleware importa (roda em edge)
+  email.ts                      → SMTP + modelos das mensagens
+  storage.ts                     → upload FORA de public/, pronto pra trocar
+                                    por S3/R2 mexendo só nessa função
   db.ts                        → cliente Prisma
 prisma/
   schema.prisma               → modelo de dados completo
-  seed.ts                      → escolas de Salvador/Lauro de Freitas
+  migrations/                  → histórico de migrações (prisma migrate)
+  seed.ts                       → escolas de Salvador/Lauro de Freitas
+  criar-admin.ts                 → cria/atualiza a conta de administrador
 middleware.ts                → protege /pai, /motorista, /admin por sessão+papel
-Dockerfile, docker-compose.yml, nginx.conf, instalar-vps.sh
+nginx/http.conf, nginx/https.conf
+                             → templates do Nginx; nginx.conf é GERADO
+                                a partir deles pelo instalador
+Dockerfile, docker-compose.yml, instalar-vps.sh
                              → deploy completo (ver seção abaixo)
 ```
 
@@ -60,14 +74,19 @@ Dockerfile, docker-compose.yml, nginx.conf, instalar-vps.sh
 ```bash
 npm install
 cp .env.example .env        # preencher DATABASE_URL, POSTGRES_PASSWORD, JWT_SECRET
-npm run db:push             # cria as tabelas a partir do schema
+npm run db:migrate          # aplica as migrações
 npm run db:seed             # popula escolas de Salvador/Lauro de Freitas
+ADMIN_EMAIL=voce@exemplo.com ADMIN_SENHA='TrocarDepois1' npm run criar-admin
 npm run dev
 ```
 
-Sem `WHATSAPP_API_TOKEN`/`WHATSAPP_PHONE_ID` configurados, o código OTP
-cai no console do servidor (`[OTP dev] Código pra 55...: 123456`) — dá
-pra testar o fluxo de login inteiro sem gastar nada.
+O último comando cria a conta de administrador. **Sem ela ninguém aprova
+motorista nenhum** — o painel existe, mas fica inacessível.
+
+Sem SMTP configurado, o e-mail de redefinição de senha **não é enviado**:
+a mensagem cai no log do servidor com um aviso em destaque. Serve pra
+testar em desenvolvimento; em produção significa que ninguém recupera a
+senha sozinho.
 
 ## Deploy na VPS
 
@@ -75,20 +94,25 @@ Tudo pronto pra subir com Docker — Postgres, o app e Nginx com HTTPS
 automático via Let's Encrypt.
 
 ```bash
-scp -r levva-app usuario@SEU_IP:~/levva-app
 ssh usuario@SEU_IP
-cd levva-app
+sudo apt update && sudo apt install -y git
+git clone https://github.com/Esamwell/levva.git
+cd levva
 chmod +x instalar-vps.sh
 ./instalar-vps.sh
 ```
 
+A pasta pode ter qualquer nome — o instalador não depende mais disso.
+
 O script (`instalar-vps.sh`):
 1. Instala Docker + Docker Compose se ainda não tiver
-2. Gera senha de banco e `JWT_SECRET` sozinho, cria o `.env`
-3. Sobe Postgres + app + Nginx (`docker compose up -d --build`)
-4. Roda as migrações do Prisma e o seed de escolas
+2. Pergunta domínio, e-mail/senha do admin e SMTP; gera senha de banco e
+   `JWT_SECRET` sozinho e cria o `.env`
+3. Sobe Postgres + app + Nginx. As migrações rodam num container próprio e
+   o app só sobe depois que elas terminam com sucesso
+4. Roda o seed de escolas e cria a conta de administrador
 5. Se você informar um domínio (e o DNS já estiver apontado pro IP da
-   VPS), emite certificado HTTPS automaticamente
+   VPS), emite certificado HTTPS e liga a renovação automática
 
 Pode rodar de novo a qualquer momento — se o `.env` já existir, ele
 não mexe nas credenciais, só garante que os containers estão no ar.
@@ -105,16 +129,32 @@ docker compose up -d --build
 ### Comandos úteis pós-deploy
 
 ```bash
-docker compose logs -f app        # logs do app em tempo real
-docker compose exec app sh        # shell dentro do container
-docker compose exec app npx prisma studio  # abrir o Prisma Studio (dados)
-docker compose down               # parar tudo
+sudo docker compose logs -f app     # logs do app em tempo real
+sudo docker compose ps              # estado dos containers
+sudo docker compose down            # parar tudo
+
+# aplicar migrações novas depois de um git pull
+sudo docker compose run --rm migrate npx prisma migrate deploy
+
+# criar admin, ou trocar a senha dele
+sudo docker compose run --rm -e ADMIN_EMAIL=voce@exemplo.com -e ADMIN_SENHA='NovaSenha1' migrate npx tsx prisma/criar-admin.ts
 ```
 
 ## O que já está pronto
 
 - Landing page completa e responsiva, com menu mobile
-- Login sem senha por OTP (WhatsApp), sessão via JWT em cookie httpOnly
+- Login por e-mail e senha para os 3 papéis, numa tela só que redireciona
+  conforme o papel gravado na conta. Senha em bcrypt, sessão gravada em
+  banco (dá pra revogar) e referenciada por JWT em cookie httpOnly
+- Bloqueio por tentativas de login: 5 falhas em 15 minutos, contadas por
+  conta e por IP separadamente
+- Redefinição de senha por e-mail, com token de uso único que expira em 1h
+  e derruba as sessões abertas da conta
+- Documentos (CNH, antecedentes) ficam FORA de `public/` e só saem por
+  `/api/documentos`, que confere sessão e papel: admin vê tudo, motorista
+  vê só os próprios
+- Aviso por e-mail ao motorista aprovado ou reprovado, e ao admin quando
+  entra lead novo
 - Cadastro público de motorista (`/motorista/cadastro`) ligado ao banco,
   com upload de documentos e cálculo de plano em tempo real
 - Busca do pai por endereço + escola (geocoding real via Nominatim),
@@ -131,17 +171,23 @@ docker compose down               # parar tudo
 
 ## O que falta (não bloqueia o deploy, mas vale planejar)
 
-1. **Notificação automática de novo lead pro admin** — hoje o admin vê
-   os leads pendentes no dashboard e repassa manualmente via WhatsApp
-   (link já pronto); dá pra automatizar isso com um webhook depois
-2. **Notificar motorista de aprovação/reprovação** — os `TODO` já estão
-   marcados em `app/api/admin/motoristas/[id]/*`
-3. **Cobrança recorrente de verdade** — hoje a assinatura só vira "ATIVA"
+1. **Cobrança recorrente de verdade** — hoje a assinatura só vira "ATIVA"
    quando o admin aprova; falta integrar um gateway (Stripe, Asaas, etc.)
    pra cobrar a mensalidade de fato
-4. **Avaliações pós-atendimento** — schema já tem `Avaliacao`, falta a tela
-5. Trocar upload local por S3/R2 se o volume de documentos crescer muito
+2. **Avaliações pós-atendimento** — schema já tem `Avaliacao`, falta a tela
+3. **Cache de geocoding** — `/api/busca` e `/api/leads` chamam o Nominatim
+   a cada requisição. A política do serviço é de 1 consulta por segundo e o
+   bloqueio é por IP; guardar o resultado por endereço normalizado resolve a
+   maior parte, já que os endereços se repetem dentro de um mesmo bairro
+4. **Gestão de veículos pelo motorista** — hoje são cadastrados uma vez, no
+   fluxo inicial, e o perfil não permite adicionar nem remover
+5. **Testes** — não há nenhum. As regras que mais merecem cobertura são o
+   enquadramento de plano, o cálculo de mensalidade e as checagens de papel
+6. Trocar upload local por S3/R2 se o volume de documentos crescer muito
    (o contrato em `lib/storage.ts` já foi pensado pra essa troca ser simples)
+7. **Next.js 15 → 16** — `npm audit` aponta 4 vulnerabilidades altas em
+   dependências transitivas do Next (postcss e sharp). A correção exige
+   subir de major, o que é uma mudança grande e merece ser feita com calma
 
 ## Design tokens
 

@@ -7,11 +7,11 @@
  * sem conta. É aqui (e só aqui) que os valores dos planos aparecem, porque
  * não interessam ao pai que só quer buscar transporte pros filhos.
  *
- * Ao enviar: sobe os documentos (POST /api/upload), depois cria o
- * cadastro (POST /api/motoristas) com status PENDENTE, depois já dispara
- * o envio do código OTP e leva pra tela de confirmação — assim o
- * motorista sai daqui com a conta pronta pra acessar assim que o admin
- * aprovar os documentos.
+ * Ao enviar, a ordem importa: primeiro cria a conta (POST /api/motoristas),
+ * o que já abre a sessão, e só depois sobe os documentos (POST /api/upload).
+ * É assim porque a rota de upload exige estar autenticado — antes ela aceitava
+ * arquivo de qualquer pessoa da internet. Por isso os arquivos ficam guardados
+ * em memória durante o preenchimento e só sobem no final.
  *
  * Escolas atendidas: aqui só usamos a *quantidade* pra calcular o plano.
  * A lista de escolas de fato (relação MotoristaEscola) é preenchida
@@ -38,7 +38,8 @@ function formatarReais(centavos: number): string {
 type Veiculo = { placa: string; modelo: string; capacidade: string };
 
 type DocKey = "cnh" | "curso-transporte" | "antecedentes" | "crlv";
-type DocState = Partial<Record<DocKey, { nome: string; url: string; enviando: boolean }>>;
+/** O arquivo fica em memória até a conta existir — ver comentário do topo. */
+type DocState = Partial<Record<DocKey, { nome: string; file: File }>>;
 
 const DOCS: { key: DocKey; label: string }[] = [
   { key: "cnh", label: "CNH categoria D ou E" },
@@ -55,12 +56,11 @@ export default function CadastroMotoristaPage() {
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
-  // Etapa de confirmação de código (depois do cadastro criado)
-  const [aguardandoCodigo, setAguardandoCodigo] = useState(false);
-  const [codigo, setCodigo] = useState("");
-
   // Dados do motorista
   const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [mostrarSenha, setMostrarSenha] = useState(false);
   const [whatsapp, setWhatsapp] = useState("");
   const [cidade, setCidade] = useState("Salvador");
   const [cnhNumero, setCnhNumero] = useState("");
@@ -103,29 +103,33 @@ export default function CadastroMotoristaPage() {
     setVeiculos((v) => v.map((x, idx) => (idx === i ? { ...x, [campo]: valor } : x)));
   }
 
-  async function handleUpload(key: DocKey, file: File) {
-    setDocs((d) => ({ ...d, [key]: { nome: file.name, url: "", enviando: true } }));
-    const form = new FormData();
-    form.append("file", file);
-    form.append("categoria", key);
-    try {
-      const res = await fetch("/api/upload", { method: "POST", body: form });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Falha no upload");
-      setDocs((d) => ({ ...d, [key]: { nome: file.name, url: data.url, enviando: false } }));
-    } catch (e) {
-      setDocs((d) => {
-        const next = { ...d };
-        delete next[key];
-        return next;
-      });
-      setErro(e instanceof Error ? e.message : "Falha ao enviar documento.");
+  const TAMANHO_MAX = 10 * 1024 * 1024;
+  const TIPOS_OK = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+
+  /**
+   * Só valida e guarda o arquivo. O envio acontece no final, depois que a
+   * conta existe — antes disso não há sessão, e /api/upload exige uma.
+   */
+  function selecionarDoc(key: DocKey, file: File) {
+    if (!TIPOS_OK.includes(file.type)) {
+      setErro("Aceitamos apenas PDF, JPG, PNG ou WEBP.");
+      return;
     }
+    if (file.size > TAMANHO_MAX) {
+      setErro("Arquivo maior que 10MB.");
+      return;
+    }
+    setErro(null);
+    setDocs((d) => ({ ...d, [key]: { nome: file.name, file } }));
   }
 
-  const step0Ok = nome.trim().length > 2 && whatsapp.trim().length >= 10;
+  const emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim());
+  const senhaOk = senha.length >= 8 && /[a-zA-Z]/.test(senha) && /[0-9]/.test(senha);
+
+  const step0Ok =
+    nome.trim().length > 2 && whatsapp.trim().length >= 10 && emailOk && senhaOk;
   const step1Ok = veiculos.every((v) => v.placa && v.modelo && v.capacidade);
-  const step2Ok = cnhNumero.trim().length > 3 && DOCS.every((d) => docs[d.key]?.url);
+  const step2Ok = cnhNumero.trim().length > 3 && DOCS.every((d) => docs[d.key]?.file);
 
   const podeAvancar = step === 0 ? step0Ok : step === 1 ? step1Ok : step === 2 ? step2Ok : true;
 
@@ -133,11 +137,15 @@ export default function CadastroMotoristaPage() {
     setErro(null);
     setEnviando(true);
     try {
+      // 1) Cria a conta. A resposta já vem com a sessão aberta no cookie,
+      //    que é o que permite subir os documentos no passo seguinte.
       const res = await fetch("/api/motoristas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nome,
+          email,
+          senha,
           telefone: whatsapp,
           cidade,
           cnhNumero,
@@ -149,81 +157,47 @@ export default function CadastroMotoristaPage() {
             modelo: v.modelo,
             capacidade: Number(v.capacidade),
           })),
-          documentos: {
-            cnhUrl: docs.cnh?.url,
-            cursoUrl: docs["curso-transporte"]?.url,
-            antecedentesUrl: docs.antecedentes?.url,
-            crlvUrl: docs.crlv?.url,
-          },
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Não foi possível concluir o cadastro.");
-      setAguardandoCodigo(true);
-    } catch (e) {
-      setErro(e instanceof Error ? e.message : "Algo deu errado.");
-    } finally {
-      setEnviando(false);
-    }
-  }
+      if (!res.ok) {
+        throw new Error(
+          typeof data.error === "string"
+            ? data.error
+            : "Não foi possível concluir o cadastro."
+        );
+      }
 
-  async function confirmarCodigo(e: React.FormEvent) {
-    e.preventDefault();
-    setErro(null);
-    setEnviando(true);
-    try {
-      const res = await fetch("/api/auth/confirmar-codigo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ telefone: whatsapp, codigo }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Código inválido.");
+      // 2) Sobe os documentos, agora autenticado. Cada arquivo é gravado
+      //    direto no cadastro pelo servidor.
+      const falhas: string[] = [];
+      for (const { key, label } of DOCS) {
+        const doc = docs[key];
+        if (!doc) continue;
+        const form = new FormData();
+        form.append("file", doc.file);
+        form.append("categoria", key);
+        const up = await fetch("/api/upload", { method: "POST", body: form });
+        if (!up.ok) falhas.push(label);
+      }
+
+      if (falhas.length > 0) {
+        // A conta existe e a sessão está aberta — o motorista termina o envio
+        // pelo painel em vez de refazer o cadastro inteiro.
+        setErro(
+          `Sua conta foi criada, mas estes documentos não subiram: ${falhas.join(", ")}. ` +
+            `Você pode enviá-los pelo seu painel.`
+        );
+        setEnviando(false);
+        return;
+      }
+
       router.push("/motorista");
       router.refresh();
     } catch (e) {
-      setErro(e instanceof Error ? e.message : "Código inválido.");
-    } finally {
+      setErro(e instanceof Error ? e.message : "Algo deu errado.");
       setEnviando(false);
     }
-  }
-
-  if (aguardandoCodigo) {
-    return (
-      <div className="min-h-screen bg-cream flex items-center justify-center px-6">
-        <div className="w-full max-w-sm">
-          <a href="/" className="font-serif text-2xl text-navy">
-            levva<span className="text-amber">.</span>
-          </a>
-          <div className="mt-8 rounded-card border border-cream-line bg-white p-8">
-            <h1 className="font-serif text-2xl text-navy">Cadastro enviado!</h1>
-            <p className="mt-2 text-sm text-ink-soft">
-              Mandamos um código de 6 dígitos pro seu WhatsApp {whatsapp}. Confirme
-              pra já acessar seu painel — seus documentos ficam em análise até a
-              aprovação da equipe Levva.
-            </p>
-            <form onSubmit={confirmarCodigo} className="mt-5 space-y-4">
-              <input
-                required
-                inputMode="numeric"
-                maxLength={6}
-                value={codigo}
-                onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ""))}
-                placeholder="000000"
-                className="w-full rounded-lg border border-cream-line px-4 py-2.5 text-center font-mono text-lg tracking-[0.3em] outline-none focus:border-amber"
-              />
-              {erro && <p className="text-sm text-red-600">{erro}</p>}
-              <button
-                disabled={enviando || codigo.length !== 6}
-                className="w-full rounded-full bg-amber py-2.5 text-sm font-bold text-navy disabled:opacity-50"
-              >
-                {enviando ? "Confirmando..." : "Confirmar e acessar meu painel"}
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -290,9 +264,57 @@ export default function CadastroMotoristaPage() {
                   className="w-full rounded-lg border border-cream-line px-4 py-2.5 outline-none focus:border-amber"
                 />
                 <p className="mt-1 text-xs text-ink-soft">
-                  É por aqui que os leads de famílias interessadas chegam até você
-                  — e também como você entra no seu painel depois.
+                  É por aqui que os leads de famílias interessadas chegam até você.
                 </p>
+              </div>
+              <div>
+                <label htmlFor="email" className="mb-1 block text-sm font-semibold text-navy">
+                  E-mail
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="voce@email.com"
+                  className="w-full rounded-lg border border-cream-line px-4 py-2.5 outline-none focus:border-amber"
+                />
+                <p className="mt-1 text-xs text-ink-soft">
+                  É com ele que você entra no seu painel, e por onde avisamos quando
+                  seus documentos forem aprovados.
+                </p>
+                {email.length > 0 && !emailOk && (
+                  <p className="mt-1 text-xs text-red-600">Confira o e-mail digitado.</p>
+                )}
+              </div>
+              <div>
+                <label htmlFor="senha" className="mb-1 block text-sm font-semibold text-navy">
+                  Senha
+                </label>
+                <div className="relative">
+                  <input
+                    id="senha"
+                    type={mostrarSenha ? "text" : "password"}
+                    autoComplete="new-password"
+                    value={senha}
+                    onChange={(e) => setSenha(e.target.value)}
+                    placeholder="Pelo menos 8 caracteres"
+                    className="w-full rounded-lg border border-cream-line px-4 py-2.5 pr-16 outline-none focus:border-amber"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setMostrarSenha((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-soft hover:text-navy"
+                  >
+                    {mostrarSenha ? "Ocultar" : "Mostrar"}
+                  </button>
+                </div>
+                {senha.length > 0 && !senhaOk && (
+                  <p className="mt-1 text-xs text-red-600">
+                    Mínimo de 8 caracteres, com pelo menos uma letra e um número.
+                  </p>
+                )}
               </div>
               <div>
                 <label className="mb-1 block text-sm font-semibold text-navy">Cidade</label>
@@ -464,24 +486,21 @@ export default function CadastroMotoristaPage() {
                   >
                     <div className="min-w-0 pr-3">
                       <span className="block truncate text-sm text-ink-soft">{label}</span>
-                      {doc?.url && (
-                        <span className="text-xs font-semibold text-sage">
+                      {doc && (
+                        <span className="block truncate text-xs font-semibold text-sage">
                           ✓ {doc.nome}
                         </span>
                       )}
-                      {doc?.enviando && (
-                        <span className="text-xs text-ink-soft">Enviando...</span>
-                      )}
                     </div>
                     <label className="shrink-0 cursor-pointer rounded-full bg-cream-line px-4 py-1.5 text-xs font-semibold text-navy">
-                      {doc?.url ? "Trocar" : "Anexar"}
+                      {doc ? "Trocar" : "Anexar"}
                       <input
                         type="file"
                         accept=".pdf,.jpg,.jpeg,.png,.webp"
                         className="hidden"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          if (file) handleUpload(key, file);
+                          if (file) selecionarDoc(key, file);
                         }}
                       />
                     </label>
@@ -490,7 +509,9 @@ export default function CadastroMotoristaPage() {
               })}
               <p className="text-xs text-ink-soft">
                 Sem esses documentos aprovados, seu perfil não aparece pras
-                famílias — é o que garante a confiança da plataforma.
+                famílias — é o que garante a confiança da plataforma. Os arquivos
+                só saem do seu aparelho quando você finalizar o cadastro, e depois
+                ficam visíveis apenas para você e para a equipe de verificação.
               </p>
             </div>
           )}
@@ -502,6 +523,10 @@ export default function CadastroMotoristaPage() {
                 <div className="flex justify-between py-2">
                   <dt className="text-ink-soft">Nome</dt>
                   <dd className="font-semibold text-navy">{nome || "—"}</dd>
+                </div>
+                <div className="flex justify-between py-2">
+                  <dt className="text-ink-soft">E-mail (seu login)</dt>
+                  <dd className="font-semibold text-navy">{email || "—"}</dd>
                 </div>
                 <div className="flex justify-between py-2">
                   <dt className="text-ink-soft">WhatsApp</dt>
@@ -520,7 +545,7 @@ export default function CadastroMotoristaPage() {
                 <div className="flex justify-between py-2">
                   <dt className="text-ink-soft">Documentos</dt>
                   <dd className="font-semibold text-navy">
-                    {DOCS.filter((d) => docs[d.key]?.url).length}/{DOCS.length} enviados
+                    {DOCS.filter((d) => docs[d.key]?.file).length}/{DOCS.length} anexados
                   </dd>
                 </div>
                 <div className="flex justify-between py-2">
@@ -533,8 +558,9 @@ export default function CadastroMotoristaPage() {
               </dl>
               {erro && <p className="text-sm text-red-600">{erro}</p>}
               <p className="text-xs text-ink-soft">
-                Ao enviar, você concorda em passar pela verificação documental
-                da Levva antes de receber leads.
+                Ao enviar, criamos sua conta e subimos seus documentos. Você
+                concorda em passar pela verificação documental da Levva antes de
+                receber leads.
               </p>
             </div>
           )}
@@ -564,7 +590,7 @@ export default function CadastroMotoristaPage() {
                 onClick={enviarCadastro}
                 className="rounded-full bg-amber px-6 py-2.5 text-sm font-bold text-navy disabled:opacity-50"
               >
-                {enviando ? "Enviando..." : "Enviar cadastro"}
+                {enviando ? "Enviando..." : "Criar conta e enviar documentos"}
               </button>
             )}
           </div>

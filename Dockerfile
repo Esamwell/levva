@@ -10,6 +10,8 @@ COPY package.json package-lock.json* ./
 RUN npm ci
 
 # ---- build ----
+# Este estágio também é usado em produção pelo serviço "migrate" do compose:
+# é aqui que existem o CLI do Prisma e o tsx, que a imagem final não carrega.
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -31,8 +33,11 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
-# uploads locais precisam sobreviver a rebuilds — ver volume no compose
-RUN mkdir -p /app/public/uploads && chown -R nextjs:nodejs /app/public/uploads
+# Documentos enviados pelos motoristas. Fora de public/ de propósito: CNH e
+# certidão de antecedentes são dado pessoal e só saem por /api/documentos,
+# que confere sessão e papel antes de responder.
+ENV UPLOAD_DIR=/app/uploads
+RUN mkdir -p /app/uploads && chown -R nextjs:nodejs /app/uploads
 
 USER nextjs
 EXPOSE 3000

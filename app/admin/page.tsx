@@ -1,10 +1,17 @@
+import { redirect } from "next/navigation";
 import { db } from "../../lib/db";
+import { exigirPapel } from "../../lib/auth";
+import RepassarLead from "./repassar-lead";
 
 function formatarReais(centavos: number): string {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
 export default async function AdminDashboardPage() {
+  // O middleware já barrou quem não é admin, mas ele só lê o JWT. Confirmar
+  // contra o banco aqui é o que pega sessão revogada e papel alterado.
+  if (!(await exigirPapel("ADMIN"))) redirect("/entrar");
+
   const inicioMes = new Date();
   inicioMes.setDate(1);
   inicioMes.setHours(0, 0, 0, 0);
@@ -68,14 +75,15 @@ export default async function AdminDashboardPage() {
                     ({lead.filho.nome}, {lead.filho.escola.nome})
                   </span>
                 </span>
-                <a
-                  href={`https://wa.me/${lead.motorista.user.telefone}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-full bg-amber-soft px-3 py-1 text-xs font-bold text-navy"
-                >
-                  Repassar via WhatsApp
-                </a>
+                <RepassarLead
+                  leadId={lead.id}
+                  telefoneMotorista={lead.motorista.user.telefone}
+                  mensagem={
+                    `Olá, ${lead.motorista.user.nome}! Você recebeu um lead na Levva: ` +
+                    `${lead.pai.user.nome}, responsável por ${lead.filho.nome} ` +
+                    `(${lead.filho.escola.nome}). Contato: ${lead.pai.user.telefone ?? "ver painel"}.`
+                  }
+                />
               </div>
             ))}
           </div>

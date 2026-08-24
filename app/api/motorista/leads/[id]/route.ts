@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "../../../../../lib/db";
-import { getSession } from "../../../../../lib/auth";
+import { exigirPapel } from "../../../../../lib/auth";
 
 const schema = z.object({
   status: z.enum(["ENCAMINHADO", "EM_NEGOCIACAO", "FECHADO", "NAO_FECHOU"]),
@@ -10,8 +10,8 @@ const schema = z.object({
 
 /** PATCH /api/motorista/leads/:id — motorista atualiza status de um lead seu. */
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const session = await getSession();
-  if (!session || session.role !== "MOTORISTA") {
+  const session = await exigirPapel("MOTORISTA");
+  if (!session) {
     return NextResponse.json({ error: "Sem sessão de motorista." }, { status: 401 });
   }
 

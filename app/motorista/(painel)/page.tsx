@@ -1,10 +1,10 @@
-import { getSession } from "../../../lib/auth";
+import { exigirPapel } from "../../../lib/auth";
 import { db } from "../../../lib/db";
 import { redirect } from "next/navigation";
 import LeadsList from "./leads-list";
 
 export default async function LeadsMotoristaPage() {
-  const session = await getSession();
+  const session = await exigirPapel("MOTORISTA");
   if (!session) redirect("/entrar");
 
   const motorista = await db.motorista.findUnique({

@@ -14,23 +14,54 @@ services:
       timeout: 5s
       retries: 10
 
+  # Roda as migrações e termina. O app só sobe depois que este container sai
+  # com sucesso, então o banco nunca fica atrás do código.
+  #
+  # Usa o estágio "builder" da imagem porque é lá que existem o CLI do Prisma
+  # e o tsx. A imagem final não os tem — antes o instalador chamava
+  # "npx prisma db push" dentro do container do app, e o npx tentava baixar
+  # as ferramentas da internet em tempo de execução, como usuário sem home
+  # gravável. O passo mais importante da instalação era o menos confiável.
+  migrate:
+    build:
+      context: .
+      target: builder
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://levva:${POSTGRES_PASSWORD}@db:5432/levva
+    command: npx prisma migrate deploy
+
   app:
     build: .
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     environment:
       DATABASE_URL: postgresql://levva:${POSTGRES_PASSWORD}@db:5432/levva
       JWT_SECRET: ${JWT_SECRET}
-      WHATSAPP_API_TOKEN: ${WHATSAPP_API_TOKEN}
-      WHATSAPP_PHONE_ID: ${WHATSAPP_PHONE_ID}
+      APP_URL: ${APP_URL}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      UPLOAD_DIR: /app/uploads
       NODE_ENV: production
     volumes:
-      # persiste os documentos enviados por motoristas entre deploys/rebuilds
-      - levva_uploads:/app/public/uploads
+      # Documentos dos motoristas. Ficam FORA de public/ — são dado pessoal e
+      # não podem ser servidos como arquivo estático (ver lib/storage.ts).
+      - levva_uploads:/app/uploads
     ports:
-      - "3000:3000"
+      # Só no loopback: publicar em 0.0.0.0 deixava qualquer um acessar
+      # http://IP:3000 e falar com o app sem TLS, contornando o Nginx.
+      # O Nginx alcança o app pela rede interna do Compose.
+      - "127.0.0.1:3000:3000"
 
   nginx:
     image: nginx:alpine
@@ -44,6 +75,21 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - certbot_www:/var/www/certbot
       - certbot_conf:/etc/letsencrypt
+    # Recarrega periodicamente pra pegar o certificado renovado sem downtime.
+    command: >
+      sh -c "while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g 'daemon off;'"
+
+  # Renova o certificado sozinho. Antes o certbot rodava uma única vez, na
+  # instalação, e nada renovava depois — em ~90 dias o site passaria a mostrar
+  # aviso de certificado inválido, sem nenhum sinal antes.
+  certbot:
+    image: certbot/certbot:latest
+    restart: unless-stopped
+    volumes:
+      - certbot_www:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt
+    entrypoint: >
+      sh -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done"
 
 volumes:
   levva_db_data:

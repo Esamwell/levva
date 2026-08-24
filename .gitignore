@@ -10,12 +10,15 @@ out/
 .env.local
 .env.production
 
-# uploads locais de documentos (dados de usuário, não código)
-public/uploads/*
-!public/uploads/.gitkeep
+# documentos enviados por motoristas (dado pessoal, nunca versionar)
+uploads/
+public/uploads/
 
 # prisma
 prisma/*.db
+
+# typescript (gerado pelo Next a cada build)
+next-env.d.ts
 
 # diversos
 .DS_Store

@@ -1,48 +1,53 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getSessionEdge, SESSION_COOKIE_NAME } from "./lib/auth";
+import { getSessionEdge, SESSION_COOKIE_NAME } from "./lib/session-edge";
 
 /**
- * Protege /pai, /motorista (exceto /motorista/cadastro) e /admin por sessão
- * + papel. O cadastro é o ponto de entrada de motorista novo, ainda sem
- * conta, então fica público.
+ * Portão de entrada de /pai, /motorista e /admin.
+ *
+ * Roda em edge runtime, onde o Prisma não alcança — por isso importa de
+ * lib/session-edge.ts, que não puxa banco nem bcrypt. Aqui a checagem é só
+ * da assinatura do JWT: rápida, e suficiente pra redirecionar quem não tem
+ * sessão sem carregar a página inteira. A verificação que vale é
+ * `getSession()`, dentro de cada página e rota, porque ela confirma a sessão
+ * contra o banco e pega sessão revogada e papel alterado.
+ *
+ * Públicos, porque são o funil de entrada de quem ainda não tem conta:
+ * /pai (busca) e /motorista/cadastro.
  */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Busca do pai e cadastro de motorista são o funil de entrada —
-  // ninguém tem sessão ainda nesse ponto, então ficam públicos.
   const publico =
     pathname.startsWith("/motorista/cadastro") || pathname === "/pai";
 
-  const protegido =
-    !publico &&
-    (pathname.startsWith("/pai") ||
-      pathname.startsWith("/motorista") ||
-      pathname.startsWith("/admin"));
+  if (!publico) {
+    const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+    const session = await getSessionEdge(token);
 
-  if (!protegido) return NextResponse.next();
+    if (!session) {
+      const entrar = new URL("/entrar", request.url);
+      entrar.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(entrar);
+    }
 
-  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const session = await getSessionEdge(token);
+    const roleEsperado = pathname.startsWith("/pai")
+      ? "PAI"
+      : pathname.startsWith("/motorista")
+      ? "MOTORISTA"
+      : "ADMIN";
 
-  if (!session) {
-    const entrar = new URL("/entrar", request.url);
-    entrar.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(entrar);
+    if (session.role !== roleEsperado) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
   }
 
-  const roleEsperado = pathname.startsWith("/pai")
-    ? "PAI"
-    : pathname.startsWith("/motorista")
-    ? "MOTORISTA"
-    : "ADMIN";
-
-  if (session.role !== roleEsperado) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-
-  return NextResponse.next();
+  // Cabeçalhos de segurança em toda resposta que passa por aqui.
+  const res = NextResponse.next();
+  res.headers.set("X-Content-Type-Options", "nosniff");
+  res.headers.set("X-Frame-Options", "DENY");
+  res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  return res;
 }
 
 export const config = {

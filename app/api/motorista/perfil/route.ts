@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "../../../../lib/db";
-import { getSession } from "../../../../lib/auth";
+import { exigirPapel } from "../../../../lib/auth";
 
 const schema = z.object({
   anosExperiencia: z.number().int().min(0),
@@ -13,8 +13,8 @@ const schema = z.object({
 });
 
 export async function PUT(req: Request) {
-  const session = await getSession();
-  if (!session || session.role !== "MOTORISTA") {
+  const session = await exigirPapel("MOTORISTA");
+  if (!session) {
     return NextResponse.json({ error: "Sem sessão de motorista." }, { status: 401 });
   }
 

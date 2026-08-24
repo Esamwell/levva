@@ -1,7 +1,11 @@
+import { redirect } from "next/navigation";
 import { db } from "../../../lib/db";
+import { exigirPapel } from "../../../lib/auth";
 import AprovacoesList from "./aprovacoes-list";
 
 export default async function AprovacoesPage() {
+  if (!(await exigirPapel("ADMIN"))) redirect("/entrar");
+
   const pendentes = await db.motorista.findMany({
     where: { statusAprovacao: "PENDENTE" },
     include: { user: true, veiculos: true },

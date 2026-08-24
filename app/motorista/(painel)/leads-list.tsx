@@ -7,7 +7,7 @@ type Lead = {
   id: string;
   status: string;
   paiNome: string;
-  paiTelefone: string;
+  paiTelefone: string | null;
   filhoNome: string;
   escolaNome: string;
 };
@@ -53,7 +53,8 @@ export default function LeadsList({ leads }: { leads: Lead[] }) {
             <div>
               <p className="font-semibold text-navy">{lead.paiNome}</p>
               <p className="text-xs text-ink-soft">
-                {lead.filhoNome} · {lead.escolaNome} · {lead.paiTelefone}
+                {lead.filhoNome} · {lead.escolaNome}
+                {lead.paiTelefone ? ` · ${lead.paiTelefone}` : ""}
               </p>
             </div>
             <span className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_COLOR[lead.status]}`}>

@@ -48,14 +48,23 @@ model User {
   id        String   @id @default(cuid())
   role      Role
   nome      String
-  telefone  String   @unique
-  email     String?  @unique
+  // E-mail é o identificador de login dos três papéis.
+  email     String   @unique
+  senhaHash String
+  // Telefone segue obrigatório pra pai e motorista (contato via WhatsApp),
+  // mas admin não precisa de um — por isso opcional no schema.
+  telefone  String?  @unique
   createdAt DateTime @default(now())
+  // Invalida sessões antigas quando a senha muda (ver lib/auth.ts).
+  senhaAlteradaEm DateTime @default(now())
 
   // Relação 1:1 com o perfil específico do papel
   pai       Pai?
   motorista Motorista?
   admin     Admin?
+
+  sessoes   Sessao[]
+  tokensRecuperacao TokenRecuperacao[]
 }
 
 model Admin {
@@ -64,16 +73,43 @@ model Admin {
   userId String @unique
 }
 
-// Código de acesso (OTP) enviado por WhatsApp. Sem senha no produto.
-model CodigoOtp {
+// Sessão ativa. O JWT no cookie carrega o id dela, então dá pra derrubar
+// uma sessão específica (logout, troca de senha, remoção de acesso) sem
+// esperar o token expirar.
+model Sessao {
   id        String   @id @default(cuid())
-  telefone  String
-  codigoHash String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiraEm  DateTime
+  criadaEm  DateTime @default(now())
+  userAgent String?
+  ip        String?
+
+  @@index([userId])
+}
+
+// Token de redefinição de senha, enviado por e-mail. Guardamos só o hash —
+// o valor em claro existe apenas dentro do link que o usuário recebe.
+model TokenRecuperacao {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  tokenHash String   @unique
   usado     Boolean  @default(false)
   expiraEm  DateTime
-  createdAt DateTime @default(now())
+  criadoEm  DateTime @default(now())
 
-  @@index([telefone])
+  @@index([userId])
+}
+
+// Tentativas de login falhas, pra travar força bruta. Fica no banco em vez
+// de memória porque o container reinicia e a trava não pode reiniciar junto.
+model TentativaLogin {
+  id         String   @id @default(cuid())
+  chave      String   // email normalizado ou "ip:<endereco>"
+  criadaEm   DateTime @default(now())
+
+  @@index([chave, criadaEm])
 }
 
 // ---------- PERFIL DO PAI ----------

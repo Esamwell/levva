@@ -4,7 +4,8 @@
  * direto, sem precisar de API route intermediária.
  */
 
-import { getSession } from "../../../lib/auth";
+import { redirect } from "next/navigation";
+import { exigirPapel } from "../../../lib/auth";
 import { db } from "../../../lib/db";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -24,10 +25,10 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export default async function DashboardPaiPage() {
-  const session = await getSession(); // garantido pelo middleware, mas TS não sabe disso
-  const pai = session
-    ? await db.pai.findUnique({ where: { userId: session.userId } })
-    : null;
+  const session = await exigirPapel("PAI");
+  if (!session) redirect("/entrar");
+
+  const pai = await db.pai.findUnique({ where: { userId: session.userId } });
 
   const leads = pai
     ? await db.lead.findMany({
