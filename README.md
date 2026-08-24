@@ -77,10 +77,14 @@ cp .env.example .env        # preencher DATABASE_URL, POSTGRES_PASSWORD, JWT_SEC
 npm run db:migrate          # aplica as migrações
 npm run db:seed             # popula escolas de Salvador/Lauro de Freitas
 ADMIN_EMAIL=voce@exemplo.com ADMIN_SENHA='TrocarDepois1' npm run criar-admin
+npm run seed:demo           # opcional: contas de teste dos 3 papéis
 npm run dev
 ```
 
-O último comando cria a conta de administrador. **Sem ela ninguém aprova
+O `criar-admin` cria a conta de administrador. O `seed:demo` adiciona contas
+de teste dos três papéis, com dados de exemplo nos painéis — as senhas ficam
+visíveis em `prisma/seed-demo.ts`, então apague essas contas antes de abrir
+ao público. **Sem ela ninguém aprova
 motorista nenhum** — o painel existe, mas fica inacessível.
 
 Sem SMTP configurado, o e-mail de redefinição de senha **não é enviado**:

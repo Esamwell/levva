@@ -13,7 +13,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:migrate": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev",
-    "criar-admin": "tsx prisma/criar-admin.ts"
+    "criar-admin": "tsx prisma/criar-admin.ts",
+    "seed:demo": "tsx prisma/seed-demo.ts"
   },
   "dependencies": {
     "next": "^15.0.0",

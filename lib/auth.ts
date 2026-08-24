@@ -24,6 +24,19 @@ import { SESSION_COOKIE_NAME as COOKIE_NAME } from "./session-edge";
 const SESSAO_TTL_DIAS = 7;
 const BCRYPT_ROUNDS = 12;
 
+/**
+ * O cookie só pode ser `secure` se o site realmente estiver em HTTPS: o
+ * navegador descarta cookie `secure` recebido por HTTP, e o login passaria a
+ * "funcionar" sem nunca criar sessão.
+ *
+ * Amarrar isso a NODE_ENV estava errado — em produção sem certificado (VPS
+ * respondendo por IP, antes de existir domínio) o valor dava true e travava
+ * o acesso de todo mundo. Amarrar em APP_URL acerta os dois casos sozinho.
+ */
+function cookieSeguro(): boolean {
+  return (process.env.APP_URL ?? "").startsWith("https://");
+}
+
 /** Janela e teto do bloqueio por tentativas de login falhas. */
 export const LOGIN_MAX_TENTATIVAS = 5;
 export const LOGIN_JANELA_MINUTOS = 15;
@@ -166,7 +179,7 @@ export async function criarSessao(
   const store = await cookies();
   store.set(COOKIE_NAME, jwt, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: cookieSeguro(),
     sameSite: "lax",
     maxAge: SESSAO_TTL_DIAS * 24 * 60 * 60,
     path: "/",

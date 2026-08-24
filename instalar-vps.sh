@@ -109,7 +109,19 @@ else
   if [ -n "$DOMINIO" ]; then
     APP_URL="https://${DOMINIO}"
   else
-    APP_URL="http://localhost:3000"
+    # Sem domínio o app responde pelo IP. Precisa ser o IP público de verdade:
+    # APP_URL define os links dos e-mails e, principalmente, decide se o cookie
+    # de sessão vai marcado como `secure` — que em HTTP faria o navegador
+    # descartar o cookie e ninguém conseguiria entrar.
+    IP_PUBLICO=$(curl -fsS --max-time 5 https://api.ipify.org 2>/dev/null || true)
+    if [ -z "$IP_PUBLICO" ]; then
+      IP_PUBLICO=$(hostname -I 2>/dev/null | awk '{print $1}')
+    fi
+    read -rp "  IP público desta VPS [${IP_PUBLICO}]: " IP_INFORMADO
+    IP_PUBLICO=${IP_INFORMADO:-$IP_PUBLICO}
+    APP_URL="http://${IP_PUBLICO}"
+    aviso "Sem HTTPS, a sessão trafega em texto puro. Use só pra testar; assim que"
+    aviso "tiver domínio, rode este script de novo pra ativar o certificado."
   fi
 
   cat > .env << EOF
@@ -132,8 +144,10 @@ EOF
     gerar_nginx http "$DOMINIO"
     log "nginx.conf gerado para o domínio ${DOMINIO} (HTTP; o HTTPS entra depois do certificado)."
   else
-    aviso "Sem domínio informado — o app vai responder só por HTTP/IP por enquanto."
-    aviso "Edite nginx.conf com o domínio depois e rode este script de novo pra ativar HTTPS."
+    # "_" é o coringa do Nginx: responde por qualquer host, inclusive o IP.
+    gerar_nginx http "_"
+    aviso "Sem domínio informado — o app responde por HTTP no IP ${IP_PUBLICO}."
+    aviso "Quando tiver domínio, aponte o DNS e rode este script de novo pra ativar HTTPS."
   fi
 fi
 
@@ -162,8 +176,18 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-if grep -q "SEU_DOMINIO_AQUI" nginx.conf; then
+echo ""
+read -rp "Criar contas de DEMONSTRAÇÃO (admin, pai e motorista, com senhas conhecidas)? (s/N): " DEMO
+if [[ "$DEMO" =~ ^[sS]$ ]]; then
+  $COMPOSE run --rm migrate npx tsx prisma/seed-demo.ts \
+    || aviso "Seed de demonstração falhou — rode depois com: sudo docker compose run --rm migrate npx tsx prisma/seed-demo.ts"
+  aviso "As senhas de demonstração estão no repositório. Apague essas contas antes de abrir ao público."
+fi
+
+# ---------------------------------------------------------------------------
+if grep -qE "SEU_DOMINIO_AQUI|server_name _;" nginx.conf; then
   aviso "Pulei a emissão de HTTPS porque nenhum domínio foi configurado."
+  aviso "Acesse por ${APP_URL}"
 else
   DOMINIO_ATUAL=$(grep -m1 -oP 'server_name \K[^;]+' nginx.conf)
 
