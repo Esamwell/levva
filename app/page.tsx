@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Check, Star } from "lucide-react";
+import { MobileNav } from "./mobile-nav";
 
 /**
  * Landing page da Levva — porta da versão estática (levva-landing.html)
@@ -19,6 +21,7 @@ export default function LandingPage() {
         <div className="hidden md:flex items-center gap-9">
           <a href="#rota" className="text-sm text-white/85 hover:text-white">Como funciona</a>
           <a href="#motoristas" className="text-sm text-white/85 hover:text-white">Para motoristas</a>
+          <Link href="/entrar" className="text-sm text-white/85 hover:text-white">Entrar</Link>
           <Link
             href="/pai"
             className="rounded-full bg-amber px-5 py-2.5 text-sm font-bold text-navy transition hover:-translate-y-0.5"
@@ -26,6 +29,7 @@ export default function LandingPage() {
             Buscar transporte
           </Link>
         </div>
+        <MobileNav />
       </nav>
 
       {/* HERO */}
@@ -104,7 +108,7 @@ export default function LandingPage() {
             "Documentação do veículo em dia",
           ].map((item) => (
             <div key={item} className="flex items-center gap-2.5 text-sm font-medium text-ink-soft">
-              <span className="text-sage">✓</span>
+              <Check className="h-4 w-4 shrink-0 text-sage" strokeWidth={2.5} />
               {item}
             </div>
           ))}
@@ -163,7 +167,7 @@ export default function LandingPage() {
                 "Escolas atendidas e faixa de preço, sem letra miúda",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-sm text-white/85">
-                  <span className="mt-0.5 text-amber">✓</span>
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-amber" strokeWidth={2.5} />
                   {item}
                 </li>
               ))}
@@ -174,13 +178,18 @@ export default function LandingPage() {
           <div className="overflow-hidden rounded-[20px] bg-white text-ink shadow-2xl">
             <div className="relative h-44 bg-gradient-to-br from-amber via-[#D97B3D] to-navy">
               <div className="absolute right-3.5 top-3.5 flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-sage">
-                ✓ Verificado
+                <Check className="h-3.5 w-3.5" strokeWidth={3} /> Verificado
               </div>
             </div>
             <div className="p-6">
               <div className="font-serif text-xl">Marcos Andrade</div>
-              <div className="mb-3.5 mt-1 text-amber text-sm">
-                ★★★★★ <span className="text-ink-soft">4.9 (38 avaliações)</span>
+              <div className="mb-3.5 mt-1 flex items-center gap-1 text-sm">
+                <span className="flex text-amber">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className="h-3.5 w-3.5 fill-amber" />
+                  ))}
+                </span>
+                <span className="text-ink-soft">4.9 (38 avaliações)</span>
               </div>
               <div className="mb-4 flex flex-wrap gap-2">
                 {["Monitor a bordo", "Ar-condicionado", "8 anos de experiência"].map((c) => (

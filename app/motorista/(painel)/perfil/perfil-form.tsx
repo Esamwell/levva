@@ -1,6 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { School } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "../../../../components/ui/card";
+import { Button } from "../../../../components/ui/button";
+import { Separator } from "../../../../components/ui/separator";
 
 type Escola = { id: string; nome: string };
 
@@ -71,99 +75,99 @@ export default function PerfilForm({
   }
 
   return (
-    <div className="mt-8 max-w-lg space-y-5 rounded-2xl border border-cream-line bg-white p-6">
-      <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-soft">
-          Anos de experiência
-        </label>
-        <input
-          type="number"
-          min={0}
-          value={anosExperiencia}
-          onChange={(e) => setAnosExperiencia(Number(e.target.value))}
-          className="w-full rounded-xl border border-cream-line px-4 py-2.5 text-sm"
-        />
-      </div>
+    <Card className="mt-8 max-w-lg border-cream-line shadow-none">
+      <CardContent className="space-y-6 p-6">
+        <section className="space-y-4">
+          <CardTitle className="text-sm uppercase tracking-wide text-ink-soft">Sobre você</CardTitle>
+          <div>
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-soft">
+              Anos de experiência
+            </label>
+            <input
+              type="number"
+              min={0}
+              value={anosExperiencia}
+              onChange={(e) => setAnosExperiencia(Number(e.target.value))}
+              className="w-full rounded-xl border border-cream-line px-4 py-2.5 text-sm outline-none focus:border-amber"
+            />
+          </div>
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={temMonitor}
+              onChange={(e) => setTemMonitor(e.target.checked)}
+              className="h-4 w-4 accent-amber"
+            />
+            <span className="text-sm text-ink-soft">Tenho monitor a bordo</span>
+          </label>
+        </section>
 
-      <label className="flex items-center gap-3">
-        <input
-          type="checkbox"
-          checked={temMonitor}
-          onChange={(e) => setTemMonitor(e.target.checked)}
-          className="h-4 w-4 accent-amber"
-        />
-        <span className="text-sm text-ink-soft">Tenho monitor a bordo</span>
-      </label>
+        <Separator className="bg-cream-line" />
 
-      <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-soft">
-          Faixa de preço (R$/mês)
-        </label>
-        <div className="flex gap-2">
-          <input
-            value={precoMin}
-            onChange={(e) => setPrecoMin(e.target.value)}
-            placeholder="Mínimo"
-            className="w-full rounded-xl border border-cream-line px-4 py-2.5 text-sm"
-          />
-          <input
-            value={precoMax}
-            onChange={(e) => setPrecoMax(e.target.value)}
-            placeholder="Máximo"
-            className="w-full rounded-xl border border-cream-line px-4 py-2.5 text-sm"
-          />
-        </div>
-      </div>
+        <section className="space-y-2">
+          <CardTitle className="text-sm uppercase tracking-wide text-ink-soft">Faixa de preço (R$/mês)</CardTitle>
+          <div className="flex gap-2">
+            <input
+              value={precoMin}
+              onChange={(e) => setPrecoMin(e.target.value)}
+              placeholder="Mínimo"
+              className="w-full rounded-xl border border-cream-line px-4 py-2.5 text-sm outline-none focus:border-amber"
+            />
+            <input
+              value={precoMax}
+              onChange={(e) => setPrecoMax(e.target.value)}
+              placeholder="Máximo"
+              className="w-full rounded-xl border border-cream-line px-4 py-2.5 text-sm outline-none focus:border-amber"
+            />
+          </div>
+        </section>
 
-      <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-soft">
-          Escolas que você atende
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {escolas.map((e) => (
-            <span key={e.id} className="flex items-center gap-1 rounded-full bg-sage-soft px-3 py-1 text-xs text-sage">
-              {e.nome}
-              <button onClick={() => removerEscola(e.id)} className="ml-1 text-sage/70">×</button>
-            </span>
-          ))}
-        </div>
-        <div className="relative mt-2">
-          <input
-            value={buscaEscola}
-            onChange={(e) => buscarEscolas(e.target.value)}
-            placeholder="Buscar escola pra adicionar"
-            className="w-full rounded-xl border border-cream-line px-4 py-2.5 text-sm"
-          />
-          {sugestoes.length > 0 && (
-            <div className="absolute z-10 mt-1 w-full rounded-xl border border-cream-line bg-white shadow-lg">
-              {sugestoes.map((e) => (
-                <button
-                  key={e.id}
-                  onClick={() => adicionarEscola(e)}
-                  className="block w-full px-4 py-2 text-left text-sm hover:bg-cream"
-                >
-                  {e.nome}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+        <Separator className="bg-cream-line" />
 
-      <p className="text-xs text-ink-soft">
-        Documentação (CNH, curso, antecedentes) é verificada pela equipe Levva
-        separadamente — não pode ser editada aqui.
-      </p>
+        <section className="space-y-2">
+          <CardTitle className="text-sm uppercase tracking-wide text-ink-soft">Escolas que você atende</CardTitle>
+          <div className="flex flex-wrap gap-2">
+            {escolas.map((e) => (
+              <span key={e.id} className="flex items-center gap-1 rounded-full bg-sage-soft px-3 py-1 text-xs text-sage">
+                <School className="h-3 w-3" /> {e.nome}
+                <button onClick={() => removerEscola(e.id)} className="ml-1 text-sage/70">×</button>
+              </span>
+            ))}
+          </div>
+          <div className="relative">
+            <input
+              value={buscaEscola}
+              onChange={(e) => buscarEscolas(e.target.value)}
+              placeholder="Buscar escola pra adicionar"
+              className="w-full rounded-xl border border-cream-line px-4 py-2.5 text-sm outline-none focus:border-amber"
+            />
+            {sugestoes.length > 0 && (
+              <div className="absolute z-10 mt-1 w-full rounded-xl border border-cream-line bg-white shadow-lg">
+                {sugestoes.map((e) => (
+                  <button
+                    key={e.id}
+                    onClick={() => adicionarEscola(e)}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-cream"
+                  >
+                    <School className="h-3.5 w-3.5 text-ink-soft" /> {e.nome}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
 
-      {mensagem && <p className="text-sm text-sage">{mensagem}</p>}
+        <p className="text-xs text-ink-soft">
+          Documentação (CNH, curso, antecedentes) é verificada pela equipe Levva
+          separadamente — não pode ser editada aqui.
+        </p>
 
-      <button
-        onClick={salvar}
-        disabled={salvando}
-        className="rounded-xl bg-navy px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
-      >
-        {salvando ? "Salvando..." : "Salvar perfil"}
-      </button>
-    </div>
+        {mensagem && <p className="text-sm text-sage">{mensagem}</p>}
+
+        <Button onClick={salvar} disabled={salvando} className="bg-navy text-white hover:bg-navy/90">
+          {salvando ? "Salvando..." : "Salvar perfil"}
+        </Button>
+      </CardContent>
+    </Card>
   );
 }

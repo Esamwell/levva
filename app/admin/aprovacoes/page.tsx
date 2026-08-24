@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
+import { ShieldCheck } from "lucide-react";
 import { db } from "../../../lib/db";
 import { exigirPapel } from "../../../lib/auth";
 import AprovacoesList from "./aprovacoes-list";
+import { EmptyState } from "../../../components/empty-state";
 
 export default async function AprovacoesPage() {
   if (!(await exigirPapel("ADMIN"))) redirect("/entrar");
@@ -14,14 +16,14 @@ export default async function AprovacoesPage() {
 
   return (
     <div>
-      <h1 className="font-serif text-3xl">Aprovações pendentes</h1>
-      <p className="mt-2 text-white/60">
+      <h1 className="font-serif text-3xl text-navy">Aprovações pendentes</h1>
+      <p className="mt-2 text-ink-soft">
         Confira CNH, curso de transporte escolar e antecedentes antes de aprovar.
       </p>
 
       {pendentes.length === 0 ? (
-        <div className="mt-8 rounded-2xl border border-dashed border-white/15 p-10 text-center text-white/50">
-          Nenhum cadastro pendente no momento.
+        <div className="mt-8">
+          <EmptyState icon={ShieldCheck} title="Nenhum cadastro pendente" description="Assim que um motorista se cadastrar, o pedido aparece aqui pra revisão." />
         </div>
       ) : (
         <AprovacoesList

@@ -11,6 +11,17 @@
  */
 
 import { useState } from "react";
+import { Star, Sparkles, MapPin, Search } from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { Badge } from "../../components/ui/badge";
+import { Avatar, AvatarFallback } from "../../components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "../../components/ui/dialog";
 
 type Resultado = {
   id: string;
@@ -23,6 +34,15 @@ type Resultado = {
   notaMedia: number | null;
   distanciaKm: number | null;
 };
+
+function iniciais(nome: string): string {
+  return nome
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join("");
+}
 
 export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
   const [endereco, setEndereco] = useState("");
@@ -69,13 +89,16 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
       </p>
 
       <form onSubmit={buscar} className="mt-8 max-w-md space-y-3 rounded-2xl border border-cream-line bg-white p-6">
-        <input
-          required
-          value={endereco}
-          onChange={(e) => setEndereco(e.target.value)}
-          placeholder="Seu endereço, em Salvador"
-          className="w-full rounded-xl border border-cream-line px-4 py-3 text-sm outline-none focus:border-amber"
-        />
+        <div className="relative">
+          <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-soft" />
+          <input
+            required
+            value={endereco}
+            onChange={(e) => setEndereco(e.target.value)}
+            placeholder="Seu endereço, em Salvador"
+            className="w-full rounded-xl border border-cream-line py-3 pl-10 pr-4 text-sm outline-none focus:border-amber"
+          />
+        </div>
         <input
           required
           value={escola}
@@ -83,12 +106,13 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
           placeholder="Nome da escola"
           className="w-full rounded-xl border border-cream-line px-4 py-3 text-sm outline-none focus:border-amber"
         />
-        <button
+        <Button
           disabled={buscando}
-          className="w-full rounded-xl bg-navy py-3 text-sm font-bold text-white disabled:opacity-50"
+          className="w-full bg-navy py-5 text-sm font-bold text-white hover:bg-navy/90 disabled:opacity-50"
         >
+          <Search className="h-4 w-4" />
           {buscando ? "Buscando..." : "Buscar transportadores"}
-        </button>
+        </Button>
         {erro && <p className="text-sm text-red-600">{erro}</p>}
       </form>
 
@@ -115,27 +139,42 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
           )}
           <div className="space-y-4">
             {resultados.map((m) => (
-              <div key={m.id} className="rounded-2xl border border-cream-line bg-white p-5">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-serif text-lg text-navy">
-                      {m.nome} {m.destaque && <span className="ml-1 text-xs font-sans font-semibold text-amber">★ destaque</span>}
-                    </p>
-                    <p className="text-xs text-ink-soft">
-                      {m.anosExperiencia} anos de experiência ·{" "}
-                      {m.temMonitor ? "Com monitor" : "Sem monitor"}
-                      {m.distanciaKm !== null && ` · ${m.distanciaKm.toFixed(1)} km da escola`}
-                    </p>
-                    {m.notaMedia && (
-                      <p className="mt-1 text-xs text-ink-soft">★ {m.notaMedia.toFixed(1)}</p>
-                    )}
+              <div key={m.id} className="flex items-start gap-4 rounded-2xl border border-cream-line bg-white p-5">
+                <Avatar className="h-11 w-11 shrink-0">
+                  <AvatarFallback className="bg-navy text-sm font-bold text-white">
+                    {iniciais(m.nome)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="flex items-center gap-1.5 font-serif text-lg text-navy">
+                        {m.nome}
+                        {m.destaque && (
+                          <Badge className="gap-1 border-transparent bg-amber-soft text-[11px] font-semibold text-navy">
+                            <Sparkles className="h-3 w-3" /> destaque
+                          </Badge>
+                        )}
+                      </p>
+                      <p className="text-xs text-ink-soft">
+                        {m.anosExperiencia} anos de experiência ·{" "}
+                        {m.temMonitor ? "Com monitor" : "Sem monitor"}
+                        {m.distanciaKm !== null && ` · ${m.distanciaKm.toFixed(1)} km da escola`}
+                      </p>
+                      {m.notaMedia && (
+                        <p className="mt-1 flex items-center gap-1 text-xs text-ink-soft">
+                          <Star className="h-3.5 w-3.5 fill-amber text-amber" /> {m.notaMedia.toFixed(1)}
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => setModalMotorista(m)}
+                      className="shrink-0 bg-navy text-xs font-bold text-white hover:bg-navy/90"
+                    >
+                      Solicitar contato
+                    </Button>
                   </div>
-                  <button
-                    onClick={() => setModalMotorista(m)}
-                    className="shrink-0 rounded-full bg-navy px-4 py-2 text-xs font-bold text-white"
-                  >
-                    Solicitar contato
-                  </button>
                 </div>
               </div>
             ))}
@@ -229,11 +268,15 @@ function ModalContato({
     "w-full rounded-lg border border-cream-line px-3 py-2 text-sm outline-none focus:border-amber";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-8 overflow-y-auto">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6">
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-sm">
         {enviado ? (
           <div className="text-center">
-            <p className="font-serif text-xl text-navy">Solicitação enviada!</p>
+            <DialogHeader>
+              <DialogTitle className="text-center font-serif text-xl font-normal text-navy">
+                Solicitação enviada!
+              </DialogTitle>
+            </DialogHeader>
             <p className="mt-2 text-sm text-ink-soft">
               {motorista.nome} vai receber seu contato em breve. Acompanhe o
               andamento pelo seu painel.
@@ -253,17 +296,19 @@ function ModalContato({
           </div>
         ) : (
           <form onSubmit={enviar} className="space-y-3">
-            <div>
-              <p className="font-serif text-lg text-navy">Contato com {motorista.nome}</p>
+            <DialogHeader>
+              <DialogTitle className="font-serif text-lg font-normal text-navy">
+                Contato com {motorista.nome}
+              </DialogTitle>
               {!jaLogado && (
-                <p className="mt-1 text-xs text-ink-soft">
+                <DialogDescription className="text-xs text-ink-soft">
                   Criamos sua conta para você acompanhar a solicitação.{" "}
                   <a href="/entrar" className="font-semibold text-sage">
                     Já tem conta? Entrar
                   </a>
-                </p>
+                </DialogDescription>
               )}
-            </div>
+            </DialogHeader>
 
             {!jaLogado && (
               <>
@@ -356,7 +401,7 @@ function ModalContato({
             </div>
           </form>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

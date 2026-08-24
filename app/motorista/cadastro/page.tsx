@@ -21,6 +21,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Check, Paperclip } from "lucide-react";
 import {
   calcularPlanoSugerido,
   calcularMensalidade,
@@ -233,7 +234,7 @@ export default function CadastroMotoristaPage() {
                     : "bg-cream-line text-ink-soft")
                 }
               >
-                {i + 1}
+                {i < step ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : i + 1}
               </span>
               <span className={i === step ? "text-navy" : ""}>{label}</span>
               {i < STEPS.length - 1 && <span className="mx-1 h-px w-6 bg-cream-line" />}
@@ -484,13 +485,16 @@ export default function CadastroMotoristaPage() {
                     key={key}
                     className="flex items-center justify-between rounded-lg border border-dashed border-cream-line px-4 py-3"
                   >
-                    <div className="min-w-0 pr-3">
-                      <span className="block truncate text-sm text-ink-soft">{label}</span>
-                      {doc && (
-                        <span className="block truncate text-xs font-semibold text-sage">
-                          ✓ {doc.nome}
-                        </span>
-                      )}
+                    <div className="flex min-w-0 items-start gap-2.5 pr-3">
+                      <Paperclip className="mt-0.5 h-4 w-4 shrink-0 text-ink-soft" strokeWidth={1.75} />
+                      <div className="min-w-0">
+                        <span className="block truncate text-sm text-ink-soft">{label}</span>
+                        {doc && (
+                          <span className="flex items-center gap-1 truncate text-xs font-semibold text-sage">
+                            <Check className="h-3 w-3" strokeWidth={3} /> {doc.nome}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <label className="shrink-0 cursor-pointer rounded-full bg-cream-line px-4 py-1.5 text-xs font-semibold text-navy">
                       {doc ? "Trocar" : "Anexar"}

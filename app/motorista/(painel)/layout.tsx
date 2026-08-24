@@ -1,20 +1,44 @@
-import LogoutButton from "../../../components/logout-button";
+import { Inbox, UserRound } from "lucide-react";
+import { redirect } from "next/navigation";
+import { getSession } from "../../../lib/auth";
+import { db } from "../../../lib/db";
+import { DashboardShell, type DashboardNavItem } from "../../../components/dashboard-shell";
+import { Badge } from "../../../components/ui/badge";
 
-export default function MotoristaLayout({ children }: { children: React.ReactNode }) {
+const PLANO_LABEL: Record<string, string> = { BASICO: "Básico", FROTA: "Frota" };
+
+export default async function MotoristaLayout({ children }: { children: React.ReactNode }) {
   // Sessão + papel já garantidos pelo middleware.ts antes de chegar aqui.
+  const session = await getSession();
+  if (!session) redirect("/entrar");
+
+  const motorista = await db.motorista.findUnique({
+    where: { userId: session.userId },
+    include: { user: true, assinatura: true },
+  });
+  if (!motorista) redirect("/entrar");
+
+  const navItems: DashboardNavItem[] = [
+    { href: "/motorista", label: "Leads", icon: Inbox },
+    { href: "/motorista/perfil", label: "Meu perfil", icon: UserRound },
+  ];
+
   return (
-    <div className="min-h-screen bg-cream">
-      <header className="border-b border-cream-line bg-navy px-6 py-4 text-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <span className="font-serif text-xl">levva<span className="text-amber">.</span> motorista</span>
-          <nav className="flex items-center gap-6 text-sm text-white/75">
-            <a href="/motorista">Leads</a>
-            <a href="/motorista/perfil">Meu perfil</a>
-            <LogoutButton />
-          </nav>
-        </div>
-      </header>
-      <main className="mx-auto max-w-5xl px-6 py-10">{children}</main>
-    </div>
+    <DashboardShell
+      brandLabel="motorista"
+      navItems={navItems}
+      userName={motorista.user.nome}
+      userSubtitle={
+        <Badge variant="outline" className="border-white/15 bg-white/5 text-[11px] font-semibold text-white/80">
+          {motorista.assinatura
+            ? `${motorista.assinatura.status === "ATIVA" ? "Ativo" : motorista.assinatura.status.toLowerCase()} · Plano ${
+                PLANO_LABEL[motorista.assinatura.plano] ?? motorista.assinatura.plano
+              }`
+            : "Sem assinatura"}
+        </Badge>
+      }
+    >
+      {children}
+    </DashboardShell>
   );
 }

@@ -1,20 +1,29 @@
+import { LayoutDashboard, ShieldCheck } from "lucide-react";
+import { db } from "../../lib/db";
+import { DashboardShell, type DashboardNavItem } from "../../components/dashboard-shell";
+
 /**
  * Sessão e papel ADMIN são garantidos pelo middleware.ts antes de chegar aqui,
  * e reconfirmados contra o banco por getSession() em cada página e rota.
+ *
+ * `dynamic = "force-dynamic"`: sem isso o Next tenta pré-renderizar este
+ * layout em build time (ele não chama cookies()/headers() diretamente, só
+ * o db pro contador de pendentes), e o build não tem DATABASE_URL — só o
+ * container em produção tem, via docker-compose.
  */
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export const dynamic = "force-dynamic";
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const pendentes = await db.motorista.count({ where: { statusAprovacao: "PENDENTE" } });
+
+  const navItems: DashboardNavItem[] = [
+    { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/admin/aprovacoes", label: "Aprovações", icon: ShieldCheck, badge: pendentes },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#0C1730]">
-      <header className="border-b border-white/10 px-6 py-4 text-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <span className="font-mono text-sm tracking-widest text-amber-soft">LEVVA · ADMIN</span>
-          <nav className="flex gap-6 text-sm text-white/70">
-            <a href="/admin">Dashboard</a>
-            <a href="/admin/aprovacoes">Aprovações</a>
-          </nav>
-        </div>
-      </header>
-      <main className="mx-auto max-w-6xl px-6 py-10 text-white">{children}</main>
-    </div>
+    <DashboardShell brandLabel="admin" navItems={navItems}>
+      {children}
+    </DashboardShell>
   );
 }

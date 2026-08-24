@@ -59,14 +59,14 @@ export default function RepassarLead({
       <button
         onClick={repassar}
         disabled={enviando}
-        className="rounded-full bg-amber-soft px-3 py-1 text-xs font-bold text-navy disabled:opacity-50"
+        className="rounded-full bg-amber px-3 py-1.5 text-xs font-bold text-navy transition hover:bg-amber/90 disabled:opacity-50"
       >
         {enviando ? "Repassando..." : "Repassar via WhatsApp"}
       </button>
       {!telefoneMotorista && (
-        <span className="text-[11px] text-white/50">Motorista sem telefone cadastrado</span>
+        <span className="text-[11px] text-ink-soft">Motorista sem telefone cadastrado</span>
       )}
-      {erro && <span className="text-[11px] text-red-300">{erro}</span>}
+      {erro && <span className="text-[11px] text-red-600">{erro}</span>}
     </div>
   );
 }

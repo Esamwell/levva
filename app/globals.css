@@ -5,3 +5,58 @@
 html {
   scroll-behavior: smooth;
 }
+
+@layer base {
+  /*
+   * Tokens semânticos do shadcn/ui, mapeados pra identidade da Levva
+   * (ver tailwind.config.ts pra cor/tipografia com nome de marca —
+   * navy/amber/cream/sage/ink continuam a fonte única de verdade; isto
+   * aqui só alimenta os componentes de components/ui com os MESMOS
+   * valores, pra eles saírem com a cara da Levva em vez do cinza padrão).
+   * Sem tema escuro — o produto não tem alternância de tema.
+   */
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 50 16% 7%;
+    --card: 0 0% 100%;
+    --card-foreground: 50 16% 7%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 50 16% 7%;
+    --primary: 220 54% 15%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 42 56% 96%;
+    --secondary-foreground: 220 54% 15%;
+    --muted: 42 29% 86%;
+    --muted-foreground: 48 9% 33%;
+    --accent: 41 87% 68%;
+    --accent-foreground: 220 54% 15%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 42 29% 86%;
+    --input: 42 29% 86%;
+    --ring: 36 79% 57%;
+    --chart-1: 36 79% 57%;
+    --chart-2: 146 16% 37%;
+    --chart-3: 220 54% 15%;
+    --chart-4: 41 87% 68%;
+    --chart-5: 111 15% 91%;
+    --radius: 0.75rem;
+    --sidebar: 220 54% 15%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 36 79% 57%;
+    --sidebar-primary-foreground: 220 54% 15%;
+    --sidebar-accent: 219 50% 21%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 219 50% 21%;
+    --sidebar-ring: 36 79% 57%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

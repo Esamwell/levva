@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Avatar, AvatarFallback } from "../../../components/ui/avatar";
+import { Button } from "../../../components/ui/button";
+import { StatusBadge } from "../../../components/status-badge";
 
 type Lead = {
   id: string;
@@ -19,13 +22,14 @@ const OPCOES = [
   { value: "NAO_FECHOU", label: "Não fechou" },
 ];
 
-const STATUS_COLOR: Record<string, string> = {
-  AGUARDANDO: "bg-cream-line text-ink-soft",
-  ENCAMINHADO: "bg-amber-soft text-navy",
-  EM_NEGOCIACAO: "bg-amber-soft text-navy",
-  FECHADO: "bg-sage-soft text-sage",
-  NAO_FECHOU: "bg-red-50 text-red-600",
-};
+function iniciais(nome: string): string {
+  return nome
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join("");
+}
 
 export default function LeadsList({ leads }: { leads: Lead[] }) {
   const router = useRouter();
@@ -49,28 +53,35 @@ export default function LeadsList({ leads }: { leads: Lead[] }) {
     <div className="space-y-3">
       {leads.map((lead) => (
         <div key={lead.id} className="rounded-2xl border border-cream-line bg-white p-5">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="font-semibold text-navy">{lead.paiNome}</p>
-              <p className="text-xs text-ink-soft">
-                {lead.filhoNome} · {lead.escolaNome}
-                {lead.paiTelefone ? ` · ${lead.paiTelefone}` : ""}
-              </p>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-9 w-9">
+                <AvatarFallback className="bg-cream text-xs font-bold text-navy">
+                  {iniciais(lead.paiNome)}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-semibold text-navy">{lead.paiNome}</p>
+                <p className="text-xs text-ink-soft">
+                  {lead.filhoNome} · {lead.escolaNome}
+                  {lead.paiTelefone ? ` · ${lead.paiTelefone}` : ""}
+                </p>
+              </div>
             </div>
-            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_COLOR[lead.status]}`}>
-              {lead.status}
-            </span>
+            <StatusBadge status={lead.status} />
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3.5 flex flex-wrap gap-2 border-t border-cream-line pt-3.5">
             {OPCOES.map((op) => (
-              <button
+              <Button
                 key={op.value}
+                size="sm"
+                variant="outline"
                 disabled={atualizando === lead.id}
                 onClick={() => atualizarStatus(lead.id, op.value)}
-                className="rounded-full border border-cream-line px-3 py-1.5 text-xs font-semibold text-ink-soft hover:border-amber hover:text-navy disabled:opacity-50"
+                className="rounded-full border-cream-line text-xs font-semibold text-ink-soft hover:border-amber hover:bg-amber-soft/20 hover:text-navy"
               >
                 {op.label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

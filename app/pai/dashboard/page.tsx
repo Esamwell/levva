@@ -5,24 +5,11 @@
  */
 
 import { redirect } from "next/navigation";
+import { Car } from "lucide-react";
 import { exigirPapel } from "../../../lib/auth";
 import { db } from "../../../lib/db";
-
-const STATUS_LABEL: Record<string, string> = {
-  AGUARDANDO: "Aguardando repasse",
-  ENCAMINHADO: "Encaminhado ao motorista",
-  EM_NEGOCIACAO: "Em negociação",
-  FECHADO: "Fechado",
-  NAO_FECHOU: "Não fechou",
-};
-
-const STATUS_COLOR: Record<string, string> = {
-  AGUARDANDO: "bg-cream-line text-ink-soft",
-  ENCAMINHADO: "bg-amber-soft text-navy",
-  EM_NEGOCIACAO: "bg-amber-soft text-navy",
-  FECHADO: "bg-sage-soft text-sage",
-  NAO_FECHOU: "bg-red-50 text-red-600",
-};
+import { StatusBadge } from "../../../components/status-badge";
+import { EmptyState } from "../../../components/empty-state";
 
 export default async function DashboardPaiPage() {
   const session = await exigirPapel("PAI");
@@ -44,9 +31,13 @@ export default async function DashboardPaiPage() {
       <p className="mt-2 text-ink-soft">Acompanhe o status dos transportadores que você contatou.</p>
 
       {leads.length === 0 ? (
-        <div className="mt-8 rounded-2xl border border-dashed border-cream-line bg-white p-10 text-center text-ink-soft">
-          Nenhuma solicitação ainda.{" "}
-          <a href="/pai" className="font-semibold text-sage">Buscar transporte →</a>
+        <div className="mt-8">
+          <EmptyState
+            icon={Car}
+            title="Nenhuma solicitação ainda"
+            description="Busque um transportador verificado pra começar."
+            action={{ label: "Buscar transporte", href: "/pai" }}
+          />
         </div>
       ) : (
         <div className="mt-8 space-y-3">
@@ -58,9 +49,7 @@ export default async function DashboardPaiPage() {
                   {lead.filho.nome} · {lead.filho.escola.nome}
                 </p>
               </div>
-              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_COLOR[lead.status]}`}>
-                {STATUS_LABEL[lead.status]}
-              </span>
+              <StatusBadge status={lead.status} />
             </div>
           ))}
         </div>

@@ -1,10 +1,23 @@
 import { redirect } from "next/navigation";
+import { Wallet, Car, Users, TrendingUp, ArrowRight } from "lucide-react";
 import { db } from "../../lib/db";
 import { exigirPapel } from "../../lib/auth";
 import RepassarLead from "./repassar-lead";
+import { StatCard } from "../../components/stat-card";
+import { EmptyState } from "../../components/empty-state";
+import { Avatar, AvatarFallback } from "../../components/ui/avatar";
 
 function formatarReais(centavos: number): string {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function iniciais(nome: string): string {
+  return nome
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join("");
 }
 
 export default async function AdminDashboardPage() {
@@ -29,10 +42,10 @@ export default async function AdminDashboardPage() {
   const taxaConversao = totalLeads > 0 ? (leadsFechados / totalLeads) * 100 : 0;
 
   const metrics = [
-    { label: "MRR atual", value: formatarReais(mrrCentavos) },
-    { label: "Transportadores ativos", value: String(transportadoresAtivos) },
-    { label: "Leads este mês", value: String(leadsEsteMes) },
-    { label: "Taxa de conversão", value: `${taxaConversao.toFixed(0)}%` },
+    { icon: Wallet, label: "MRR atual", value: formatarReais(mrrCentavos) },
+    { icon: Car, label: "Transportadores ativos", value: String(transportadoresAtivos) },
+    { icon: Users, label: "Leads este mês", value: String(leadsEsteMes) },
+    { icon: TrendingUp, label: "Taxa de conversão", value: `${taxaConversao.toFixed(0)}%` },
   ];
 
   const leadsPendentes = await db.lead.findMany({
@@ -48,33 +61,52 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
-      <h1 className="font-serif text-3xl">Dashboard</h1>
-      <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+      <h1 className="font-serif text-3xl text-navy">Dashboard</h1>
+      <p className="mt-1 text-sm text-ink-soft">Visão geral da operação da Levva.</p>
+
+      <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {metrics.map((m) => (
-          <div key={m.label} className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <div className="font-mono text-2xl">{m.value}</div>
-            <div className="mt-1 text-xs text-white/60">{m.label}</div>
-          </div>
+          <StatCard key={m.label} icon={m.icon} label={m.label} value={m.value} />
         ))}
       </div>
 
       <div className="mt-10">
-        <h2 className="font-serif text-xl">Leads aguardando repasse manual</h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="font-serif text-xl text-navy">Leads aguardando repasse manual</h2>
+          <a href="/admin/aprovacoes" className="flex items-center gap-1 text-xs font-semibold text-sage hover:underline">
+            Ver aprovações pendentes <ArrowRight className="h-3.5 w-3.5" />
+          </a>
+        </div>
+
         {leadsPendentes.length === 0 ? (
-          <p className="mt-3 text-sm text-white/50">Nenhum lead aguardando no momento.</p>
+          <EmptyState
+            icon={Users}
+            title="Nenhum lead aguardando"
+            description="Assim que uma família solicitar contato com um transportador, ele aparece aqui pra repasse."
+          />
         ) : (
-          <div className="mt-4 space-y-2">
+          <div className="space-y-2">
             {leadsPendentes.map((lead) => (
               <div
                 key={lead.id}
-                className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cream-line bg-white px-4 py-3.5"
               >
-                <span>
-                  {lead.pai.user.nome} → {lead.motorista.user.nome}{" "}
-                  <span className="text-white/50">
-                    ({lead.filho.nome}, {lead.filho.escola.nome})
-                  </span>
-                </span>
+                <div className="flex items-center gap-3 text-sm">
+                  <Avatar className="h-9 w-9 bg-sage-soft">
+                    <AvatarFallback className="bg-sage-soft text-xs font-bold text-sage">
+                      {iniciais(lead.pai.user.nome)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold text-navy">
+                      {lead.pai.user.nome} <span className="font-normal text-ink-soft">→</span>{" "}
+                      {lead.motorista.user.nome}
+                    </p>
+                    <p className="text-xs text-ink-soft">
+                      {lead.filho.nome}, {lead.filho.escola.nome}
+                    </p>
+                  </div>
+                </div>
                 <RepassarLead
                   leadId={lead.id}
                   telefoneMotorista={lead.motorista.user.telefone}
