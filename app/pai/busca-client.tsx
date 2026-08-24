@@ -15,6 +15,7 @@ import { Star, Sparkles, MapPin, Search } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import { Avatar, AvatarFallback } from "../../components/ui/avatar";
+import SpotlightCard from "../../components/SpotlightCard";
 import {
   Dialog,
   DialogContent,
@@ -139,7 +140,11 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
           )}
           <div className="space-y-4">
             {resultados.map((m) => (
-              <div key={m.id} className="flex items-start gap-4 rounded-2xl border border-cream-line bg-white p-5">
+              <SpotlightCard
+                key={m.id}
+                spotlightColor="rgba(232, 163, 61, 0.18)"
+                className="flex items-start gap-4 rounded-2xl border border-cream-line bg-white p-5"
+              >
                 <Avatar className="h-11 w-11 shrink-0">
                   <AvatarFallback className="bg-navy text-sm font-bold text-white">
                     {iniciais(m.nome)}
@@ -176,7 +181,7 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
                     </Button>
                   </div>
                 </div>
-              </div>
+              </SpotlightCard>
             ))}
           </div>
         </div>

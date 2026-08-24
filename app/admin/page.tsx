@@ -42,10 +42,28 @@ export default async function AdminDashboardPage() {
   const taxaConversao = totalLeads > 0 ? (leadsFechados / totalLeads) * 100 : 0;
 
   const metrics = [
-    { icon: Wallet, label: "MRR atual", value: formatarReais(mrrCentavos) },
-    { icon: Car, label: "Transportadores ativos", value: String(transportadoresAtivos) },
-    { icon: Users, label: "Leads este mês", value: String(leadsEsteMes) },
-    { icon: TrendingUp, label: "Taxa de conversão", value: `${taxaConversao.toFixed(0)}%` },
+    {
+      icon: Wallet,
+      label: "MRR atual",
+      value: formatarReais(mrrCentavos),
+      countTo: Math.round(mrrCentavos / 100),
+      prefix: "R$ ",
+      separator: ".",
+    },
+    {
+      icon: Car,
+      label: "Transportadores ativos",
+      value: String(transportadoresAtivos),
+      countTo: transportadoresAtivos,
+    },
+    { icon: Users, label: "Leads este mês", value: String(leadsEsteMes), countTo: leadsEsteMes },
+    {
+      icon: TrendingUp,
+      label: "Taxa de conversão",
+      value: `${taxaConversao.toFixed(0)}%`,
+      countTo: Math.round(taxaConversao),
+      suffix: "%",
+    },
   ];
 
   const leadsPendentes = await db.lead.findMany({
@@ -66,7 +84,16 @@ export default async function AdminDashboardPage() {
 
       <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {metrics.map((m) => (
-          <StatCard key={m.label} icon={m.icon} label={m.label} value={m.value} />
+          <StatCard
+            key={m.label}
+            icon={m.icon}
+            label={m.label}
+            value={m.value}
+            countTo={m.countTo}
+            prefix={m.prefix}
+            suffix={m.suffix}
+            separator={m.separator}
+          />
         ))}
       </div>
 

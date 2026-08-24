@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { Check, Star } from "lucide-react";
 import { MobileNav } from "./mobile-nav";
+import CountUp from "../components/CountUp";
+import AnimatedContent from "../components/AnimatedContent";
+import SpotlightCard from "../components/SpotlightCard";
+import Magnet from "../components/Magnet";
 
 /**
  * Landing page da Levva — porta da versão estática (levva-landing.html)
@@ -23,12 +27,14 @@ export default function LandingPage() {
           <a href="#rota" className="text-sm text-white/85 hover:text-white">Como funciona</a>
           <a href="#motoristas" className="text-sm text-white/85 hover:text-white">Para motoristas</a>
           <Link href="/entrar" className="text-sm text-white/85 hover:text-white">Entrar</Link>
-          <Link
-            href="/pai"
-            className="rounded-full bg-amber px-5 py-2.5 text-sm font-bold text-navy transition hover:-translate-y-0.5"
-          >
-            Buscar transporte
-          </Link>
+          <Magnet padding={40} magnetStrength={4}>
+            <Link
+              href="/pai"
+              className="rounded-full bg-amber px-5 py-2.5 text-sm font-bold text-navy transition hover:-translate-y-0.5"
+            >
+              Buscar transporte
+            </Link>
+          </Magnet>
         </div>
         <MobileNav />
       </nav>
@@ -51,7 +57,9 @@ export default function LandingPage() {
             </p>
             <div className="mt-11 flex gap-8">
               <div>
-                <div className="font-serif text-3xl">100%</div>
+                <div className="font-serif text-3xl">
+                  <CountUp to={100} duration={1.4} />%
+                </div>
                 <div className="text-xs text-white/60">motoristas verificados</div>
               </div>
               <div>
@@ -101,7 +109,7 @@ export default function LandingPage() {
 
       {/* TRUST STRIP */}
       <div className="border-b border-cream-line bg-white px-[6vw] py-8">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-7">
+        <AnimatedContent distance={30} duration={0.6} className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-7">
           {[
             "CNH categoria adequada, conferida",
             "Curso de transporte escolar em dia",
@@ -113,18 +121,20 @@ export default function LandingPage() {
               {item}
             </div>
           ))}
-        </div>
+        </AnimatedContent>
       </div>
 
       {/* ROTA / COMO FUNCIONA */}
       <section id="rota" className="bg-cream px-[6vw] py-28">
         <div className="mx-auto max-w-6xl">
-          <div className="mb-3.5 font-mono text-xs uppercase tracking-widest text-sage">
-            A rota até o transporte certo
-          </div>
-          <h2 className="max-w-xl font-serif text-4xl leading-tight md:text-5xl">
-            Do endereço de casa até o portão da escola, em quatro paradas.
-          </h2>
+          <AnimatedContent distance={24} duration={0.6}>
+            <div className="mb-3.5 font-mono text-xs uppercase tracking-widest text-sage">
+              A rota até o transporte certo
+            </div>
+            <h2 className="max-w-xl font-serif text-4xl leading-tight md:text-5xl">
+              Do endereço de casa até o portão da escola, em quatro paradas.
+            </h2>
+          </AnimatedContent>
 
           <div className="relative mt-16 space-y-14 border-l-2 border-dashed border-sage/70 pl-9">
             {[
@@ -132,15 +142,15 @@ export default function LandingPage() {
               ["Parada 02", "Você compara transportadores verificados", "Veja quem atende sua região e sua escola — com foto do veículo, do motorista, avaliações e faixa de preço."],
               ["Parada 03", "A Levva faz a ponte", "Solicite contato e a gente encaminha direto pro transportador escolhido — sem intermediário burocrático."],
               ["Parada 04", "Fechou, e agora é rotina", "Combine os detalhes direto com o transportador e avalie o serviço depois — pra ajudar outras famílias da sua região."],
-            ].map(([tag, title, desc]) => (
-              <div key={tag} className="relative">
+            ].map(([tag, title, desc], i) => (
+              <AnimatedContent key={tag} distance={24} duration={0.6} delay={i * 0.12} className="relative">
                 <div className="absolute -left-[47px] top-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-sage bg-cream">
                   <span className="h-1.5 w-1.5 rounded-full bg-sage" />
                 </div>
                 <div className="mb-1.5 font-mono text-[11px] uppercase tracking-wide text-sage">{tag}</div>
                 <h3 className="font-serif text-2xl">{title}</h3>
                 <p className="mt-1.5 max-w-md text-sm leading-relaxed text-ink-soft">{desc}</p>
-              </div>
+              </AnimatedContent>
             ))}
           </div>
         </div>
@@ -149,7 +159,7 @@ export default function LandingPage() {
       {/* SHOWCASE */}
       <section id="motoristas" className="bg-navy px-[6vw] py-28 text-white">
         <div className="mx-auto grid max-w-6xl items-center gap-16 lg:grid-cols-[0.95fr_1.05fr]">
-          <div>
+          <AnimatedContent distance={24} duration={0.6}>
             <div className="mb-3.5 font-mono text-xs uppercase tracking-widest text-amber-soft">
               Confiança à primeira vista
             </div>
@@ -173,10 +183,13 @@ export default function LandingPage() {
                 </li>
               ))}
             </ul>
-          </div>
+          </AnimatedContent>
 
           {/* Driver card mockup */}
-          <div className="overflow-hidden rounded-[20px] bg-white text-ink shadow-2xl">
+          <SpotlightCard
+            spotlightColor="rgba(232, 163, 61, 0.25)"
+            className="rounded-[20px] bg-white text-ink shadow-2xl"
+          >
             <div className="relative h-44 bg-gradient-to-br from-amber via-[#D97B3D] to-navy">
               <div className="absolute right-3.5 top-3.5 flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-sage">
                 <Check className="h-3.5 w-3.5" strokeWidth={3} /> Verificado
@@ -209,13 +222,13 @@ export default function LandingPage() {
                 <div className="rounded-full bg-navy px-4.5 py-2.5 text-xs font-bold text-white">Ver perfil</div>
               </div>
             </div>
-          </div>
+          </SpotlightCard>
         </div>
       </section>
 
       {/* DUAL CTA */}
       <section className="bg-white px-[6vw] py-28">
-        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2">
+        <AnimatedContent distance={24} duration={0.6} className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2">
           <div className="rounded-[20px] bg-navy p-11 text-white">
             <span className="mb-4 block font-mono text-xs uppercase tracking-wide text-amber-soft">Para famílias</span>
             <h3 className="max-w-xs font-serif text-3xl">Encontre transporte verificado, sem custo.</h3>
@@ -238,12 +251,12 @@ export default function LandingPage() {
               Cadastrar meu veículo →
             </Link>
           </div>
-        </div>
+        </AnimatedContent>
       </section>
 
       {/* FOOTER */}
       <footer id="waitlist" className="bg-navy px-[6vw] pb-10 pt-24 text-white">
-        <div className="mx-auto mb-10 max-w-xl border-b border-white/10 pb-16 text-center">
+        <AnimatedContent distance={20} duration={0.6} className="mx-auto mb-10 max-w-xl border-b border-white/10 pb-16 text-center">
           <h2 className="font-serif text-4xl">Seja um dos primeiros em Salvador.</h2>
           <p className="mt-3.5 text-white/70">
             Estamos abrindo por bairro. Deixe seu e-mail e avisamos assim que a Levva chegar na sua região.
@@ -258,7 +271,7 @@ export default function LandingPage() {
               Entrar na lista
             </button>
           </form>
-        </div>
+        </AnimatedContent>
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4">
           <div className="font-serif text-xl">levva<span className="text-amber">.</span></div>
           <div className="flex gap-6 text-sm text-white/60">

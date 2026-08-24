@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FileCheck, FileX, Car } from "lucide-react";
 import { Avatar, AvatarFallback } from "../../../components/ui/avatar";
 import { Button } from "../../../components/ui/button";
+import SpotlightCard from "../../../components/SpotlightCard";
 
 type Motorista = {
   id: string;
@@ -60,7 +61,11 @@ export default function AprovacoesList({ motoristas }: { motoristas: Motorista[]
   return (
     <div className="mt-8 grid gap-4 sm:grid-cols-2">
       {motoristas.map((m) => (
-        <div key={m.id} className="rounded-2xl border border-cream-line bg-white p-5">
+        <SpotlightCard
+          key={m.id}
+          spotlightColor="rgba(79, 109, 92, 0.16)"
+          className="rounded-2xl border border-cream-line bg-white p-5"
+        >
           <div className="flex items-start gap-3">
             <Avatar className="h-10 w-10 shrink-0">
               <AvatarFallback className="bg-navy text-xs font-bold text-white">{iniciais(m.nome)}</AvatarFallback>
@@ -124,7 +129,7 @@ export default function AprovacoesList({ motoristas }: { motoristas: Motorista[]
               Reprovar
             </Button>
           </div>
-        </div>
+        </SpotlightCard>
       ))}
     </div>
   );
