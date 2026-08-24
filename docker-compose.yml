@@ -72,7 +72,11 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Arquivo GERADO pelo instalador a partir de nginx/*.conf, e fora do
+      # controle de versão. Antes montávamos o nginx.conf versionado, que o
+      # instalador reescrevia — e aí todo "git pull" falhava reclamando de
+      # alteração local num arquivo rastreado.
+      - ./nginx.active.conf:/etc/nginx/conf.d/default.conf:ro
       - certbot_www:/var/www/certbot
       - certbot_conf:/etc/letsencrypt
     # Recarrega periodicamente pra pegar o certificado renovado sem downtime.

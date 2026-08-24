@@ -57,8 +57,9 @@ COMPOSE="sudo docker compose"
 # Antes o script alternava blocos comentados com sed dentro do próprio
 # nginx.conf — o que descomentava também as linhas marcadoras e deixava dois
 # "location /" no mesmo server, quebrando o Nginx na hora de ativar o HTTPS.
+NGINX_ATIVO="nginx.active.conf"
 gerar_nginx() { # $1 = http|https, $2 = domínio
-  sed "s/SEU_DOMINIO_AQUI/$2/g" "nginx/$1.conf" > nginx.conf
+  sed "s/SEU_DOMINIO_AQUI/$2/g" "nginx/$1.conf" > "$NGINX_ATIVO"
 }
 
 # ---------------------------------------------------------------------------
@@ -142,7 +143,7 @@ EOF
 
   if [ -n "$DOMINIO" ]; then
     gerar_nginx http "$DOMINIO"
-    log "nginx.conf gerado para o domínio ${DOMINIO} (HTTP; o HTTPS entra depois do certificado)."
+    log "Nginx configurado para ${DOMINIO} (HTTP; o HTTPS entra depois do certificado)."
   else
     # "_" é o coringa do Nginx: responde por qualquer host, inclusive o IP.
     gerar_nginx http "_"
@@ -152,6 +153,10 @@ EOF
 fi
 
 # ---------------------------------------------------------------------------
+# Sem esse arquivo, o Docker criaria um DIRETÓRIO com esse nome no lugar do
+# bind mount, e o Nginx subiria sem configuração nenhuma.
+[ -f "$NGINX_ATIVO" ] || gerar_nginx http "_"
+
 log "Subindo os containers (build pode levar alguns minutos na primeira vez)..."
 # O serviço "migrate" roda as migrações e sai; o app só sobe depois que ele
 # termina com sucesso, então não há mais 'sleep' torcendo pro banco estar pronto.
@@ -185,11 +190,11 @@ if [[ "$DEMO" =~ ^[sS]$ ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-if grep -qE "SEU_DOMINIO_AQUI|server_name _;" nginx.conf; then
+if [ ! -f "$NGINX_ATIVO" ] || grep -qE "SEU_DOMINIO_AQUI|server_name _;" "$NGINX_ATIVO"; then
   aviso "Pulei a emissão de HTTPS porque nenhum domínio foi configurado."
   aviso "Acesse por ${APP_URL}"
 else
-  DOMINIO_ATUAL=$(grep -m1 -oP 'server_name \K[^;]+' nginx.conf)
+  DOMINIO_ATUAL=$(grep -m1 -oP 'server_name \K[^;]+' "$NGINX_ATIVO")
 
   if $COMPOSE run --rm --entrypoint sh certbot -c "[ -d /etc/letsencrypt/live/${DOMINIO_ATUAL} ]" 2>/dev/null; then
     log "Certificado de ${DOMINIO_ATUAL} já existe — pulando a emissão."

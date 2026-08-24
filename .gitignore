@@ -17,6 +17,9 @@ public/uploads/
 # prisma
 prisma/*.db
 
+# config do nginx gerada pelo instalador (ver nginx/*.conf)
+nginx.active.conf
+
 # typescript (gerado pelo Next a cada build)
 next-env.d.ts
 
