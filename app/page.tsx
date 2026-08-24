@@ -13,8 +13,9 @@ import { MobileNav } from "./mobile-nav";
 export default function LandingPage() {
   return (
     <main>
-      {/* NAV */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-[6vw] py-5">
+      {/* NAV — vidro fosco fixo: translúcido + blur, pra não "quebrar" em cima
+          do conteúdo ao rolar a página (antes era transparente sem fundo). */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between border-b border-white/10 bg-navy/70 px-[6vw] py-4 shadow-[0_1px_24px_rgba(0,0,0,0.15)] backdrop-blur-xl backdrop-saturate-150">
         <div className="font-serif text-2xl text-white">
           levva<span className="text-amber">.</span>
         </div>
