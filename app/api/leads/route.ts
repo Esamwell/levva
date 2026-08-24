@@ -91,13 +91,10 @@ export async function POST(req: Request) {
     );
   }
 
+  // Se o endereço não geocodificar, seguimos assim mesmo: o lead é o momento
+  // mais valioso do funil, e o pai já escolheu com quem quer falar. Guardamos
+  // o endereço como texto e o admin resolve o resto no contato.
   const ponto = await geocodeEndereco(data.enderecoPai);
-  if (!ponto) {
-    return NextResponse.json(
-      { error: "Não conseguimos localizar esse endereço." },
-      { status: 422 }
-    );
-  }
 
   // ---- Resolve o perfil de pai: o da sessão, ou um cadastro novo ----
   let paiId: string;
@@ -145,7 +142,13 @@ export async function POST(req: Request) {
         email,
         senhaHash,
         telefone,
-        pai: { create: { endereco: novo.enderecoPai, lat: ponto.lat, lng: ponto.lng } },
+          pai: {
+          create: {
+            endereco: novo.enderecoPai,
+            lat: ponto?.lat ?? null,
+            lng: ponto?.lng ?? null,
+          },
+        },
       },
       include: { pai: { select: { id: true } } },
     });

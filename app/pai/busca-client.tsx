@@ -21,7 +21,7 @@ type Resultado = {
   precoMin: number | null;
   precoMax: number | null;
   notaMedia: number | null;
-  distanciaKm: number;
+  distanciaKm: number | null;
 };
 
 export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
@@ -30,6 +30,8 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
   const [buscando, setBuscando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [escolaEncontrada, setEscolaEncontrada] = useState<boolean | null>(null);
+  // false = geocoding não reconheceu o endereço; a lista vem sem filtro de raio.
+  const [enderecoLocalizado, setEnderecoLocalizado] = useState<boolean>(true);
   const [resultados, setResultados] = useState<Resultado[] | null>(null);
   const [escolaIdAtual, setEscolaIdAtual] = useState<string | null>(null);
 
@@ -49,6 +51,7 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Falha na busca.");
       setEscolaEncontrada(data.escolaEncontrada);
+      setEnderecoLocalizado(data.enderecoLocalizado !== false);
       setResultados(data.resultados);
       setEscolaIdAtual(data.escolaId ?? null);
     } catch (e) {
@@ -97,10 +100,17 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
               avisamos assim que tivermos transportadores por aí.
             </p>
           )}
+          {escolaEncontrada && !enderecoLocalizado && resultados.length > 0 && (
+            <div className="mb-4 rounded-xl border border-amber bg-amber-soft/25 px-4 py-3 text-sm text-navy">
+              Não conseguimos localizar seu endereço no mapa, então estes são{" "}
+              <strong>todos os transportadores que atendem essa escola</strong>, sem
+              ordenar por distância. Tente incluir o bairro para ver quem está mais perto.
+            </div>
+          )}
           {escolaEncontrada && resultados.length === 0 && (
             <p className="text-sm text-ink-soft">
-              Nenhum transportador verificado atende essa região ainda pra essa
-              escola. Tente de novo em breve.
+              Nenhum transportador verificado atende essa escola ainda.
+              Tente de novo em breve.
             </p>
           )}
           <div className="space-y-4">
@@ -113,8 +123,8 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
                     </p>
                     <p className="text-xs text-ink-soft">
                       {m.anosExperiencia} anos de experiência ·{" "}
-                      {m.temMonitor ? "Com monitor" : "Sem monitor"} ·{" "}
-                      {m.distanciaKm.toFixed(1)} km da escola
+                      {m.temMonitor ? "Com monitor" : "Sem monitor"}
+                      {m.distanciaKm !== null && ` · ${m.distanciaKm.toFixed(1)} km da escola`}
                     </p>
                     {m.notaMedia && (
                       <p className="mt-1 text-xs text-ink-soft">★ {m.notaMedia.toFixed(1)}</p>

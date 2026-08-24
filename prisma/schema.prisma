@@ -118,8 +118,11 @@ model Pai {
   user      User     @relation(fields: [userId], references: [id])
   userId    String   @unique
   endereco  String
-  lat       Float
-  lng       Float
+  // Opcionais de propósito: o geocoding depende de serviço externo gratuito
+  // que nem sempre reconhece o endereço. Perder o lead por causa disso seria
+  // pior do que guardar o endereço só como texto.
+  lat       Float?
+  lng       Float?
   createdAt DateTime @default(now())
 
   filhos Filho[]
@@ -147,6 +150,20 @@ model Escola {
 
   filhos       Filho[]
   transportadores MotoristaEscola[]
+}
+
+// Resultado de geocoding já consultado, guardado por endereço normalizado.
+// O Nominatim pede no máximo 1 consulta por segundo e bloqueia por IP —
+// e endereços se repetem MUITO dentro de um mesmo bairro. Guardamos também
+// as buscas sem resultado, pra não insistir no mesmo endereço inválido.
+model GeocodeCache {
+  id         String   @id @default(cuid())
+  consulta   String   @unique
+  lat        Float?
+  lng        Float?
+  encontrado Boolean
+  fonte      String?
+  criadoEm   DateTime @default(now())
 }
 
 // ---------- PERFIL DO MOTORISTA / TRANSPORTADOR ----------

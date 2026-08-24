@@ -36,8 +36,9 @@ const CONTAS = {
     nome: "Renata Correia",
     telefone: "5571988880001",
     endereco: "Rua Airosa Galvão, Federação, Salvador",
-    lat: -12.9989,
-    lng: -38.5063,
+    // Coordenadas reais da rua, conferidas no geocoding.
+    lat: -13.0091,
+    lng: -38.5243,
     filho: "Bruno Correia",
   },
   motorista: {
