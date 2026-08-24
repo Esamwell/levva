@@ -21,6 +21,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "motion/react";
 import { Check, Paperclip } from "lucide-react";
 import {
   calcularPlanoSugerido,
@@ -243,8 +244,16 @@ export default function CadastroMotoristaPage() {
         </ol>
 
         <div className="mt-8 rounded-card border border-cream-line bg-white p-8">
+          <AnimatePresence mode="wait" initial={false}>
           {step === 0 && (
-            <div className="space-y-5">
+            <motion.div
+              key="0"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="space-y-5"
+            >
               <div>
                 <label className="mb-1 block text-sm font-semibold text-navy">
                   Seu nome completo
@@ -329,11 +338,18 @@ export default function CadastroMotoristaPage() {
                   <option>Camaçari</option>
                 </select>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {step === 1 && (
-            <div className="space-y-6">
+            <motion.div
+              key="1"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="space-y-6"
+            >
               <div>
                 <div className="mb-2 flex items-center justify-between">
                   <label className="text-sm font-semibold text-navy">Seus veículos</label>
@@ -447,11 +463,18 @@ export default function CadastroMotoristaPage() {
                   sua região. Sem comissão por lead.
                 </p>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {step === 2 && (
-            <div className="space-y-5">
+            <motion.div
+              key="2"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="space-y-5"
+            >
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1 block text-sm font-semibold text-navy">
@@ -517,11 +540,18 @@ export default function CadastroMotoristaPage() {
                 só saem do seu aparelho quando você finalizar o cadastro, e depois
                 ficam visíveis apenas para você e para a equipe de verificação.
               </p>
-            </div>
+            </motion.div>
           )}
 
           {step === 3 && (
-            <div className="space-y-4">
+            <motion.div
+              key="3"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="space-y-4"
+            >
               <h2 className="font-serif text-xl text-navy">Confere se está tudo certo:</h2>
               <dl className="divide-y divide-cream-line text-sm">
                 <div className="flex justify-between py-2">
@@ -566,8 +596,9 @@ export default function CadastroMotoristaPage() {
                 concorda em passar pela verificação documental da Levva antes de
                 receber leads.
               </p>
-            </div>
+            </motion.div>
           )}
+          </AnimatePresence>
 
           <div className="mt-8 flex justify-between">
             <button

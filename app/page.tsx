@@ -5,6 +5,8 @@ import CountUp from "../components/CountUp";
 import AnimatedContent from "../components/AnimatedContent";
 import SpotlightCard from "../components/SpotlightCard";
 import Magnet from "../components/Magnet";
+import ShinyText from "../components/ShinyText";
+import GlassSurface from "../components/GlassSurface";
 
 /**
  * Landing page da Levva — porta da versão estática (levva-landing.html)
@@ -43,13 +45,29 @@ export default function LandingPage() {
       <header className="bg-navy px-[6vw] pb-28 pt-40 text-white">
         <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber/30 bg-amber/10 px-3.5 py-1.5 font-mono text-xs tracking-wide text-amber-soft">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber" />
-              SALVADOR &amp; LAURO DE FREITAS — CHEGANDO EM BREVE
-            </div>
+            <GlassSurface
+              width="fit-content"
+              height={34}
+              borderRadius={999}
+              className="mb-6 gap-2 px-3.5 font-mono text-xs tracking-wide text-amber-soft"
+              brightness={30}
+              opacity={0.7}
+              backgroundOpacity={0.08}
+            >
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber" />
+              <span className="whitespace-nowrap">SALVADOR &amp; LAURO DE FREITAS — CHEGANDO EM BREVE</span>
+            </GlassSurface>
             <h1 className="font-serif text-5xl leading-[1.06] md:text-6xl">
               O trajeto mais importante do dia, em{" "}
-              <em className="text-amber not-italic font-serif italic">boas mãos</em>.
+              <ShinyText
+                text="boas mãos"
+                className="font-serif italic"
+                color="#E8A33D"
+                shineColor="#FBEBD1"
+                spread={80}
+                speed={2.5}
+              />
+              .
             </h1>
             <p className="mt-6 max-w-md text-[17px] leading-relaxed text-white/75">
               A Levva conecta famílias a transportadores escolares 100% verificados —
