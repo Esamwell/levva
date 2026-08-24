@@ -5,7 +5,8 @@
  * Cria:
  *   - 1 admin
  *   - 1 pai, com filho matriculado e uma solicitação em aberto
- *   - 1 motorista APROVADO, com veículo, escolas atendidas e assinatura ativa
+ *   - 1 motorista APROVADO, atendendo todas as escolas do seed, com veículo
+ *     e assinatura ativa — assim a busca do pai sempre encontra alguém
  *   - 1 motorista PENDENTE, pra fila de aprovação do admin não ficar vazia
  *   - 1 lead ligando o pai ao motorista aprovado
  *
@@ -60,7 +61,9 @@ const CONTAS = {
 async function main() {
   // As escolas vêm do seed principal. Se ainda não rodou, criamos uma mínima
   // pra demo não quebrar — mas o certo é rodar `npm run db:seed` antes.
-  let escolas = await db.escola.findMany({ take: 3, orderBy: { nome: "asc" } });
+  // Todas as escolas, não uma amostra: assim a busca do pai encontra o
+  // motorista de demonstração seja qual for a escola pesquisada.
+  let escolas = await db.escola.findMany({ orderBy: { nome: "asc" } });
   if (escolas.length === 0) {
     console.log("  Nenhuma escola no banco — criando uma pra demo. Rode `npm run db:seed` depois.");
     escolas = [
@@ -142,7 +145,7 @@ async function main() {
     });
   }
 
-  // Atende as escolas do seed — é o que faz o motorista aparecer na busca.
+  // Atender a escola é o que faz o motorista aparecer na busca daquela escola.
   for (const escola of escolas) {
     await db.motoristaEscola.upsert({
       where: { motoristaId_escolaId: { motoristaId: motorista.id, escolaId: escola.id } },
@@ -156,7 +159,7 @@ async function main() {
     update: {},
     create: {
       motoristaId: motorista.id,
-      plano: "FROTA", // 3+ escolas atendidas, pela regra de lib/plano.ts
+      plano: "FROTA", // 3+ escolas atendidas dispara Frota (ver lib/plano.ts)
       destaque: true,
       status: "ATIVA",
       valorCentavos: 13800, // Frota (9900) + destaque (3900)
