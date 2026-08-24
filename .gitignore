@@ -1,0 +1,23 @@
+# dependências
+node_modules/
+
+# build
+.next/
+out/
+
+# ambiente — NUNCA versionar segredos (JWT_SECRET, senha do banco, token WhatsApp)
+.env
+.env.local
+.env.production
+
+# uploads locais de documentos (dados de usuário, não código)
+public/uploads/*
+!public/uploads/.gitkeep
+
+# prisma
+prisma/*.db
+
+# diversos
+.DS_Store
+*.log
+npm-debug.log*

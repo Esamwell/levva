@@ -1,0 +1,264 @@
+import Link from "next/link";
+
+/**
+ * Landing page da Levva — porta da versão estática (levva-landing.html)
+ * pro Next.js/Tailwind, usando os tokens definidos em tailwind.config.ts.
+ *
+ * Pra alterações rápidas de copy/estrutura, edite aqui. Pra alterações de
+ * identidade visual (cor, tipografia), edite tailwind.config.ts primeiro —
+ * ele é a fonte única de verdade e reflete em todo o app.
+ */
+export default function LandingPage() {
+  return (
+    <main>
+      {/* NAV */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-[6vw] py-5">
+        <div className="font-serif text-2xl text-white">
+          levva<span className="text-amber">.</span>
+        </div>
+        <div className="hidden md:flex items-center gap-9">
+          <a href="#rota" className="text-sm text-white/85 hover:text-white">Como funciona</a>
+          <a href="#motoristas" className="text-sm text-white/85 hover:text-white">Para motoristas</a>
+          <Link
+            href="/pai"
+            className="rounded-full bg-amber px-5 py-2.5 text-sm font-bold text-navy transition hover:-translate-y-0.5"
+          >
+            Buscar transporte
+          </Link>
+        </div>
+      </nav>
+
+      {/* HERO */}
+      <header className="bg-navy px-[6vw] pb-28 pt-40 text-white">
+        <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
+          <div>
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber/30 bg-amber/10 px-3.5 py-1.5 font-mono text-xs tracking-wide text-amber-soft">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber" />
+              SALVADOR &amp; LAURO DE FREITAS — CHEGANDO EM BREVE
+            </div>
+            <h1 className="font-serif text-5xl leading-[1.06] md:text-6xl">
+              O trajeto mais importante do dia, em{" "}
+              <em className="text-amber not-italic font-serif italic">boas mãos</em>.
+            </h1>
+            <p className="mt-6 max-w-md text-[17px] leading-relaxed text-white/75">
+              A Levva conecta famílias a transportadores escolares 100% verificados —
+              CNH, curso e antecedentes checados antes de qualquer criança entrar na van.
+            </p>
+            <div className="mt-11 flex gap-8">
+              <div>
+                <div className="font-serif text-3xl">100%</div>
+                <div className="text-xs text-white/60">motoristas verificados</div>
+              </div>
+              <div>
+                <div className="font-serif text-3xl">0</div>
+                <div className="text-xs text-white/60">custo pra família</div>
+              </div>
+              <div>
+                <div className="font-serif text-3xl">SSA</div>
+                <div className="text-xs text-white/60">bairro por bairro</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Search card — conecta com a busca real em /pai */}
+          <form
+            action="/pai"
+            className="rounded-[20px] bg-white p-2 shadow-2xl"
+          >
+            <div className="rounded-2xl bg-cream p-6">
+              <div className="mb-4 font-mono text-[11px] uppercase tracking-wide text-ink-soft">
+                Encontre o transporte do seu filho
+              </div>
+              <input
+                name="endereco"
+                placeholder="Seu endereço, em Salvador"
+                className="mb-2.5 w-full rounded-xl border border-cream-line bg-white px-3.5 py-3 text-sm outline-none focus:border-amber"
+              />
+              <input
+                name="escola"
+                placeholder="Nome da escola"
+                className="mb-2.5 w-full rounded-xl border border-cream-line bg-white px-3.5 py-3 text-sm outline-none focus:border-amber"
+              />
+              <button
+                type="submit"
+                className="mt-2 w-full rounded-xl bg-navy py-3.5 text-sm font-bold text-white transition hover:bg-[#0C1730]"
+              >
+                Ver transportadores da minha região →
+              </button>
+              <div className="mt-3 text-center text-xs text-ink-soft">
+                Gratuito para famílias ·{" "}
+                <strong className="text-sage">lançamento no seu bairro em breve</strong>
+              </div>
+            </div>
+          </form>
+        </div>
+      </header>
+
+      {/* TRUST STRIP */}
+      <div className="border-b border-cream-line bg-white px-[6vw] py-8">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-7">
+          {[
+            "CNH categoria adequada, conferida",
+            "Curso de transporte escolar em dia",
+            "Antecedentes verificados",
+            "Documentação do veículo em dia",
+          ].map((item) => (
+            <div key={item} className="flex items-center gap-2.5 text-sm font-medium text-ink-soft">
+              <span className="text-sage">✓</span>
+              {item}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ROTA / COMO FUNCIONA */}
+      <section id="rota" className="bg-cream px-[6vw] py-28">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-3.5 font-mono text-xs uppercase tracking-widest text-sage">
+            A rota até o transporte certo
+          </div>
+          <h2 className="max-w-xl font-serif text-4xl leading-tight md:text-5xl">
+            Do endereço de casa até o portão da escola, em quatro paradas.
+          </h2>
+
+          <div className="relative mt-16 space-y-14 border-l-2 border-dashed border-sage/70 pl-9">
+            {[
+              ["Parada 01", "Você busca", "Digite seu endereço e a escola do seu filho. Sem cadastro, sem complicação."],
+              ["Parada 02", "Você compara transportadores verificados", "Veja quem atende sua região e sua escola — com foto do veículo, do motorista, avaliações e faixa de preço."],
+              ["Parada 03", "A Levva faz a ponte", "Solicite contato e a gente encaminha direto pro transportador escolhido — sem intermediário burocrático."],
+              ["Parada 04", "Fechou, e agora é rotina", "Combine os detalhes direto com o transportador e avalie o serviço depois — pra ajudar outras famílias da sua região."],
+            ].map(([tag, title, desc]) => (
+              <div key={tag} className="relative">
+                <div className="absolute -left-[47px] top-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-sage bg-cream">
+                  <span className="h-1.5 w-1.5 rounded-full bg-sage" />
+                </div>
+                <div className="mb-1.5 font-mono text-[11px] uppercase tracking-wide text-sage">{tag}</div>
+                <h3 className="font-serif text-2xl">{title}</h3>
+                <p className="mt-1.5 max-w-md text-sm leading-relaxed text-ink-soft">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SHOWCASE */}
+      <section id="motoristas" className="bg-navy px-[6vw] py-28 text-white">
+        <div className="mx-auto grid max-w-6xl items-center gap-16 lg:grid-cols-[0.95fr_1.05fr]">
+          <div>
+            <div className="mb-3.5 font-mono text-xs uppercase tracking-widest text-amber-soft">
+              Confiança à primeira vista
+            </div>
+            <h2 className="max-w-lg font-serif text-4xl leading-tight md:text-5xl">
+              Um perfil que já responde a pergunta de todo pai: "posso confiar?"
+            </h2>
+            <p className="mt-4 max-w-md text-white/70">
+              Cada transportador aprovado na Levva mostra exatamente o que uma
+              família precisa ver antes de decidir.
+            </p>
+            <ul className="mt-8 space-y-4">
+              {[
+                "Foto real do veículo e do motorista",
+                "Selo de verificação documental",
+                "Avaliações de outras famílias da região",
+                "Escolas atendidas e faixa de preço, sem letra miúda",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm text-white/85">
+                  <span className="mt-0.5 text-amber">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Driver card mockup */}
+          <div className="overflow-hidden rounded-[20px] bg-white text-ink shadow-2xl">
+            <div className="relative h-44 bg-gradient-to-br from-amber via-[#D97B3D] to-navy">
+              <div className="absolute right-3.5 top-3.5 flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-sage">
+                ✓ Verificado
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="font-serif text-xl">Marcos Andrade</div>
+              <div className="mb-3.5 mt-1 text-amber text-sm">
+                ★★★★★ <span className="text-ink-soft">4.9 (38 avaliações)</span>
+              </div>
+              <div className="mb-4 flex flex-wrap gap-2">
+                {["Monitor a bordo", "Ar-condicionado", "8 anos de experiência"].map((c) => (
+                  <span key={c} className="rounded-full bg-sage-soft px-3 py-1 text-xs font-semibold text-sage">
+                    {c}
+                  </span>
+                ))}
+              </div>
+              <div className="mb-4 text-sm text-ink-soft">
+                <strong className="text-ink">Atende:</strong> Colégio Salesiano, Escola Sartre — Pituba, Itaigara
+              </div>
+              <div className="flex items-center justify-between border-t border-cream-line pt-4">
+                <div className="font-mono text-xs text-ink-soft">
+                  a partir de<br /><strong className="font-sans text-base text-ink">R$ 420/mês</strong>
+                </div>
+                <div className="rounded-full bg-navy px-4.5 py-2.5 text-xs font-bold text-white">Ver perfil</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* DUAL CTA */}
+      <section className="bg-white px-[6vw] py-28">
+        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2">
+          <div className="rounded-[20px] bg-navy p-11 text-white">
+            <span className="mb-4 block font-mono text-xs uppercase tracking-wide text-amber-soft">Para famílias</span>
+            <h3 className="max-w-xs font-serif text-3xl">Encontre transporte verificado, sem custo.</h3>
+            <p className="my-4 max-w-xs text-sm text-white/75">
+              Busque por endereço e escola, compare transportadores da sua
+              região e feche direto — sem taxa, sem letrinha miúda.
+            </p>
+            <Link href="/pai" className="inline-flex items-center gap-2 rounded-full bg-amber px-5.5 py-3.5 text-sm font-bold text-navy">
+              Buscar transporte →
+            </Link>
+          </div>
+          <div className="rounded-[20px] border border-cream-line bg-cream p-11">
+            <span className="mb-4 block font-mono text-xs uppercase tracking-wide text-sage">Para transportadores</span>
+            <h3 className="max-w-xs font-serif text-3xl">Seja encontrado pelas famílias certas.</h3>
+            <p className="my-4 max-w-xs text-sm text-ink-soft">
+              Crie seu perfil verificado e receba pedidos de famílias da sua
+              região. Planos a partir de R$ 49/mês, sem comissão por indicação.
+            </p>
+            <Link href="/motorista" className="inline-flex items-center gap-2 rounded-full bg-navy px-5.5 py-3.5 text-sm font-bold text-white">
+              Cadastrar meu veículo →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer id="waitlist" className="bg-navy px-[6vw] pb-10 pt-24 text-white">
+        <div className="mx-auto mb-10 max-w-xl border-b border-white/10 pb-16 text-center">
+          <h2 className="font-serif text-4xl">Seja um dos primeiros em Salvador.</h2>
+          <p className="mt-3.5 text-white/70">
+            Estamos abrindo por bairro. Deixe seu e-mail e avisamos assim que a Levva chegar na sua região.
+          </p>
+          <form className="mx-auto mt-7 flex max-w-md gap-2.5">
+            <input
+              type="email"
+              placeholder="seu@email.com"
+              className="flex-1 rounded-full border border-white/15 bg-white/[0.07] px-4.5 py-3.5 text-sm text-white outline-none placeholder:text-white/40"
+            />
+            <button className="whitespace-nowrap rounded-full bg-amber px-6 py-3.5 text-sm font-bold text-navy">
+              Entrar na lista
+            </button>
+          </form>
+        </div>
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4">
+          <div className="font-serif text-xl">levva<span className="text-amber">.</span></div>
+          <div className="flex gap-6 text-sm text-white/60">
+            <a href="#rota">Como funciona</a>
+            <a href="#motoristas">Para motoristas</a>
+            <a href="#">Instagram</a>
+          </div>
+          <div className="text-xs text-white/40">© 2026 Levva — Salvador, BA</div>
+        </div>
+      </footer>
+    </main>
+  );
+}

@@ -1,0 +1,203 @@
+// Schema da Levva
+// Reflete a estrutura definida no plano de negócio:
+// 3 perfis (pai / motorista / admin), planos (Básico / Frota / Destaque),
+// leads com repasse manual, e verificação documental como pré-requisito.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PAI
+  MOTORISTA
+  ADMIN
+}
+
+enum PlanoTipo {
+  BASICO
+  FROTA
+}
+
+enum StatusAssinatura {
+  ATIVA
+  PENDENTE
+  VENCIDA
+  CANCELADA
+}
+
+enum StatusAprovacao {
+  PENDENTE
+  APROVADO
+  REPROVADO
+}
+
+enum StatusLead {
+  AGUARDANDO
+  ENCAMINHADO
+  EM_NEGOCIACAO
+  FECHADO
+  NAO_FECHOU
+}
+
+model User {
+  id        String   @id @default(cuid())
+  role      Role
+  nome      String
+  telefone  String   @unique
+  email     String?  @unique
+  createdAt DateTime @default(now())
+
+  // Relação 1:1 com o perfil específico do papel
+  pai       Pai?
+  motorista Motorista?
+  admin     Admin?
+}
+
+model Admin {
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+}
+
+// Código de acesso (OTP) enviado por WhatsApp. Sem senha no produto.
+model CodigoOtp {
+  id        String   @id @default(cuid())
+  telefone  String
+  codigoHash String
+  usado     Boolean  @default(false)
+  expiraEm  DateTime
+  createdAt DateTime @default(now())
+
+  @@index([telefone])
+}
+
+// ---------- PERFIL DO PAI ----------
+model Pai {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  endereco  String
+  lat       Float
+  lng       Float
+  createdAt DateTime @default(now())
+
+  filhos Filho[]
+  leads  Lead[]
+}
+
+model Filho {
+  id       String @id @default(cuid())
+  pai      Pai    @relation(fields: [paiId], references: [id])
+  paiId    String
+  nome     String
+  escola   Escola @relation(fields: [escolaId], references: [id])
+  escolaId String
+
+  leads Lead[]
+}
+
+model Escola {
+  id       String  @id @default(cuid())
+  nome     String
+  bairro   String
+  cidade   String  @default("Salvador")
+  lat      Float
+  lng      Float
+
+  filhos       Filho[]
+  transportadores MotoristaEscola[]
+}
+
+// ---------- PERFIL DO MOTORISTA / TRANSPORTADOR ----------
+model Motorista {
+  id                 String            @id @default(cuid())
+  user               User              @relation(fields: [userId], references: [id])
+  userId             String            @unique
+  fotoRosto          String?
+  cnhNumero          String
+  cnhCategoria       String
+  cnhDocUrl          String?
+  cursoDocUrl        String?
+  antecedentesDocUrl String?
+  cursoTransporte    Boolean           @default(false)
+  antecedentesOk     Boolean           @default(false)
+  statusAprovacao    StatusAprovacao   @default(PENDENTE)
+  anosExperiencia    Int               @default(0)
+  temMonitor         Boolean           @default(false)
+  precoMin           Int? // em centavos
+  precoMax           Int? // em centavos
+  destaqueAtivo      Boolean           @default(false)
+  createdAt          DateTime          @default(now())
+
+  veiculos    Veiculo[]
+  escolas     MotoristaEscola[]
+  leads       Lead[]
+  avaliacoes  Avaliacao[]
+  assinatura  Assinatura?
+
+  // Regra de enquadramento no plano Frota (ver /lib/plano.ts):
+  // múltiplos veículos OU 3+ escolas atendidas -> Frota
+  // 1 veículo E até 2 escolas -> Básico
+}
+
+model Veiculo {
+  id          String    @id @default(cuid())
+  motorista   Motorista @relation(fields: [motoristaId], references: [id])
+  motoristaId String
+  placa       String
+  modelo      String
+  capacidade  Int
+  fotoUrl     String?
+}
+
+model MotoristaEscola {
+  id          String    @id @default(cuid())
+  motorista   Motorista @relation(fields: [motoristaId], references: [id])
+  motoristaId String
+  escola      Escola    @relation(fields: [escolaId], references: [id])
+  escolaId    String
+
+  @@unique([motoristaId, escolaId])
+}
+
+model Assinatura {
+  id          String            @id @default(cuid())
+  motorista   Motorista         @relation(fields: [motoristaId], references: [id])
+  motoristaId String            @unique
+  plano       PlanoTipo
+  destaque    Boolean           @default(false)
+  status      StatusAssinatura  @default(PENDENTE)
+  valorCentavos Int
+  proximaCobranca DateTime?
+  createdAt   DateTime          @default(now())
+}
+
+// ---------- LEAD (o coração do repasse manual) ----------
+model Lead {
+  id          String     @id @default(cuid())
+  pai         Pai        @relation(fields: [paiId], references: [id])
+  paiId       String
+  filho       Filho      @relation(fields: [filhoId], references: [id])
+  filhoId     String
+  motorista   Motorista  @relation(fields: [motoristaId], references: [id])
+  motoristaId String
+  status      StatusLead @default(AGUARDANDO)
+  motivoNaoFechou String?
+  createdAt   DateTime   @default(now())
+  encaminhadoEm DateTime?
+}
+
+model Avaliacao {
+  id          String    @id @default(cuid())
+  motorista   Motorista @relation(fields: [motoristaId], references: [id])
+  motoristaId String
+  nota        Int // 1-5
+  comentario  String?
+  moderado    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+}
