@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Check, Wallet, UserCheck, Inbox, Sparkles, LifeBuoy, Users } from "lucide-react";
+import { ArrowLeft, Check, Wallet, UserCheck, Inbox, Sparkles, LifeBuoy, Users, MapPin, CreditCard } from "lucide-react";
 import { Logo } from "../../components/logo";
 import AnimatedContent from "../../components/AnimatedContent";
 import { TAXA_MOVA_PERCENTUAL, DESTAQUE_PRECO_CENTAVOS } from "../../lib/financeiro";
@@ -16,13 +16,13 @@ const BENEFICIOS = [
   },
   {
     icon: Inbox,
-    titulo: "Leads organizados",
-    texto: "Famílias interessadas chegam direto no seu painel, com escola, endereço e status de cada conversa — sem depender só do WhatsApp.",
+    titulo: "Novas famílias, organizadas",
+    texto: "Pedidos de orçamento chegam direto no seu painel, com escola, endereço e status de cada conversa — sem depender só do WhatsApp.",
   },
   {
     icon: Wallet,
     titulo: "Controle financeiro",
-    texto: "Cada contrato fechado com valor, taxa e próximo vencimento, num painel só — em vez de caderno ou planilha solta.",
+    texto: "Chega de caderno ou anotação perdida. Veja quem já pagou, quem vai vencer e a receita da sua van, tudo num painel só.",
   },
   {
     icon: Users,
@@ -38,6 +38,18 @@ const BENEFICIOS = [
     icon: Sparkles,
     titulo: "Destaque opcional",
     texto: `Por ${formatarReais(DESTAQUE_PRECO_CENTAVOS)}/mês, apareça no topo da busca com um selo — só quem quiser.`,
+  },
+  {
+    icon: MapPin,
+    titulo: "Rastreamento ao vivo",
+    texto: "Os pais acompanham a van no horário da rota, com total transparência — sem invadir seu tempo livre fora do trajeto.",
+    emBreve: true,
+  },
+  {
+    icon: CreditCard,
+    titulo: "Cobrança automática",
+    texto: "Receba no cartão ou Pix sem precisar cobrar atrasado no WhatsApp — a plataforma cuida da régua pra você.",
+    emBreve: true,
   },
 ];
 
@@ -58,7 +70,7 @@ const FAQ = [
   {
     pergunta: "O que ainda está por vir?",
     resposta:
-      "Cobrança automática dos responsáveis e rastreamento em tempo real estão no radar, mas ainda não estão no ar — quando estiverem, avisamos por aqui.",
+      "Rastreamento ao vivo e cobrança automática (veja acima) ainda não estão no ar — avisamos por aqui assim que estiverem.",
   },
 ];
 
@@ -97,11 +109,15 @@ export default function ParaMotoristasPage() {
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             {[
               { n: "1", t: "Cadastro grátis", d: "Envie seus documentos e seu perfil entra na fila de verificação. Sem custo nenhum." },
-              { n: "2", t: "Você recebe leads", d: "Famílias da sua região encontram seu perfil e pedem contato direto pelo painel." },
+              {
+                n: "2",
+                t: "Você recebe pedidos de orçamento",
+                d: "Famílias da sua região encontram seu perfil e pedem contato direto pelo painel.",
+              },
               {
                 n: "3",
                 t: `Só ${TAXA_MOVA_PERCENTUAL}% quando fecha`,
-                d: "Ao fechar, você informa o valor combinado e escolhe se absorve a taxa ou repassa pro responsável.",
+                d: "Ao fechar, você cadastra o aluno e o valor combinado no painel — a taxa só é gerada nesse momento, e você escolhe se absorve ou repassa pro responsável.",
               },
             ].map((s) => (
               <div key={s.n} className="rounded-2xl border border-cream-line bg-white p-5">
@@ -115,14 +131,28 @@ export default function ParaMotoristasPage() {
 
         <AnimatedContent distance={20} duration={0.6} className="mt-16">
           <h2 className="font-serif text-2xl text-navy">O que você tem, sem custo nenhum extra</h2>
+          <p className="mt-1 text-sm text-ink-soft">Incluindo o que já está no ar e o que está a caminho.</p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {BENEFICIOS.map((b) => (
-              <div key={b.titulo} className="flex gap-3.5 rounded-2xl border border-cream-line bg-white p-5">
+              <div
+                key={b.titulo}
+                className={
+                  "flex gap-3.5 rounded-2xl border bg-white p-5" +
+                  (b.emBreve ? " border-dashed border-amber" : " border-cream-line")
+                }
+              >
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-soft/40 text-navy">
                   <b.icon className="h-4 w-4" strokeWidth={1.75} />
                 </div>
                 <div>
-                  <p className="font-semibold text-navy">{b.titulo}</p>
+                  <p className="flex items-center gap-2 font-semibold text-navy">
+                    {b.titulo}
+                    {b.emBreve && (
+                      <span className="rounded-full bg-amber px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-navy">
+                        Em breve
+                      </span>
+                    )}
+                  </p>
                   <p className="mt-0.5 text-sm text-ink-soft">{b.texto}</p>
                 </div>
               </div>
@@ -146,9 +176,10 @@ export default function ParaMotoristasPage() {
         </AnimatedContent>
 
         <AnimatedContent distance={20} duration={0.6} className="mt-16 rounded-[20px] bg-navy p-10 text-center text-white">
-          <h2 className="font-serif text-3xl">Pronto pra começar?</h2>
+          <h2 className="font-serif text-3xl">Pronto pra lotar os bancos da sua van?</h2>
           <p className="mx-auto mt-2 max-w-md text-white/70">
-            Leva uns 5 minutos. Nossa equipe confere seus documentos e libera seu perfil pras famílias da sua região.
+            O cadastro leva menos de 5 minutos. Nossa equipe analisa seus documentos e libera seu perfil pras
+            famílias da sua região.
           </p>
           <Link
             href="/motorista/cadastro"
