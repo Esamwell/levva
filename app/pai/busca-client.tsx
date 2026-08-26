@@ -155,7 +155,7 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
   return (
     <div>
       <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
-        <div>
+        <div className="lg:sticky lg:top-6 lg:self-start">
           <h1 className="font-serif text-3xl text-navy">Encontre o transporte do seu filho</h1>
           <p className="mt-2 text-ink-soft">
             Digite seu endereço e a escola, sem custo, sem cadastro obrigatório.
@@ -183,120 +183,127 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
             </Button>
             {erro && <p className="text-sm text-red-600">{erro}</p>}
           </form>
+
+          <div className="mt-4 flex max-w-md items-start gap-2.5 rounded-2xl border border-sage-soft bg-sage-soft/25 px-4 py-3.5 text-xs text-sage">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>
+              <strong>Todos os motoristas aqui são 100% verificados.</strong> CNH, curso de
+              transporte escolar e antecedentes criminais são checados antes de qualquer um
+              aparecer na busca.
+            </p>
+          </div>
         </div>
 
-        {resultados === null && (
-          <div className="rounded-2xl border border-cream-line bg-white p-6 lg:mt-[4.75rem]">
-            <p className="font-mono text-xs uppercase tracking-wide text-sage">O que você vai ver</p>
-            <ul className="mt-4 space-y-3.5">
-              {[
-                "Foto real do veículo e do motorista",
-                "Selo de verificação documental",
-                "Avaliações de outras famílias da região",
-                "Escolas atendidas e faixa de preço, sem letra miúda",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-sm text-ink-soft">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-sage" strokeWidth={2.5} />
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <div className="mt-6 flex items-center gap-2 border-t border-cream-line pt-4 text-xs text-ink-soft">
-              <ShieldCheck className="h-4 w-4 shrink-0 text-sage" />
-              CNH, curso de transporte escolar e antecedentes checados antes de qualquer motorista aparecer aqui.
+        <div className="lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto lg:pr-1">
+          {resultados === null && (
+            <div className="rounded-2xl border border-cream-line bg-white p-6">
+              <p className="font-mono text-xs uppercase tracking-wide text-sage">O que você vai ver</p>
+              <ul className="mt-4 space-y-3.5">
+                {[
+                  "Foto real do veículo e do motorista",
+                  "Selo de verificação documental",
+                  "Avaliações de outras famílias da região",
+                  "Escolas atendidas e faixa de preço, sem letra miúda",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-ink-soft">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-sage" strokeWidth={2.5} />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
-        )}
-      </div>
+          )}
 
-      {resultados !== null && (
-        <div className="mt-10 max-w-2xl">
-          {escolaEncontrada === false && (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-cream-line bg-white px-6 py-10 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cream text-ink-soft">
-                <School className="h-5 w-5" strokeWidth={1.75} />
-              </div>
-              <div>
-                <p className="font-serif text-lg text-navy">Essa escola ainda não está no nosso cadastro</p>
-                <p className="mt-1 max-w-sm text-sm text-ink-soft">
-                  Confere se digitou certinho ou tenta outro nome. Se não encontrar mesmo assim,
-                  fala com a gente pelo Suporte que a gente dá um jeito.
-                </p>
-              </div>
-            </div>
-          )}
-          {escolaEncontrada && !enderecoLocalizado && resultados.length > 0 && (
-            <div className="mb-4 rounded-xl border border-amber bg-amber-soft/25 px-4 py-3 text-sm text-navy">
-              Não conseguimos localizar seu endereço no mapa, então estes são{" "}
-              <strong>todos os transportadores que atendem essa escola</strong>, sem
-              ordenar por distância. Tente incluir o bairro para ver quem está mais perto.
-            </div>
-          )}
-          {escolaEncontrada && resultados.length === 0 && (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-cream-line bg-white px-6 py-10 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cream text-ink-soft">
-                <SearchX className="h-5 w-5" strokeWidth={1.75} />
-              </div>
-              <div>
-                <p className="font-serif text-lg text-navy">
-                  Nenhum transportador verificado atende{" "}
-                  <span className="font-semibold">{escolaNome}</span> ainda
-                </p>
-                <p className="mt-1 max-w-sm text-sm text-ink-soft">
-                  Novos motoristas entram toda semana — tenta de novo em alguns dias, ou fala
-                  com o Suporte que a gente ajuda a achar uma opção.
-                </p>
-              </div>
-            </div>
-          )}
-          <div className="space-y-4">
-            {resultados.map((m) => (
-              <SpotlightCard
-                key={m.id}
-                spotlightColor="rgba(254, 219, 26, 0.25)"
-                className="flex items-start gap-4 rounded-2xl border border-cream-line bg-white p-5"
-              >
-                <Avatar className="h-11 w-11 shrink-0">
-                  <AvatarFallback className="bg-navy text-sm font-bold text-white">
-                    {iniciais(m.nome)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="flex items-center gap-1.5 font-serif text-lg text-navy">
-                        {m.nome}
-                        {m.destaque && (
-                          <Badge className="gap-1 border-transparent bg-amber-soft text-[11px] font-semibold text-navy">
-                            <Sparkles className="h-3 w-3" /> destaque
-                          </Badge>
-                        )}
-                      </p>
-                      <p className="text-xs text-ink-soft">
-                        {m.anosExperiencia} anos de experiência ·{" "}
-                        {m.temMonitor ? "Com monitor" : "Sem monitor"}
-                        {m.distanciaKm !== null && ` · ${m.distanciaKm.toFixed(1)} km da escola`}
-                      </p>
-                      {m.notaMedia && (
-                        <p className="mt-1 flex items-center gap-1 text-xs text-ink-soft">
-                          <Star className="h-3.5 w-3.5 fill-amber text-amber" /> {m.notaMedia.toFixed(1)}
-                        </p>
-                      )}
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() => setModalMotorista(m)}
-                      className="shrink-0 bg-navy text-xs font-bold text-white hover:bg-navy/90"
-                    >
-                      Solicitar contato
-                    </Button>
+          {resultados !== null && (
+            <div>
+              {escolaEncontrada === false && (
+                <div className="flex flex-col items-center gap-3 rounded-2xl border border-cream-line bg-white px-6 py-10 text-center">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cream text-ink-soft">
+                    <School className="h-5 w-5" strokeWidth={1.75} />
+                  </div>
+                  <div>
+                    <p className="font-serif text-lg text-navy">Essa escola ainda não está no nosso cadastro</p>
+                    <p className="mt-1 max-w-sm text-sm text-ink-soft">
+                      Confere se digitou certinho ou tenta outro nome. Se não encontrar mesmo assim,
+                      fala com a gente pelo Suporte que a gente dá um jeito.
+                    </p>
                   </div>
                 </div>
-              </SpotlightCard>
-            ))}
-          </div>
+              )}
+              {escolaEncontrada && !enderecoLocalizado && resultados.length > 0 && (
+                <div className="mb-4 rounded-xl border border-amber bg-amber-soft/25 px-4 py-3 text-sm text-navy">
+                  Não conseguimos localizar seu endereço no mapa, então estes são{" "}
+                  <strong>todos os transportadores que atendem essa escola</strong>, sem
+                  ordenar por distância. Tente incluir o bairro para ver quem está mais perto.
+                </div>
+              )}
+              {escolaEncontrada && resultados.length === 0 && (
+                <div className="flex flex-col items-center gap-3 rounded-2xl border border-cream-line bg-white px-6 py-10 text-center">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cream text-ink-soft">
+                    <SearchX className="h-5 w-5" strokeWidth={1.75} />
+                  </div>
+                  <div>
+                    <p className="font-serif text-lg text-navy">
+                      Nenhum transportador verificado atende{" "}
+                      <span className="font-semibold">{escolaNome}</span> ainda
+                    </p>
+                    <p className="mt-1 max-w-sm text-sm text-ink-soft">
+                      Novos motoristas entram toda semana — tenta de novo em alguns dias, ou fala
+                      com o Suporte que a gente ajuda a achar uma opção.
+                    </p>
+                  </div>
+                </div>
+              )}
+              <div className="space-y-4">
+                {resultados.map((m) => (
+                  <SpotlightCard
+                    key={m.id}
+                    spotlightColor="rgba(254, 219, 26, 0.25)"
+                    className="flex items-start gap-4 rounded-2xl border border-cream-line bg-white p-5"
+                  >
+                    <Avatar className="h-11 w-11 shrink-0">
+                      <AvatarFallback className="bg-navy text-sm font-bold text-white">
+                        {iniciais(m.nome)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="flex items-center gap-1.5 font-serif text-lg text-navy">
+                            {m.nome}
+                            {m.destaque && (
+                              <Badge className="gap-1 border-transparent bg-amber-soft text-[11px] font-semibold text-navy">
+                                <Sparkles className="h-3 w-3" /> destaque
+                              </Badge>
+                            )}
+                          </p>
+                          <p className="text-xs text-ink-soft">
+                            {m.anosExperiencia} anos de experiência ·{" "}
+                            {m.temMonitor ? "Com monitor" : "Sem monitor"}
+                            {m.distanciaKm !== null && ` · ${m.distanciaKm.toFixed(1)} km da escola`}
+                          </p>
+                          {m.notaMedia && (
+                            <p className="mt-1 flex items-center gap-1 text-xs text-ink-soft">
+                              <Star className="h-3.5 w-3.5 fill-amber text-amber" /> {m.notaMedia.toFixed(1)}
+                            </p>
+                          )}
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => setModalMotorista(m)}
+                          className="shrink-0 bg-navy text-xs font-bold text-white hover:bg-navy/90"
+                        >
+                          Solicitar contato
+                        </Button>
+                      </div>
+                    </div>
+                  </SpotlightCard>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {modalMotorista && escolaIdAtual && (
         <ModalContato
