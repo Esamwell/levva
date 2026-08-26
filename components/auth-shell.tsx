@@ -15,22 +15,22 @@ const BULLETS = [
 export function AuthShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-cream md:flex">
-      <aside className="hidden flex-col justify-between bg-navy px-12 py-14 text-white md:flex md:w-[42%]">
-        <Logo on="dark" size="lg" />
+      <aside className="hidden flex-col justify-between bg-amber px-12 py-14 text-navy md:flex md:w-[42%]">
+        <Logo on="light" size="lg" />
         <div>
           <h2 className="max-w-xs font-serif text-3xl leading-tight">
             O trajeto mais importante do dia, em boas mãos.
           </h2>
           <ul className="mt-8 space-y-3.5">
             {BULLETS.map((b) => (
-              <li key={b} className="flex items-start gap-2.5 text-sm text-white/75">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-amber" strokeWidth={2.5} />
+              <li key={b} className="flex items-start gap-2.5 text-sm text-navy/75">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-navy" strokeWidth={2.5} />
                 {b}
               </li>
             ))}
           </ul>
         </div>
-        <p className="font-mono text-xs text-white/40">#vaidemova · Salvador &amp; Lauro de Freitas</p>
+        <p className="font-mono text-xs text-navy/50">#vaidemova · Salvador &amp; Lauro de Freitas</p>
       </aside>
 
       <div className="flex flex-1 items-center justify-center px-6 py-12">

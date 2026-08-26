@@ -22,16 +22,16 @@ export default function LandingPage() {
     <main>
       {/* NAV — vidro fosco fixo: translúcido + blur, pra não "quebrar" em cima
           do conteúdo ao rolar a página (antes era transparente sem fundo). */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between border-b border-white/10 bg-navy/70 px-[6vw] py-4 shadow-[0_1px_24px_rgba(0,0,0,0.15)] backdrop-blur-xl backdrop-saturate-150">
-        <Logo on="dark" size="md" />
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between border-b border-black/10 bg-amber/85 px-[6vw] py-4 shadow-[0_1px_24px_rgba(0,0,0,0.08)] backdrop-blur-xl backdrop-saturate-150">
+        <Logo on="light" size="md" />
         <div className="hidden md:flex items-center gap-9">
-          <a href="#rota" className="text-sm text-white/85 hover:text-white">Como funciona</a>
-          <a href="#motoristas" className="text-sm text-white/85 hover:text-white">Para motoristas</a>
-          <Link href="/entrar" className="text-sm text-white/85 hover:text-white">Entrar</Link>
+          <a href="#rota" className="text-sm text-navy/80 hover:text-navy">Como funciona</a>
+          <a href="#motoristas" className="text-sm text-navy/80 hover:text-navy">Para motoristas</a>
+          <Link href="/entrar" className="text-sm text-navy/80 hover:text-navy">Entrar</Link>
           <Magnet padding={40} magnetStrength={4}>
             <Link
               href="/pai"
-              className="rounded-full bg-amber px-5 py-2.5 text-sm font-bold text-navy transition hover:-translate-y-0.5"
+              className="rounded-full bg-navy px-5 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5"
             >
               Buscar transporte
             </Link>
@@ -41,19 +41,19 @@ export default function LandingPage() {
       </nav>
 
       {/* HERO */}
-      <header className="bg-navy px-[6vw] pb-28 pt-40 text-white">
+      <header className="bg-amber px-[6vw] pb-28 pt-40 text-navy">
         <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
             <GlassSurface
               width="fit-content"
               height={34}
               borderRadius={999}
-              className="mb-6 gap-2 px-3.5 font-mono text-xs tracking-wide text-amber-soft"
-              brightness={30}
-              opacity={0.7}
-              backgroundOpacity={0.08}
+              className="mb-6 gap-2 px-3.5 font-mono text-xs tracking-wide text-navy"
+              brightness={95}
+              opacity={0.5}
+              backgroundOpacity={0.16}
             >
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber" />
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-navy" />
               <span className="whitespace-nowrap">SALVADOR &amp; LAURO DE FREITAS — CHEGANDO EM BREVE</span>
             </GlassSurface>
             <h1 className="font-serif text-5xl leading-[1.06] md:text-6xl">
@@ -61,14 +61,14 @@ export default function LandingPage() {
               <ShinyText
                 text="boas mãos"
                 className="font-serif italic"
-                color="#FEDB1A"
-                shineColor="#FBEBD1"
+                color="#111111"
+                shineColor="#FFFFFF"
                 spread={80}
                 speed={2.5}
               />
               .
             </h1>
-            <p className="mt-6 max-w-md text-[17px] leading-relaxed text-white/75">
+            <p className="mt-6 max-w-md text-[17px] leading-relaxed text-navy/75">
               A Mova conecta famílias a transportadores escolares 100% verificados —
               CNH, curso e antecedentes checados antes de qualquer criança entrar na van.
             </p>
@@ -77,15 +77,15 @@ export default function LandingPage() {
                 <div className="font-serif text-3xl">
                   <CountUp to={100} duration={1.4} />%
                 </div>
-                <div className="text-xs text-white/60">motoristas verificados</div>
+                <div className="text-xs text-navy/60">motoristas verificados</div>
               </div>
               <div>
                 <div className="font-serif text-3xl">0</div>
-                <div className="text-xs text-white/60">custo pra família</div>
+                <div className="text-xs text-navy/60">custo pra família</div>
               </div>
               <div>
                 <div className="font-serif text-3xl">SSA</div>
-                <div className="text-xs text-white/60">bairro por bairro</div>
+                <div className="text-xs text-navy/60">bairro por bairro</div>
               </div>
             </div>
           </div>
@@ -174,16 +174,16 @@ export default function LandingPage() {
       </section>
 
       {/* SHOWCASE */}
-      <section id="motoristas" className="bg-navy px-[6vw] py-28 text-white">
+      <section id="motoristas" className="bg-amber px-[6vw] py-28 text-navy">
         <div className="mx-auto grid max-w-6xl items-center gap-16 lg:grid-cols-[0.95fr_1.05fr]">
           <AnimatedContent distance={24} duration={0.6}>
-            <div className="mb-3.5 font-mono text-xs uppercase tracking-widest text-amber-soft">
+            <div className="mb-3.5 font-mono text-xs uppercase tracking-widest text-navy/70">
               Confiança à primeira vista
             </div>
             <h2 className="max-w-lg font-serif text-4xl leading-tight md:text-5xl">
               Um perfil que já responde a pergunta de todo pai: "posso confiar?"
             </h2>
-            <p className="mt-4 max-w-md text-white/70">
+            <p className="mt-4 max-w-md text-navy/70">
               Cada transportador aprovado na Mova mostra exatamente o que uma
               família precisa ver antes de decidir.
             </p>
@@ -194,8 +194,8 @@ export default function LandingPage() {
                 "Avaliações de outras famílias da região",
                 "Escolas atendidas e faixa de preço, sem letra miúda",
               ].map((item) => (
-                <li key={item} className="flex items-start gap-3 text-sm text-white/85">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-amber" strokeWidth={2.5} />
+                <li key={item} className="flex items-start gap-3 text-sm text-navy/85">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-navy" strokeWidth={2.5} />
                   {item}
                 </li>
               ))}
@@ -204,10 +204,10 @@ export default function LandingPage() {
 
           {/* Driver card mockup */}
           <SpotlightCard
-            spotlightColor="rgba(232, 163, 61, 0.25)"
+            spotlightColor="rgba(17, 17, 17, 0.12)"
             className="rounded-[20px] bg-white text-ink shadow-2xl"
           >
-            <div className="relative h-44 bg-gradient-to-br from-amber to-navy">
+            <div className="relative h-44 bg-gradient-to-br from-navy to-amber">
               <div className="absolute right-3.5 top-3.5 flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-sage">
                 <Check className="h-3.5 w-3.5" strokeWidth={3} /> Verificado
               </div>
@@ -246,25 +246,25 @@ export default function LandingPage() {
       {/* DUAL CTA */}
       <section className="bg-white px-[6vw] py-28">
         <AnimatedContent distance={24} duration={0.6} className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2">
-          <div className="rounded-[20px] bg-navy p-11 text-white">
-            <span className="mb-4 block font-mono text-xs uppercase tracking-wide text-amber-soft">Para famílias</span>
+          <div className="rounded-[20px] bg-amber p-11 text-navy">
+            <span className="mb-4 block font-mono text-xs uppercase tracking-wide text-navy/70">Para famílias</span>
             <h3 className="max-w-xs font-serif text-3xl">Encontre transporte verificado, sem custo.</h3>
-            <p className="my-4 max-w-xs text-sm text-white/75">
+            <p className="my-4 max-w-xs text-sm text-navy/75">
               Busque por endereço e escola, compare transportadores da sua
               região e feche direto — sem taxa, sem letrinha miúda.
             </p>
-            <Link href="/pai" className="inline-flex items-center gap-2 rounded-full bg-amber px-5.5 py-3.5 text-sm font-bold text-navy">
+            <Link href="/pai" className="inline-flex items-center gap-2 rounded-full bg-navy px-5.5 py-3.5 text-sm font-bold text-white">
               Buscar transporte →
             </Link>
           </div>
-          <div className="rounded-[20px] border border-cream-line bg-cream p-11">
-            <span className="mb-4 block font-mono text-xs uppercase tracking-wide text-sage">Para transportadores</span>
+          <div className="rounded-[20px] bg-navy p-11 text-white">
+            <span className="mb-4 block font-mono text-xs uppercase tracking-wide text-sage-soft">Para transportadores</span>
             <h3 className="max-w-xs font-serif text-3xl">Seja encontrado pelas famílias certas.</h3>
-            <p className="my-4 max-w-xs text-sm text-ink-soft">
+            <p className="my-4 max-w-xs text-sm text-white/70">
               Crie seu perfil verificado e receba pedidos de famílias da sua
               região. Planos a partir de R$ 49/mês, sem comissão por indicação.
             </p>
-            <Link href="/motorista" className="inline-flex items-center gap-2 rounded-full bg-navy px-5.5 py-3.5 text-sm font-bold text-white">
+            <Link href="/motorista" className="inline-flex items-center gap-2 rounded-full bg-amber px-5.5 py-3.5 text-sm font-bold text-navy">
               Cadastrar meu veículo →
             </Link>
           </div>

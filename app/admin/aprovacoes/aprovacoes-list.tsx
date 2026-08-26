@@ -63,7 +63,7 @@ export default function AprovacoesList({ motoristas }: { motoristas: Motorista[]
       {motoristas.map((m) => (
         <SpotlightCard
           key={m.id}
-          spotlightColor="rgba(79, 109, 92, 0.16)"
+          spotlightColor="rgba(74, 122, 94, 0.16)"
           className="rounded-2xl border border-cream-line bg-white p-5"
         >
           <div className="flex items-start gap-3">

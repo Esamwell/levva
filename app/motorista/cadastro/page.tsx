@@ -205,10 +205,10 @@ export default function CadastroMotoristaPage() {
 
   return (
     <div className="min-h-screen bg-cream">
-      <header className="border-b border-cream-line bg-navy px-6 py-5 text-white">
+      <header className="border-b border-cream-line bg-amber px-6 py-5 text-navy">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <Logo on="dark" size="sm" />
-          <span className="rounded-full border border-white/20 px-3 py-1 text-xs text-white/70">
+          <Logo on="light" size="sm" />
+          <span className="rounded-full border border-navy/20 px-3 py-1 text-xs text-navy/70">
             Cadastro de motorista
           </span>
         </div>

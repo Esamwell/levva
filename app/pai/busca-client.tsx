@@ -142,7 +142,7 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
             {resultados.map((m) => (
               <SpotlightCard
                 key={m.id}
-                spotlightColor="rgba(232, 163, 61, 0.18)"
+                spotlightColor="rgba(254, 219, 26, 0.25)"
                 className="flex items-start gap-4 rounded-2xl border border-cream-line bg-white p-5"
               >
                 <Avatar className="h-11 w-11 shrink-0">
