@@ -253,6 +253,12 @@ export default function LandingPage() {
                 </li>
               ))}
             </ul>
+            <Link
+              href="/para-motoristas"
+              className="mt-8 inline-flex items-center justify-center gap-2 rounded-full border-2 border-navy px-5.5 py-3 text-sm font-bold leading-none text-navy hover:bg-navy hover:text-white"
+            >
+              Como funciona pra motoristas →
+            </Link>
           </AnimatedContent>
 
           {/* Driver card mockup */}
@@ -320,11 +326,11 @@ export default function LandingPage() {
             <span className="mb-4 block font-mono text-xs uppercase tracking-wide text-sage-soft">Para transportadores</span>
             <h3 className="max-w-xs font-serif text-3xl">Seja encontrado pelas famílias certas.</h3>
             <p className="my-4 max-w-xs text-sm text-white/70">
-              Crie seu perfil verificado e receba pedidos de famílias da sua
-              região. Planos a partir de R$ 49/mês, sem comissão por indicação.
+              Crie seu perfil verificado e receba pedidos de famílias da sua região.
+              Sem mensalidade — você só paga quando fecha um contrato de verdade.
             </p>
-            <Link href="/motorista" className="inline-flex items-center justify-center gap-2 rounded-full bg-amber px-5.5 py-3.5 text-sm font-bold leading-none text-navy">
-              Cadastrar meu veículo →
+            <Link href="/para-motoristas" className="inline-flex items-center justify-center gap-2 rounded-full bg-amber px-5.5 py-3.5 text-sm font-bold leading-none text-navy">
+              Como funciona pra motoristas →
             </Link>
           </div>
         </AnimatedContent>
