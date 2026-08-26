@@ -214,6 +214,7 @@ model Motorista {
   avaliacoes  Avaliacao[]
   assinatura  Assinatura?
   contratos   Contrato[]
+  extras      MotoristaExtra[]
 
   // Regra de enquadramento no plano Frota (ver /lib/plano.ts):
   // múltiplos veículos OU 3+ escolas atendidas -> Frota
@@ -322,6 +323,31 @@ model TicketMensagem {
   autorId   String
   corpo     String
   createdAt DateTime @default(now())
+}
+
+enum StatusExtra {
+  ATIVO
+  CANCELADO
+}
+
+// Serviço extra que o motorista contrata avulso, fora da comissão por
+// contrato fechado (ver Contrato) e fora da mensalidade antiga (ver
+// Assinatura). `tipo` é string solta (não enum) de propósito: "DESTAQUE"
+// é o único hoje, mas rastreador e outros devem entrar sem precisar de
+// migração pra cada um.
+//
+// Fase 1, como Contrato: só registra a contratação dentro da plataforma.
+// Cobrança de verdade via Asaas é decisão futura.
+model MotoristaExtra {
+  id            String        @id @default(cuid())
+  motorista     Motorista     @relation(fields: [motoristaId], references: [id])
+  motoristaId   String
+  tipo          String
+  valorCentavos Int
+  periodicidade Periodicidade
+  status        StatusExtra   @default(ATIVO)
+  createdAt     DateTime      @default(now())
+  canceladoEm   DateTime?
 }
 
 enum Periodicidade {
