@@ -59,15 +59,15 @@ export default function LandingPage() {
 
         <div className="relative mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
-            <div className="mb-6 overflow-x-auto">
+            <div className="-ml-1 mb-7 overflow-x-auto">
               <SplitFlapText
                 words={["SEGURANÇA", "PRATICIDADE", "#VAIDEMOVA"]}
                 padTo={11}
                 tileColor="#111111"
                 textColor="#FEDB1A"
-                fontSize={20}
-                gap={4}
-                tileRadius={5}
+                fontSize={36}
+                gap={6}
+                tileRadius={7}
                 flipDuration={0.09}
                 stagger={0.045}
                 cycleDelay={1800}
