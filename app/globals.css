@@ -11,10 +11,16 @@ html {
  * elemento decorativo ou posicionamento absoluto mal calculado em algum
  * canto esquecido pode passar batido. Isso garante que, mesmo se acontecer,
  * o usuário não vê uma barra de rolagem lateral — só corta o excesso.
+ *
+ * `clip`, não `hidden`: overflow:hidden no body cria um novo container de
+ * scroll, e isso quebra position:sticky em qualquer descendente (a sidebar
+ * do admin/motorista, por exemplo — parecia "static", subindo junto com a
+ * página ao rolar, em vez de ficar presa no topo). `clip` corta o mesmo
+ * jeito, sem criar esse container.
  */
 html,
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100%;
 }
 
