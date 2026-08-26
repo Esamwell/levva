@@ -6,6 +6,7 @@ import { exigirPapel } from "../../../../lib/auth";
 import { Avatar, AvatarFallback } from "../../../../components/ui/avatar";
 import { Badge } from "../../../../components/ui/badge";
 import { cn } from "../../../../lib/utils";
+import { dataElegivelReanalise } from "../../../../lib/aprovacao";
 import MotoristaDetailActions from "./motorista-detail-actions";
 
 function formatarReais(centavos: number): string {
@@ -92,6 +93,19 @@ export default async function MotoristaDetailPage({ params }: { params: Promise<
           ativo={motorista.user.ativo}
         />
       </div>
+
+      {motorista.statusAprovacao === "REPROVADO" && motorista.motivoReprovacao && (
+        <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4">
+          <p className="text-sm font-semibold text-red-600">Motivo da reprovação</p>
+          <p className="mt-1 text-sm text-red-600/90">{motorista.motivoReprovacao}</p>
+          {motorista.reprovadoEm && (
+            <p className="mt-2 text-xs text-red-600/70">
+              Reprovado em {motorista.reprovadoEm.toLocaleDateString("pt-BR")} · pode solicitar nova análise a partir de{" "}
+              {dataElegivelReanalise(motorista.reprovadoEm).toLocaleDateString("pt-BR")}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.3fr_1fr]">
         <div className="space-y-6">

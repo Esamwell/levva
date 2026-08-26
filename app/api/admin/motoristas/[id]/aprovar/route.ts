@@ -24,7 +24,13 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   // Sem mensalidade envolvida (modelo antigo aposentado).
   await db.motorista.update({
     where: { id },
-    data: { statusAprovacao: "APROVADO", antecedentesOk: true, cursoTransporte: true },
+    data: {
+      statusAprovacao: "APROVADO",
+      antecedentesOk: true,
+      cursoTransporte: true,
+      motivoReprovacao: null,
+      reprovadoEm: null,
+    },
   });
 
   try {

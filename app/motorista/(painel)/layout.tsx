@@ -4,6 +4,8 @@ import { getSession } from "../../../lib/auth";
 import { db } from "../../../lib/db";
 import { DashboardShell, type DashboardNavItem } from "../../../components/dashboard-shell";
 import { Badge } from "../../../components/ui/badge";
+import { ReprovadoBanner } from "../../../components/reprovado-banner";
+import { dataElegivelReanalise } from "../../../lib/aprovacao";
 
 const APROVACAO_LABEL: Record<string, string> = {
   PENDENTE: "Em análise",
@@ -50,6 +52,12 @@ export default async function MotoristaLayout({ children }: { children: React.Re
         </div>
       }
     >
+      {motorista.statusAprovacao === "REPROVADO" && motorista.motivoReprovacao && (
+        <ReprovadoBanner
+          motivo={motorista.motivoReprovacao}
+          elegivelEmISO={motorista.reprovadoEm ? dataElegivelReanalise(motorista.reprovadoEm).toISOString() : null}
+        />
+      )}
       {children}
     </DashboardShell>
   );

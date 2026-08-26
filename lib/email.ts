@@ -170,6 +170,7 @@ export function emailMotoristaAprovado(params: {
 export function emailMotoristaReprovado(params: {
   nome: string;
   motivo: string;
+  dataLimite: string;
 }): Omit<Mensagem, "para"> {
   return {
     assunto: "Sobre seu cadastro na Mova",
@@ -177,7 +178,7 @@ export function emailMotoristaReprovado(params: {
       `Olá, ${params.nome}.\n\n` +
       `Revisamos seu cadastro e ele não pôde ser aprovado agora. Motivo:\n\n` +
       `${params.motivo}\n\n` +
-      `Você pode corrigir o que foi apontado e responder este e-mail para uma nova análise.`,
+      `Corrija o que foi apontado. A partir de ${params.dataLimite} você pode solicitar uma nova análise direto no seu painel, em "Meu perfil".`,
     html: moldura(
       "Sobre seu cadastro",
       `<p style="font-size:15px;line-height:1.6;color:#6B6B6B;margin:16px 0 0">
@@ -187,8 +188,28 @@ export function emailMotoristaReprovado(params: {
          ${escaparHtml(params.motivo)}
        </p>
        <p style="font-size:13px;line-height:1.6;color:#8A8A8A;margin:20px 0 0">
-         Corrija o que foi apontado e responda este e-mail para uma nova análise.
+         Corrija o que foi apontado. A partir de <strong>${escaparHtml(params.dataLimite)}</strong> você pode solicitar
+         uma nova análise direto no seu painel, em "Meu perfil".
        </p>`
+    ),
+  };
+}
+
+export function emailMotoristaReenviouCadastro(params: {
+  motoristaNome: string;
+  link: string;
+}): Omit<Mensagem, "para"> {
+  return {
+    assunto: `${params.motoristaNome} solicitou uma nova análise`,
+    texto: `${params.motoristaNome} corrigiu o cadastro e pediu uma nova análise. Reveja em: ${params.link}`,
+    html: moldura(
+      "Nova análise solicitada",
+      `<p style="font-size:15px;line-height:1.6;color:#6B6B6B;margin:16px 0 0">
+         <strong>${escaparHtml(params.motoristaNome)}</strong> corrigiu o cadastro depois de reprovado e pediu uma nova análise.
+       </p>
+       <a href="${params.link}" style="display:inline-block;margin-top:20px;padding:12px 24px;background:#111111;color:#FEDB1A;text-decoration:none;border-radius:999px;font-weight:600;font-size:14px">
+         Ver cadastro
+       </a>`
     ),
   };
 }

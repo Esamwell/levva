@@ -217,6 +217,12 @@ model Motorista {
   cursoTransporte    Boolean           @default(false)
   antecedentesOk     Boolean           @default(false)
   statusAprovacao    StatusAprovacao   @default(PENDENTE)
+  // Guardados quando statusAprovacao vira REPROVADO (ver rota de reprovar) —
+  // motivo aparece pro próprio motorista no painel, e reprovadoEm trava o
+  // botão de "solicitar nova análise" por 30 dias (ver
+  // /api/motorista/solicitar-reanalise). Ambos somem quando aprovado.
+  motivoReprovacao   String?
+  reprovadoEm        DateTime?
   anosExperiencia    Int               @default(0)
   temMonitor         Boolean           @default(false)
   precoMin           Int? // em centavos
