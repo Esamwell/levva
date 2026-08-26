@@ -11,7 +11,7 @@
  */
 
 import { useRef, useState } from "react";
-import { Star, Sparkles, School, Search, Check, ShieldCheck } from "lucide-react";
+import { Star, Sparkles, School, Search, Check, ShieldCheck, SearchX } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import { Avatar, AvatarFallback } from "../../components/ui/avatar";
@@ -115,6 +115,7 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
   const [buscando, setBuscando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [escolaEncontrada, setEscolaEncontrada] = useState<boolean | null>(null);
+  const [escolaNome, setEscolaNome] = useState<string>("");
   // false = geocoding não reconheceu o endereço; a lista vem sem filtro de raio.
   const [enderecoLocalizado, setEnderecoLocalizado] = useState<boolean>(true);
   const [resultados, setResultados] = useState<Resultado[] | null>(null);
@@ -140,6 +141,7 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Falha na busca.");
       setEscolaEncontrada(data.escolaEncontrada);
+      setEscolaNome(data.escolaNome ?? "");
       setEnderecoLocalizado(data.enderecoLocalizado !== false);
       setResultados(data.resultados);
       setEscolaIdAtual(data.escolaId ?? null);
@@ -210,10 +212,18 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
       {resultados !== null && (
         <div className="mt-10 max-w-2xl">
           {escolaEncontrada === false && (
-            <p className="text-sm text-ink-soft">
-              Ainda não temos essa escola no nosso cadastro. Deixa seu contato que
-              avisamos assim que tivermos transportadores por aí.
-            </p>
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-cream-line bg-white px-6 py-10 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cream text-ink-soft">
+                <School className="h-5 w-5" strokeWidth={1.75} />
+              </div>
+              <div>
+                <p className="font-serif text-lg text-navy">Essa escola ainda não está no nosso cadastro</p>
+                <p className="mt-1 max-w-sm text-sm text-ink-soft">
+                  Confere se digitou certinho ou tenta outro nome. Se não encontrar mesmo assim,
+                  fala com a gente pelo Suporte que a gente dá um jeito.
+                </p>
+              </div>
+            </div>
           )}
           {escolaEncontrada && !enderecoLocalizado && resultados.length > 0 && (
             <div className="mb-4 rounded-xl border border-amber bg-amber-soft/25 px-4 py-3 text-sm text-navy">
@@ -223,10 +233,21 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
             </div>
           )}
           {escolaEncontrada && resultados.length === 0 && (
-            <p className="text-sm text-ink-soft">
-              Nenhum transportador verificado atende essa escola ainda.
-              Tente de novo em breve.
-            </p>
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-cream-line bg-white px-6 py-10 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cream text-ink-soft">
+                <SearchX className="h-5 w-5" strokeWidth={1.75} />
+              </div>
+              <div>
+                <p className="font-serif text-lg text-navy">
+                  Nenhum transportador verificado atende{" "}
+                  <span className="font-semibold">{escolaNome}</span> ainda
+                </p>
+                <p className="mt-1 max-w-sm text-sm text-ink-soft">
+                  Novos motoristas entram toda semana — tenta de novo em alguns dias, ou fala
+                  com o Suporte que a gente ajuda a achar uma opção.
+                </p>
+              </div>
+            </div>
           )}
           <div className="space-y-4">
             {resultados.map((m) => (
