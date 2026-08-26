@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Check, Star, Bus } from "lucide-react";
+import Image from "next/image";
+import { Check, Star } from "lucide-react";
 import { MobileNav } from "./mobile-nav";
 import CountUp from "../components/CountUp";
 import AnimatedContent from "../components/AnimatedContent";
@@ -43,48 +44,16 @@ export default function LandingPage() {
 
       {/* HERO */}
       <header className="relative overflow-hidden bg-amber px-[6vw] pb-28 pt-40 text-navy">
-        {/* Fundo decorativo: a rota até a escola, em opacidade bem baixa —
-            ecoa o pin + van da logo e a seção de "paradas" mais abaixo,
-            sem competir com o conteúdo por cima. */}
+        {/* Fundo decorativo: a arte de rotas/casas/escolas da marca, em
+            opacidade bem baixa, sem competir com o conteúdo por cima. */}
         <div aria-hidden className="pointer-events-none absolute inset-0">
-          <svg
-            viewBox="0 0 1200 600"
-            preserveAspectRatio="xMidYMid slice"
-            className="h-full w-full"
-          >
-            <path
-              d="M 40 480 C 280 380, 480 520, 720 300 C 860 200, 1000 260, 1160 150"
-              fill="none"
-              stroke="#111111"
-              strokeOpacity="0.09"
-              strokeWidth="3"
-              strokeDasharray="2 14"
-              strokeLinecap="round"
-            />
-            {/* Pontos calculados sobre a curva de verdade (fórmula de Bézier em
-                t = 0, 0.5 e 1 de cada trecho) — antes eram aproximados a olho
-                e ficavam soltos da linha. Curva mantida no meio do hero, longe
-                do badge no topo e dos números embaixo. */}
-            {[
-              [40, 480],
-              [380, 435],
-              [720, 300],
-              [932.5, 228.75],
-              [1160, 150],
-            ].map(([cx, cy]) => (
-              <g key={cx}>
-                <circle cx={cx} cy={cy} r="9" fill="none" stroke="#111111" strokeOpacity="0.14" strokeWidth="2" />
-                <circle cx={cx} cy={cy} r="3" fill="#111111" fillOpacity="0.16" />
-              </g>
-            ))}
-          </svg>
-          <Bus
-            className="absolute -right-6 top-16 h-24 w-24 text-navy/[0.07] sm:h-40 sm:w-40 md:h-52 md:w-52"
-            strokeWidth={1.25}
-          />
-          <Bus
-            className="absolute bottom-0 left-[8%] hidden h-24 w-24 -rotate-6 text-navy/[0.06] sm:block"
-            strokeWidth={1.25}
+          <Image
+            src="/hero-bg.jpg"
+            alt=""
+            fill
+            priority
+            className="object-cover opacity-[0.07]"
+            sizes="100vw"
           />
         </div>
 
