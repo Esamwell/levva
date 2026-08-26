@@ -7,6 +7,15 @@ import { geocodeEndereco } from "../../../../lib/geo";
 const schema = z.object({
   telefone: z.string().min(10),
   endereco: z.string().min(4),
+  // Opcional aqui (edição) — quem ainda não tinha CPF/CNPJ salvo (cadastro
+  // antigo, antes desse campo existir) não pode ficar travado de editar o
+  // resto do perfil só por causa dele.
+  cpfCnpj: z
+    .string()
+    .trim()
+    .transform((v) => v.replace(/\D/g, ""))
+    .refine((v) => v.length === 0 || v.length === 11 || v.length === 14, "CPF precisa ter 11 dígitos, CNPJ 14.")
+    .optional(),
 });
 
 /** PUT /api/pai/perfil — o próprio pai edita telefone e endereço. */
@@ -44,7 +53,12 @@ export async function PUT(req: Request) {
     db.user.update({ where: { id: session.userId }, data: { telefone } }),
     db.pai.update({
       where: { id: pai.id },
-      data: { endereco: parsed.data.endereco, lat: ponto?.lat ?? null, lng: ponto?.lng ?? null },
+      data: {
+        endereco: parsed.data.endereco,
+        lat: ponto?.lat ?? null,
+        lng: ponto?.lng ?? null,
+        ...(parsed.data.cpfCnpj ? { cpfCnpj: parsed.data.cpfCnpj } : {}),
+      },
     }),
   ]);
 

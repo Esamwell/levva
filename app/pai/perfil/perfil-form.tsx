@@ -140,14 +140,17 @@ function LinhaFilho({ filho, onSalvo }: { filho: Filho; onSalvo: (filho: Filho) 
 export default function PerfilForm({
   conta,
   endereco: enderecoInicial,
+  cpfCnpj: cpfCnpjInicial,
   filhosIniciais,
 }: {
   conta: { nome: string; email: string; telefone: string };
   endereco: string;
+  cpfCnpj: string | null;
   filhosIniciais: Filho[];
 }) {
   const [telefone, setTelefone] = useState(conta.telefone);
   const [endereco, setEndereco] = useState(enderecoInicial);
+  const [cpfCnpj, setCpfCnpj] = useState(cpfCnpjInicial ?? "");
   const [salvandoConta, setSalvandoConta] = useState(false);
   const [mensagemConta, setMensagemConta] = useState<string | null>(null);
   const [erroConta, setErroConta] = useState<string | null>(null);
@@ -169,7 +172,7 @@ export default function PerfilForm({
       const res = await fetch("/api/pai/perfil", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ telefone, endereco }),
+        body: JSON.stringify({ telefone, endereco, cpfCnpj }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Não deu pra salvar.");
@@ -227,6 +230,16 @@ export default function PerfilForm({
           <div>
             <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-soft">Endereço</label>
             <input value={endereco} onChange={(e) => setEndereco(e.target.value)} className={campo} />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-soft">CPF ou CNPJ</label>
+            <input
+              value={cpfCnpj}
+              onChange={(e) => setCpfCnpj(e.target.value)}
+              placeholder="Só números"
+              className={campo}
+            />
+            <p className="mt-1 text-xs text-ink-soft">Usado só pra emitir a cobrança do transporte.</p>
           </div>
 
           {erroConta && <p className="text-xs text-red-600">{erroConta}</p>}

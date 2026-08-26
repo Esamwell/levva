@@ -49,6 +49,12 @@ const leadSchema = z.union([
     emailPai: z.string().email("E-mail inválido."),
     senha: z.string().min(8),
     telefonePai: z.string().min(10),
+    // Exigido pelo Asaas pra emitir cobrança (ver lib/asaas.ts) — coletado
+    // já no cadastro pra não depender do admin caçar isso depois.
+    cpfPai: z
+      .string()
+      .transform((v) => v.replace(/\D/g, ""))
+      .refine((v) => v.length === 11 || v.length === 14, "CPF precisa ter 11 dígitos, CNPJ 14."),
     termosAceitos: z.literal(true, { errorMap: () => ({ message: "É preciso aceitar os Termos de Uso." }) }),
   }),
   // Pai já logado — só a solicitação.
@@ -161,6 +167,7 @@ export async function POST(req: Request) {
             endereco: novo.enderecoPai,
             lat: ponto?.lat ?? null,
             lng: ponto?.lng ?? null,
+            cpfCnpj: novo.cpfPai,
           },
         },
       },

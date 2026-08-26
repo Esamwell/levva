@@ -339,6 +339,7 @@ function ModalContato({
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [telefonePai, setTelefonePai] = useState("");
+  const [cpfPai, setCpfPai] = useState("");
   const [enderecoPai, setEnderecoPai] = useState(enderecoInicial);
   const [pontoPai, setPontoPai] = useState<PontoEndereco | null>(pontoInicial);
   const [nomeFilho, setNomeFilho] = useState("");
@@ -349,11 +350,16 @@ function ModalContato({
   const [erro, setErro] = useState<string | null>(null);
 
   const senhaOk = senha.length >= 8 && /[a-zA-Z]/.test(senha) && /[0-9]/.test(senha);
+  const cpfDigitos = cpfPai.replace(/\D/g, "");
 
   async function enviar(e: React.FormEvent) {
     e.preventDefault();
     if (!jaLogado && !senhaOk) {
       setErro("A senha precisa ter 8 caracteres, com uma letra e um número.");
+      return;
+    }
+    if (!jaLogado && cpfDigitos.length !== 11 && cpfDigitos.length !== 14) {
+      setErro("CPF precisa ter 11 dígitos.");
       return;
     }
     if (!jaLogado && !termosAceitos) {
@@ -373,6 +379,7 @@ function ModalContato({
             emailPai,
             senha,
             telefonePai,
+            cpfPai: cpfDigitos,
             enderecoPai,
             nomeFilho,
             escolaId,
@@ -494,6 +501,14 @@ function ModalContato({
                   onChange={(e) => setTelefonePai(e.target.value)}
                   placeholder="Seu WhatsApp"
                   autoComplete="tel"
+                  className={campo}
+                />
+                <input
+                  required
+                  value={cpfPai}
+                  onChange={(e) => setCpfPai(e.target.value)}
+                  placeholder="Seu CPF"
+                  inputMode="numeric"
                   className={campo}
                 />
               </>

@@ -18,7 +18,7 @@ export default async function PerfilPaiPage() {
     db.user.findUnique({ where: { id: session.userId }, select: { nome: true, email: true, telefone: true } }),
     db.pai.findUnique({
       where: { userId: session.userId },
-      include: { filhos: { include: { escola: true }, orderBy: { nome: "asc" } } },
+      select: { endereco: true, cpfCnpj: true, filhos: { include: { escola: true }, orderBy: { nome: "asc" } } },
     }),
   ]);
 
@@ -32,6 +32,7 @@ export default async function PerfilPaiPage() {
       <PerfilForm
         conta={{ nome: user.nome, email: user.email, telefone: user.telefone ?? "" }}
         endereco={pai.endereco}
+        cpfCnpj={pai.cpfCnpj}
         filhosIniciais={pai.filhos.map((f) => ({
           id: f.id,
           nome: f.nome,
