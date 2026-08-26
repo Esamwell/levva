@@ -159,7 +159,7 @@ export default function PerfilForm({
 
         <p className="text-xs text-ink-soft">
           Documentação (CNH, curso, antecedentes) é verificada pela equipe Mova
-          separadamente — não pode ser editada aqui.
+          separadamente. Não pode ser editada aqui.
         </p>
 
         {mensagem && <p className="text-sm text-sage">{mensagem}</p>}

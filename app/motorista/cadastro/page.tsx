@@ -458,7 +458,7 @@ export default function CadastroMotoristaPage() {
                   </span>
                 </div>
                 <p className="mt-2 text-xs text-white/60">
-                  Preço de fundador — válido nos 2 primeiros meses de operação na
+                  Preço de fundador, válido nos 2 primeiros meses de operação na
                   sua região. Sem comissão por lead.
                 </p>
               </div>
@@ -535,7 +535,7 @@ export default function CadastroMotoristaPage() {
               })}
               <p className="text-xs text-ink-soft">
                 Sem esses documentos aprovados, seu perfil não aparece pras
-                famílias — é o que garante a confiança da plataforma. Os arquivos
+                famílias. É o que garante a confiança da plataforma. Os arquivos
                 só saem do seu aparelho quando você finalizar o cadastro, e depois
                 ficam visíveis apenas para você e para a equipe de verificação.
               </p>
@@ -555,15 +555,15 @@ export default function CadastroMotoristaPage() {
               <dl className="divide-y divide-cream-line text-sm">
                 <div className="flex justify-between py-2">
                   <dt className="text-ink-soft">Nome</dt>
-                  <dd className="font-semibold text-navy">{nome || "—"}</dd>
+                  <dd className="font-semibold text-navy">{nome || "-"}</dd>
                 </div>
                 <div className="flex justify-between py-2">
                   <dt className="text-ink-soft">E-mail (seu login)</dt>
-                  <dd className="font-semibold text-navy">{email || "—"}</dd>
+                  <dd className="font-semibold text-navy">{email || "-"}</dd>
                 </div>
                 <div className="flex justify-between py-2">
                   <dt className="text-ink-soft">WhatsApp</dt>
-                  <dd className="font-semibold text-navy">{whatsapp || "—"}</dd>
+                  <dd className="font-semibold text-navy">{whatsapp || "-"}</dd>
                 </div>
                 <div className="flex justify-between py-2">
                   <dt className="text-ink-soft">Cidade</dt>
@@ -584,7 +584,7 @@ export default function CadastroMotoristaPage() {
                 <div className="flex justify-between py-2">
                   <dt className="text-ink-soft">Plano</dt>
                   <dd className="font-semibold text-navy">
-                    {planoSugerido === "BASICO" ? "Básico" : "Frota"} —{" "}
+                    {planoSugerido === "BASICO" ? "Básico" : "Frota"} ·{" "}
                     {formatarReais(mensalidade)}/mês
                   </dd>
                 </div>
@@ -634,7 +634,7 @@ export default function CadastroMotoristaPage() {
           <h2 className="font-serif text-2xl text-navy">Tabela de planos</h2>
           <p className="mt-1 text-sm text-ink-soft">
             Preço de fundador nos 2 primeiros meses de operação na sua região.
-            Sem comissão por indicação — o valor é fixo, todo mês.
+            Sem comissão por indicação. O valor é fixo, todo mês.
           </p>
           <div className="mt-5 grid gap-4 sm:grid-cols-3">
             <div className="rounded-card border border-cream-line bg-white p-5">

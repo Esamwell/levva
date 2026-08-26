@@ -26,6 +26,7 @@ export default function LandingPage() {
         <Logo on="light" size="md" />
         <div className="hidden md:flex items-center gap-9">
           <a href="#rota" className="text-sm text-navy/80 hover:text-navy">Como funciona</a>
+          <a href="#quem-somos" className="text-sm text-navy/80 hover:text-navy">Quem somos</a>
           <a href="#motoristas" className="text-sm text-navy/80 hover:text-navy">Para motoristas</a>
           <Link href="/entrar" className="text-sm text-navy/80 hover:text-navy">Entrar</Link>
           <Magnet padding={40} magnetStrength={4}>
@@ -54,7 +55,7 @@ export default function LandingPage() {
               backgroundOpacity={0.16}
             >
               <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-navy" />
-              <span className="whitespace-nowrap">SALVADOR &amp; LAURO DE FREITAS — CHEGANDO EM BREVE</span>
+              <span className="whitespace-nowrap">SALVADOR &amp; LAURO DE FREITAS · CHEGANDO EM BREVE</span>
             </GlassSurface>
             <h1 className="font-serif text-5xl leading-[1.06] md:text-6xl">
               O trajeto mais importante do dia, em{" "}
@@ -69,7 +70,7 @@ export default function LandingPage() {
               .
             </h1>
             <p className="mt-6 max-w-md text-[17px] leading-relaxed text-navy/75">
-              A Mova conecta famílias a transportadores escolares 100% verificados —
+              A Mova conecta famílias a transportadores escolares 100% verificados:
               CNH, curso e antecedentes checados antes de qualquer criança entrar na van.
             </p>
             <div className="mt-11 flex gap-8">
@@ -156,9 +157,9 @@ export default function LandingPage() {
           <div className="relative mt-16 space-y-14 border-l-2 border-dashed border-sage/70 pl-9">
             {[
               ["Parada 01", "Você busca", "Digite seu endereço e a escola do seu filho. Sem cadastro, sem complicação."],
-              ["Parada 02", "Você compara transportadores verificados", "Veja quem atende sua região e sua escola — com foto do veículo, do motorista, avaliações e faixa de preço."],
-              ["Parada 03", "A Mova faz a ponte", "Solicite contato e a gente encaminha direto pro transportador escolhido — sem intermediário burocrático."],
-              ["Parada 04", "Fechou, e agora é rotina", "Combine os detalhes direto com o transportador e avalie o serviço depois — pra ajudar outras famílias da sua região."],
+              ["Parada 02", "Você compara transportadores verificados", "Veja quem atende sua região e sua escola, com foto do veículo, do motorista, avaliações e faixa de preço."],
+              ["Parada 03", "A Mova faz a ponte", "Solicite contato e a gente encaminha direto pro transportador escolhido, sem intermediário burocrático."],
+              ["Parada 04", "Fechou, e agora é rotina", "Combine os detalhes direto com o transportador e avalie o serviço depois, pra ajudar outras famílias da sua região."],
             ].map(([tag, title, desc], i) => (
               <AnimatedContent key={tag} distance={24} duration={0.6} delay={i * 0.12} className="relative">
                 <div className="absolute -left-[47px] top-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-sage bg-cream">
@@ -174,7 +175,7 @@ export default function LandingPage() {
       </section>
 
       {/* QUEM SOMOS */}
-      <section className="bg-white px-[6vw] py-28">
+      <section id="quem-somos" className="bg-white px-[6vw] py-28">
         <AnimatedContent
           distance={24}
           duration={0.6}
@@ -188,14 +189,14 @@ export default function LandingPage() {
             <p className="mt-5 max-w-md leading-relaxed text-ink-soft">
               A Mova nasceu de uma pergunta que todo pai e mãe já se fez: quem está
               dirigindo a van do meu filho? Documento vencido, motorista sem
-              antecedentes verificados, van sem seguro — histórias que a gente ouviu
+              antecedentes verificados, van sem seguro: histórias que a gente ouviu
               demais pra ficar de braços cruzados.
             </p>
             <p className="mt-4 max-w-md leading-relaxed text-ink-soft">
               Por isso criamos um jeito simples de verificar quem transporta as
               crianças de Salvador: CNH, curso de transporte escolar e antecedentes
               criminais checados antes de qualquer motorista aparecer numa busca. Sem
-              comissão escondida, sem letra miúda — só a tranquilidade de saber que
+              comissão escondida, sem letra miúda. Só a tranquilidade de saber que
               seu filho está em boas mãos.
             </p>
           </div>
@@ -266,7 +267,7 @@ export default function LandingPage() {
                 ))}
               </div>
               <div className="mb-4 text-sm text-ink-soft">
-                <strong className="text-ink">Atende:</strong> Colégio Salesiano, Escola Sartre — Pituba, Itaigara
+                <strong className="text-ink">Atende:</strong> Colégio Salesiano, Escola Sartre (Pituba, Itaigara)
               </div>
               <div className="flex items-center justify-between border-t border-cream-line pt-4">
                 <div className="font-mono text-xs text-ink-soft">
@@ -287,7 +288,7 @@ export default function LandingPage() {
             <h3 className="max-w-xs font-serif text-3xl">Encontre transporte verificado, sem custo.</h3>
             <p className="my-4 max-w-xs text-sm text-navy/75">
               Busque por endereço e escola, compare transportadores da sua
-              região e feche direto — sem taxa, sem letrinha miúda.
+              região e feche direto, sem taxa, sem letrinha miúda.
             </p>
             <Link href="/pai" className="inline-flex items-center justify-center gap-2 rounded-full bg-navy px-5.5 py-3.5 text-sm font-bold leading-none text-white">
               Buscar transporte →
@@ -311,7 +312,7 @@ export default function LandingPage() {
       <section className="bg-white px-[6vw] py-20 text-center">
         <AnimatedContent distance={16} duration={0.6} className="mx-auto flex max-w-xs flex-col items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/mova-logo-full.png" alt="Mova — #vaidemova" className="h-auto w-40" />
+          <img src="/mova-logo-full.png" alt="Mova · #vaidemova" className="h-auto w-40" />
         </AnimatedContent>
       </section>
 
@@ -337,11 +338,12 @@ export default function LandingPage() {
           <Logo on="dark" size="sm" />
           <div className="flex items-center gap-6 text-sm text-white/60">
             <a href="#rota">Como funciona</a>
+            <a href="#quem-somos">Quem somos</a>
             <a href="#motoristas">Para motoristas</a>
             <a href="#">Instagram</a>
             <span className="font-mono text-xs text-amber-soft">#vaidemova</span>
           </div>
-          <div className="text-xs text-white/40">© 2026 Mova — Salvador, BA</div>
+          <div className="text-xs text-white/40">© 2026 Mova · Salvador, BA</div>
         </div>
       </footer>
     </main>

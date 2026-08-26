@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Mova — Transporte escolar verificado em Salvador",
+  title: "Mova · Transporte escolar verificado em Salvador",
   description:
     "A Mova conecta famílias a transportadores escolares 100% verificados em Salvador e Lauro de Freitas. #vaidemova",
 };

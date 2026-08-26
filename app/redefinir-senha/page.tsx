@@ -72,8 +72,8 @@ function RedefinirForm() {
           <div>
             <h1 className="font-serif text-2xl text-navy">Senha alterada</h1>
             <p className="mt-2 text-sm text-ink-soft">
-              Pronto. Por segurança, encerramos as outras sessões abertas nessa conta —
-              entre de novo com a senha nova.
+              Pronto. Por segurança, encerramos as outras sessões abertas nessa conta.
+              Entre de novo com a senha nova.
             </p>
             <Button onClick={() => router.push("/entrar")} className="mt-6 w-full bg-amber text-navy hover:bg-amber/90">
               Ir para o login

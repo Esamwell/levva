@@ -114,7 +114,7 @@ export function emailRecuperacaoSenha(params: {
       `Você pediu para redefinir sua senha na Mova. Abra o link abaixo para escolher uma nova:\n\n` +
       `${link}\n\n` +
       `O link vale por ${minutos} minutos e só pode ser usado uma vez.\n\n` +
-      `Se não foi você que pediu, ignore este e-mail — sua senha continua a mesma.`,
+      `Se não foi você que pediu, ignore este e-mail. Sua senha continua a mesma.`,
     html: moldura(
       "Redefinir sua senha",
       `<p style="font-size:15px;line-height:1.6;color:#6B6B6B;margin:16px 0 0">
@@ -124,7 +124,7 @@ export function emailRecuperacaoSenha(params: {
        ${botao(link, "Escolher nova senha")}
        <p style="font-size:13px;line-height:1.6;color:#8A8A8A;margin:24px 0 0">
          O link vale por ${minutos} minutos e só funciona uma vez.
-         Se não foi você que pediu, ignore este e-mail — sua senha continua a mesma.
+         Se não foi você que pediu, ignore este e-mail. Sua senha continua a mesma.
        </p>`
     ),
   };
