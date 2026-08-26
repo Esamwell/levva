@@ -9,14 +9,15 @@ import {
   criarSessao,
 } from "../../../lib/auth";
 import { ipDoCliente, userAgentDoCliente } from "../../../lib/request";
-import { calcularPlanoSugerido, calcularMensalidade, PRECOS_PILOTO } from "../../../lib/plano";
 
 /**
  * POST /api/motoristas
  *
  * Cria a conta do motorista vinda do fluxo público de /motorista/cadastro:
- * User(role=MOTORISTA) + Motorista(PENDENTE) + Veiculo(s) + Assinatura(PENDENTE),
- * e já abre a sessão.
+ * User(role=MOTORISTA) + Motorista(PENDENTE) + Veiculo(s), e já abre a
+ * sessão. Cadastro é gratuito — sem mensalidade, sem Assinatura criada
+ * aqui (modelo antigo aposentado; a Mova só ganha comissão em cima de
+ * contrato fechado, ver lib/financeiro.ts).
  *
  * Os documentos NÃO vêm aqui. A conta é criada primeiro justamente pra que os
  * uploads seguintes aconteçam autenticados (ver /api/upload) — cada arquivo
@@ -38,8 +39,6 @@ const bodySchema = z.object({
   cidade: z.string().min(2),
   cnhNumero: z.string().min(4),
   cnhCategoria: z.string().min(1),
-  numEscolasInformado: z.number().int().positive(),
-  destaqueDesejado: z.boolean(),
   veiculos: z.array(veiculoSchema).min(1),
 });
 
@@ -69,17 +68,6 @@ export async function POST(req: Request) {
     );
   }
 
-  const plano = calcularPlanoSugerido({
-    numVeiculos: data.veiculos.length,
-    numEscolas: data.numEscolasInformado,
-  });
-  const valorCentavos = calcularMensalidade({
-    plano,
-    numVeiculos: data.veiculos.length,
-    destaque: data.destaqueDesejado,
-    tabela: PRECOS_PILOTO,
-  });
-
   const senhaHash = await gerarHashSenha(data.senha);
 
   const criado = await db.$transaction(async (tx) => {
@@ -97,21 +85,13 @@ export async function POST(req: Request) {
         cursoTransporte: false,
         antecedentesOk: false,
         statusAprovacao: "PENDENTE",
-        destaqueAtivo: false, // só ativa quando a assinatura for confirmada
+        destaqueAtivo: false, // opt-in depois, em /motorista/extras
         veiculos: {
           create: data.veiculos.map((v) => ({
             placa: v.placa,
             modelo: v.modelo,
             capacidade: v.capacidade,
           })),
-        },
-        assinatura: {
-          create: {
-            plano,
-            destaque: data.destaqueDesejado,
-            status: "PENDENTE",
-            valorCentavos,
-          },
         },
       },
     });

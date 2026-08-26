@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "../../../../../../lib/db";
 import { exigirPapel } from "../../../../../../lib/auth";
-import { PRECOS_PILOTO } from "../../../../../../lib/plano";
+import { DESTAQUE_PRECO_CENTAVOS } from "../../../../../../lib/financeiro";
 import { enviarEmail, emailExtraPendenteAdmin, urlBase } from "../../../../../../lib/email";
 
 function formatarReais(centavos: number): string {
@@ -41,7 +41,7 @@ export async function POST() {
     );
   }
 
-  const valorCentavos = PRECOS_PILOTO.DESTAQUE;
+  const valorCentavos = DESTAQUE_PRECO_CENTAVOS;
 
   const extra = await db.motoristaExtra.create({
     data: { motoristaId: motorista.id, tipo: "DESTAQUE", valorCentavos, periodicidade: "MENSAL", status: "PENDENTE" },

@@ -9,7 +9,7 @@ export default async function MotoristasPage() {
   if (!(await exigirPapel("ADMIN"))) redirect("/entrar");
 
   const motoristas = await db.motorista.findMany({
-    include: { user: true, assinatura: true },
+    include: { user: true },
     orderBy: { createdAt: "desc" },
   });
 
@@ -33,8 +33,7 @@ export default async function MotoristasPage() {
             telefone: m.user.telefone,
             ativo: m.user.ativo,
             statusAprovacao: m.statusAprovacao,
-            plano: m.assinatura?.plano ?? null,
-            statusAssinatura: m.assinatura?.status ?? null,
+            destaqueAtivo: m.destaqueAtivo,
             createdAt: m.createdAt.toISOString(),
           }))}
         />

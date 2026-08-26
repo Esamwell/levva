@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { exigirPapel } from "../../../../lib/auth";
 import { db } from "../../../../lib/db";
-import { PRECOS_PILOTO } from "../../../../lib/plano";
+import { DESTAQUE_PRECO_CENTAVOS } from "../../../../lib/financeiro";
 import DestaqueCard from "./destaque-card";
 import FotosVideoCard from "./fotos-video-card";
 import { MapPin } from "lucide-react";
@@ -28,7 +28,7 @@ export default async function ExtrasMotoristaPage() {
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <DestaqueCard
           status={destaque?.status === "PENDENTE" || destaque?.status === "ATIVO" ? destaque.status : null}
-          valorCentavos={PRECOS_PILOTO.DESTAQUE}
+          valorCentavos={DESTAQUE_PRECO_CENTAVOS}
         />
         <FotosVideoCard />
 

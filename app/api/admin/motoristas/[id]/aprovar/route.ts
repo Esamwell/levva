@@ -19,17 +19,12 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ error: "Motorista não encontrado." }, { status: 404 });
   }
 
-  // Aprovar significa que o admin conferiu os três documentos de fato.
+  // Aprovar significa que o admin conferiu os três documentos de fato —
+  // é isso, sozinho, que libera o motorista pra aparecer nas buscas.
+  // Sem mensalidade envolvida (modelo antigo aposentado).
   await db.motorista.update({
     where: { id },
     data: { statusAprovacao: "APROVADO", antecedentesOk: true, cursoTransporte: true },
-  });
-
-  // Assinatura vira ativa junto — é a aprovação que libera o motorista
-  // pra aparecer nas buscas, e é isso que justifica cobrar a mensalidade.
-  await db.assinatura.updateMany({
-    where: { motoristaId: id, status: "PENDENTE" },
-    data: { status: "ATIVA", proximaCobranca: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
   });
 
   try {

@@ -4,8 +4,9 @@
  * Cadastro público do motorista/transportador.
  *
  * Fluxo: quem clica em "Sou motorista" na landing cai aqui direto — ainda
- * sem conta. É aqui (e só aqui) que os valores dos planos aparecem, porque
- * não interessam ao pai que só quer buscar transporte pros filhos.
+ * sem conta. Gratuito, sem mensalidade — a Mova só ganha uma taxa em cima
+ * de contrato fechado de verdade (ver lib/financeiro.ts); o motorista
+ * decide depois, no painel, se quer contratar destaque avulso.
  *
  * Ao enviar, a ordem importa: primeiro cria a conta (POST /api/motoristas),
  * o que já abre a sessão, e só depois sobe os documentos (POST /api/upload).
@@ -13,23 +14,17 @@
  * arquivo de qualquer pessoa da internet. Por isso os arquivos ficam guardados
  * em memória durante o preenchimento e só sobem no final.
  *
- * Escolas atendidas: aqui só usamos a *quantidade* pra calcular o plano.
- * A lista de escolas de fato (relação MotoristaEscola) é preenchida
+ * As escolas atendidas de fato (relação MotoristaEscola) são preenchidas
  * depois, no painel do motorista já aprovado — evita um formulário
  * gigante logo de cara e mantém o cadastro rápido.
  */
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { Check, Paperclip } from "lucide-react";
+import { Check, Paperclip, ShieldCheck } from "lucide-react";
 import { Logo } from "../../../components/logo";
-import {
-  calcularPlanoSugerido,
-  calcularMensalidade,
-  PRECOS_PILOTO,
-  type PlanoTipo,
-} from "../../../lib/plano";
+import { TAXA_MOVA_PERCENTUAL, DESTAQUE_PRECO_CENTAVOS } from "../../../lib/financeiro";
 
 function formatarReais(centavos: number): string {
   return (centavos / 100).toLocaleString("pt-BR", {
@@ -69,9 +64,6 @@ export default function CadastroMotoristaPage() {
   const [cnhNumero, setCnhNumero] = useState("");
   const [cnhCategoria, setCnhCategoria] = useState("D");
 
-  // Veículo e rotina — o que define o plano
-  const [numEscolas, setNumEscolas] = useState(1);
-  const [destaque, setDestaque] = useState(false);
   const [veiculos, setVeiculos] = useState<Veiculo[]>([
     { placa: "", modelo: "", capacidade: "" },
   ]);
@@ -79,22 +71,6 @@ export default function CadastroMotoristaPage() {
   const [docs, setDocs] = useState<DocState>({});
 
   const numVeiculos = veiculos.length;
-
-  const planoSugerido: PlanoTipo = useMemo(
-    () => calcularPlanoSugerido({ numVeiculos, numEscolas }),
-    [numVeiculos, numEscolas]
-  );
-
-  const mensalidade = useMemo(
-    () =>
-      calcularMensalidade({
-        plano: planoSugerido,
-        numVeiculos,
-        destaque,
-        tabela: PRECOS_PILOTO,
-      }),
-    [planoSugerido, numVeiculos, destaque]
-  );
 
   function addVeiculo() {
     setVeiculos((v) => [...v, { placa: "", modelo: "", capacidade: "" }]);
@@ -153,8 +129,6 @@ export default function CadastroMotoristaPage() {
           cidade,
           cnhNumero,
           cnhCategoria,
-          numEscolasInformado: numEscolas,
-          destaqueDesejado: destaque,
           veiculos: veiculos.map((v) => ({
             placa: v.placa,
             modelo: v.modelo,
@@ -404,63 +378,16 @@ export default function CadastroMotoristaPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="mb-1 block text-sm font-semibold text-navy">
-                  Quantas escolas diferentes você atende hoje?
-                </label>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setNumEscolas((n) => Math.max(1, n - 1))}
-                    className="h-9 w-9 rounded-full border border-cream-line text-lg text-navy"
-                  >
-                    –
-                  </button>
-                  <span className="w-8 text-center font-mono text-lg">{numEscolas}</span>
-                  <button
-                    type="button"
-                    onClick={() => setNumEscolas((n) => Math.min(20, n + 1))}
-                    className="h-9 w-9 rounded-full border border-cream-line text-lg text-navy"
-                  >
-                    +
-                  </button>
+              <div className="flex items-start gap-3 rounded-card bg-navy px-6 py-5 text-white">
+                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-amber" strokeWidth={1.75} />
+                <div>
+                  <p className="font-serif text-lg">Cadastro sem custo</p>
+                  <p className="mt-1 text-sm text-white/70">
+                    Sem mensalidade pra ficar listado. Você só paga uma taxa quando fecha um
+                    contrato de verdade com uma família — e escolhe se absorve ou repassa pro
+                    responsável. Destaque na busca é opcional, contrata depois pelo painel.
+                  </p>
                 </div>
-                <p className="mt-1 text-xs text-ink-soft">
-                  Só usamos isso pra calcular seu plano. Você confirma o nome de
-                  cada escola depois, já no seu painel.
-                </p>
-              </div>
-
-              <label className="flex items-center gap-3 rounded-lg border border-cream-line px-4 py-3">
-                <input
-                  type="checkbox"
-                  checked={destaque}
-                  onChange={(e) => setDestaque(e.target.checked)}
-                  className="h-4 w-4 accent-amber"
-                />
-                <span className="text-sm text-ink-soft">
-                  Quero aparecer em destaque nos resultados de busca (+
-                  {formatarReais(PRECOS_PILOTO.DESTAQUE)}/mês)
-                </span>
-              </label>
-
-              <div className="rounded-card bg-navy px-6 py-5 text-white">
-                <p className="text-xs uppercase tracking-wide text-white/60">
-                  Seu plano sugerido
-                </p>
-                <div className="mt-1 flex items-baseline justify-between">
-                  <span className="font-serif text-2xl">
-                    {planoSugerido === "BASICO" ? "Básico" : "Frota"}
-                  </span>
-                  <span className="font-mono text-xl text-amber">
-                    {formatarReais(mensalidade)}
-                    <span className="text-sm text-white/60">/mês</span>
-                  </span>
-                </div>
-                <p className="mt-2 text-xs text-white/60">
-                  Preço de fundador, válido nos 2 primeiros meses de operação na
-                  sua região. Sem comissão por lead.
-                </p>
               </div>
             </motion.div>
           )}
@@ -570,22 +497,13 @@ export default function CadastroMotoristaPage() {
                   <dd className="font-semibold text-navy">{cidade}</dd>
                 </div>
                 <div className="flex justify-between py-2">
-                  <dt className="text-ink-soft">Veículos / escolas atendidas</dt>
-                  <dd className="font-semibold text-navy">
-                    {numVeiculos} / {numEscolas}
-                  </dd>
+                  <dt className="text-ink-soft">Veículos</dt>
+                  <dd className="font-semibold text-navy">{numVeiculos}</dd>
                 </div>
                 <div className="flex justify-between py-2">
                   <dt className="text-ink-soft">Documentos</dt>
                   <dd className="font-semibold text-navy">
                     {DOCS.filter((d) => docs[d.key]?.file).length}/{DOCS.length} anexados
-                  </dd>
-                </div>
-                <div className="flex justify-between py-2">
-                  <dt className="text-ink-soft">Plano</dt>
-                  <dd className="font-semibold text-navy">
-                    {planoSugerido === "BASICO" ? "Básico" : "Frota"} ·{" "}
-                    {formatarReais(mensalidade)}/mês
                   </dd>
                 </div>
               </dl>
@@ -631,39 +549,31 @@ export default function CadastroMotoristaPage() {
         </div>
 
         <section className="mt-14">
-          <h2 className="font-serif text-2xl text-navy">Tabela de planos</h2>
-          <p className="mt-1 text-sm text-ink-soft">
-            Preço de fundador nos 2 primeiros meses de operação na sua região.
-            Sem comissão por indicação. O valor é fixo, todo mês.
-          </p>
+          <h2 className="font-serif text-2xl text-navy">Como funciona o pagamento</h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-3">
             <div className="rounded-card border border-cream-line bg-white p-5">
-              <p className="text-sm font-semibold text-navy">Básico</p>
-              <p className="mt-1 font-mono text-2xl text-navy">
-                {formatarReais(PRECOS_PILOTO.BASICO)}
-                <span className="text-sm text-ink-soft">/mês</span>
-              </p>
-              <p className="mt-2 text-xs text-ink-soft">1 veículo, até 2 escolas atendidas.</p>
+              <p className="text-sm font-semibold text-navy">Cadastro e listagem</p>
+              <p className="mt-1 font-mono text-2xl text-navy">Grátis</p>
+              <p className="mt-2 text-xs text-ink-soft">Sem mensalidade pra estar na Mova.</p>
             </div>
             <div className="rounded-card border-2 border-amber bg-white p-5">
-              <p className="text-sm font-semibold text-navy">Frota</p>
+              <p className="text-sm font-semibold text-navy">Taxa da Mova</p>
               <p className="mt-1 font-mono text-2xl text-navy">
-                {formatarReais(PRECOS_PILOTO.FROTA_BASE)}
-                <span className="text-sm text-ink-soft">/mês</span>
+                {TAXA_MOVA_PERCENTUAL}<span className="text-sm text-ink-soft">%</span>
               </p>
               <p className="mt-2 text-xs text-ink-soft">
-                +{formatarReais(PRECOS_PILOTO.FROTA_VEICULO_ADICIONAL)} por veículo
-                adicional. Mais de 1 veículo ou 3+ escolas.
+                Só em cima do que você combinar num contrato fechado. Você escolhe se absorve
+                ou repassa pro responsável.
               </p>
             </div>
             <div className="rounded-card border border-cream-line bg-white p-5">
               <p className="text-sm font-semibold text-navy">Destaque</p>
               <p className="mt-1 font-mono text-2xl text-navy">
-                +{formatarReais(PRECOS_PILOTO.DESTAQUE)}
+                +{formatarReais(DESTAQUE_PRECO_CENTAVOS)}
                 <span className="text-sm text-ink-soft">/mês</span>
               </p>
               <p className="mt-2 text-xs text-ink-soft">
-                Add-on opcional. Prioridade nos resultados de busca dos pais.
+                Opcional, contrata depois pelo painel. Prioridade nos resultados de busca.
               </p>
             </div>
           </div>

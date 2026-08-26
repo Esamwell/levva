@@ -33,7 +33,8 @@ export default async function MotoristaDetailPage({ params }: { params: Promise<
       user: true,
       veiculos: true,
       escolas: { include: { escola: true } },
-      assinatura: true,
+      contratos: true,
+      extras: { where: { status: { in: ["ATIVO", "PENDENTE"] } } },
       avaliacoes: { orderBy: { createdAt: "desc" }, take: 10 },
       leads: {
         orderBy: { createdAt: "desc" },
@@ -52,6 +53,7 @@ export default async function MotoristaDetailPage({ params }: { params: Promise<
   ];
 
   const aprovacao = APROVACAO_META[motorista.statusAprovacao];
+  const receitaGeradaCentavos = motorista.contratos.reduce((s, c) => s + c.taxaCentavos, 0);
 
   return (
     <div>
@@ -182,17 +184,15 @@ export default async function MotoristaDetailPage({ params }: { params: Promise<
 
         <div className="space-y-6">
           <section className="rounded-2xl border border-cream-line bg-white p-5">
-            <h2 className="font-serif text-lg text-navy">Assinatura</h2>
-            {motorista.assinatura ? (
-              <div className="mt-3 space-y-1.5 text-sm">
-                <p className="flex justify-between"><span className="text-ink-soft">Plano</span><span className="font-semibold text-navy">{motorista.assinatura.plano === "BASICO" ? "Básico" : "Frota"}</span></p>
-                <p className="flex justify-between"><span className="text-ink-soft">Status</span><span className="font-semibold text-navy">{motorista.assinatura.status}</span></p>
-                <p className="flex justify-between"><span className="text-ink-soft">Valor</span><span className="font-semibold text-navy">{formatarReais(motorista.assinatura.valorCentavos)}/mês</span></p>
-                {motorista.assinatura.destaque && <p className="flex justify-between"><span className="text-ink-soft">Destaque</span><span className="font-semibold text-navy">Ativo</span></p>}
-              </div>
-            ) : (
-              <p className="mt-2 text-sm text-ink-soft">Sem assinatura.</p>
-            )}
+            <h2 className="font-serif text-lg text-navy">Comissão</h2>
+            <div className="mt-3 space-y-1.5 text-sm">
+              <p className="flex justify-between"><span className="text-ink-soft">Contratos fechados</span><span className="font-semibold text-navy">{motorista.contratos.length}</span></p>
+              <p className="flex justify-between"><span className="text-ink-soft">Receita gerada</span><span className="font-semibold text-sage">{formatarReais(receitaGeradaCentavos)}</span></p>
+              <p className="flex justify-between"><span className="text-ink-soft">Destaque</span><span className="font-semibold text-navy">{motorista.destaqueAtivo ? "Ativo" : "Não contratado"}</span></p>
+            </div>
+            <Link href="/admin/financeiro" className="mt-3 block text-xs font-semibold text-sage hover:underline">
+              Ver no Financeiro →
+            </Link>
           </section>
 
           <section className="rounded-2xl border border-cream-line bg-white p-5">

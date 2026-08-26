@@ -5,7 +5,11 @@ import { db } from "../../../lib/db";
 import { DashboardShell, type DashboardNavItem } from "../../../components/dashboard-shell";
 import { Badge } from "../../../components/ui/badge";
 
-const PLANO_LABEL: Record<string, string> = { BASICO: "Básico", FROTA: "Frota" };
+const APROVACAO_LABEL: Record<string, string> = {
+  PENDENTE: "Em análise",
+  APROVADO: "Aprovado",
+  REPROVADO: "Reprovado",
+};
 
 export default async function MotoristaLayout({ children }: { children: React.ReactNode }) {
   // Sessão + papel já garantidos pelo middleware.ts antes de chegar aqui.
@@ -14,7 +18,7 @@ export default async function MotoristaLayout({ children }: { children: React.Re
 
   const motorista = await db.motorista.findUnique({
     where: { userId: session.userId },
-    include: { user: true, assinatura: true },
+    include: { user: true },
   });
   if (!motorista) redirect("/entrar");
 
@@ -34,13 +38,16 @@ export default async function MotoristaLayout({ children }: { children: React.Re
       navItems={navItems}
       userName={motorista.user.nome}
       userSubtitle={
-        <Badge variant="outline" className="border-white/15 bg-white/5 text-[11px] font-semibold text-white/80">
-          {motorista.assinatura
-            ? `${motorista.assinatura.status === "ATIVA" ? "Ativo" : motorista.assinatura.status.toLowerCase()} · Plano ${
-                PLANO_LABEL[motorista.assinatura.plano] ?? motorista.assinatura.plano
-              }`
-            : "Sem assinatura"}
-        </Badge>
+        <div className="flex flex-wrap gap-1.5">
+          <Badge variant="outline" className="border-white/15 bg-white/5 text-[11px] font-semibold text-white/80">
+            {APROVACAO_LABEL[motorista.statusAprovacao] ?? motorista.statusAprovacao}
+          </Badge>
+          {motorista.destaqueAtivo && (
+            <Badge variant="outline" className="border-amber/30 bg-amber/10 text-[11px] font-semibold text-amber">
+              Destaque
+            </Badge>
+          )}
+        </div>
       }
     >
       {children}

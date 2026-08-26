@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Search, ChevronRight } from "lucide-react";
+import { Search, ChevronRight, Sparkles } from "lucide-react";
 import { Avatar, AvatarFallback } from "../../../components/ui/avatar";
 import { Badge } from "../../../components/ui/badge";
 import { cn } from "../../../lib/utils";
@@ -14,8 +14,7 @@ type Motorista = {
   telefone: string | null;
   ativo: boolean;
   statusAprovacao: "PENDENTE" | "APROVADO" | "REPROVADO";
-  plano: "BASICO" | "FROTA" | null;
-  statusAssinatura: string | null;
+  destaqueAtivo: boolean;
   createdAt: string;
 };
 
@@ -106,9 +105,13 @@ export default function MotoristasList({ motoristas }: { motoristas: Motorista[]
                       </span>
                     )}
                   </p>
-                  <p className="truncate text-xs text-ink-soft">
+                  <p className="flex items-center gap-1 truncate text-xs text-ink-soft">
                     {m.email}
-                    {m.plano && ` · ${m.plano === "BASICO" ? "Básico" : "Frota"}`}
+                    {m.destaqueAtivo && (
+                      <span className="flex items-center gap-0.5 text-amber-600">
+                        <Sparkles className="h-3 w-3" /> Destaque
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>

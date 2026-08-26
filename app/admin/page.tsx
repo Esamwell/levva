@@ -29,24 +29,26 @@ export default async function AdminDashboardPage() {
   inicioMes.setDate(1);
   inicioMes.setHours(0, 0, 0, 0);
 
-  const [assinaturasAtivas, transportadoresAtivos, leadsEsteMes, leadsFechados, totalLeads] =
+  const [contratosEsteMes, transportadoresAtivos, leadsEsteMes, leadsFechados, totalLeads] =
     await Promise.all([
-      db.assinatura.findMany({ where: { status: "ATIVA" }, select: { valorCentavos: true } }),
+      db.contrato.findMany({ where: { createdAt: { gte: inicioMes } }, select: { taxaCentavos: true } }),
       db.motorista.count({ where: { statusAprovacao: "APROVADO" } }),
       db.lead.count({ where: { createdAt: { gte: inicioMes } } }),
       db.lead.count({ where: { status: "FECHADO" } }),
       db.lead.count(),
     ]);
 
-  const mrrCentavos = assinaturasAtivas.reduce((soma, a) => soma + a.valorCentavos, 0);
+  // Sem mensalidade (modelo antigo aposentado): a receita da Mova agora é a
+  // taxa em cima de contrato fechado — ver detalhe completo em /admin/financeiro.
+  const receitaComissaoMesCentavos = contratosEsteMes.reduce((soma, c) => soma + c.taxaCentavos, 0);
   const taxaConversao = totalLeads > 0 ? (leadsFechados / totalLeads) * 100 : 0;
 
   const metrics = [
     {
       icon: Wallet,
-      label: "MRR atual",
-      value: formatarReais(mrrCentavos),
-      countTo: Math.round(mrrCentavos / 100),
+      label: "Comissão este mês",
+      value: formatarReais(receitaComissaoMesCentavos),
+      countTo: Math.round(receitaComissaoMesCentavos / 100),
       prefix: "R$ ",
       separator: ".",
     },
