@@ -251,9 +251,9 @@ export default function LandingPage() {
           </div>
 
           <div className="flex justify-center lg:justify-end">
-            <div className="flex h-64 w-64 items-center justify-center rounded-full bg-amber/10">
+            <div className="flex h-44 w-44 items-center justify-center rounded-full bg-amber/10 sm:h-56 sm:w-56 lg:h-64 lg:w-64">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/mova-mark.png" alt="Mova" className="h-40 w-auto" />
+              <img src="/mova-mark.png" alt="Mova" className="h-28 w-auto sm:h-36 lg:h-40" />
             </div>
           </div>
         </AnimatedContent>

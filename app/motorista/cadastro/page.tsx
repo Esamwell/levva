@@ -205,16 +205,16 @@ export default function CadastroMotoristaPage() {
 
   return (
     <div className="min-h-screen bg-cream">
-      <header className="border-b border-cream-line bg-amber px-6 py-5 text-navy">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
+      <header className="border-b border-cream-line bg-amber px-4 py-5 text-navy sm:px-6">
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
           <Logo on="light" size="sm" />
-          <span className="rounded-full border border-navy/20 px-3 py-1 text-xs text-navy/70">
+          <span className="whitespace-nowrap rounded-full border border-navy/20 px-3 py-1 text-xs text-navy/70">
             Cadastro de motorista
           </span>
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-6 py-10">
+      <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         <h1 className="font-serif text-3xl text-navy">Vamos cadastrar seu veículo.</h1>
         <p className="mt-2 max-w-xl text-ink-soft">
           Leva uns 5 minutos. Depois de enviar, nossa equipe confere seus
@@ -242,7 +242,7 @@ export default function CadastroMotoristaPage() {
           ))}
         </ol>
 
-        <div className="mt-8 rounded-card border border-cream-line bg-white p-8">
+        <div className="mt-8 rounded-card border border-cream-line bg-white p-5 sm:p-8">
           <AnimatePresence mode="wait" initial={false}>
           {step === 0 && (
             <motion.div
@@ -599,12 +599,12 @@ export default function CadastroMotoristaPage() {
           )}
           </AnimatePresence>
 
-          <div className="mt-8 flex justify-between">
+          <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
             <button
               type="button"
               disabled={step === 0}
               onClick={() => setStep((s) => Math.max(0, s - 1))}
-              className="rounded-full px-5 py-2.5 text-sm font-semibold text-ink-soft disabled:opacity-0"
+              className="rounded-full px-5 py-2.5 text-sm font-semibold text-ink-soft disabled:hidden sm:disabled:inline-block sm:disabled:opacity-0"
             >
               Voltar
             </button>
@@ -613,7 +613,7 @@ export default function CadastroMotoristaPage() {
                 type="button"
                 disabled={!podeAvancar}
                 onClick={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}
-                className="rounded-full bg-amber px-6 py-2.5 text-sm font-bold text-navy disabled:opacity-40"
+                className="w-full rounded-full bg-amber px-6 py-2.5 text-sm font-bold text-navy disabled:opacity-40 sm:w-auto"
               >
                 Continuar
               </button>
@@ -622,7 +622,7 @@ export default function CadastroMotoristaPage() {
                 type="button"
                 disabled={enviando}
                 onClick={enviarCadastro}
-                className="rounded-full bg-amber px-6 py-2.5 text-sm font-bold text-navy disabled:opacity-50"
+                className="w-full rounded-full bg-amber px-6 py-2.5 text-sm font-bold text-navy disabled:opacity-50 sm:w-auto"
               >
                 {enviando ? "Enviando..." : "Criar conta e enviar documentos"}
               </button>

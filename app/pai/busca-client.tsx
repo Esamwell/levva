@@ -301,7 +301,7 @@ function ModalContato({
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent className="w-[calc(100%-2rem)] rounded-2xl sm:max-w-sm">
         {enviado ? (
           <div className="text-center">
             <DialogHeader>

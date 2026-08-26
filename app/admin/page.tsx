@@ -82,7 +82,7 @@ export default async function AdminDashboardPage() {
       <h1 className="font-serif text-3xl text-navy">Dashboard</h1>
       <p className="mt-1 text-sm text-ink-soft">Visão geral da operação da Mova.</p>
 
-      <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {metrics.map((m) => (
           <StatCard
             key={m.label}

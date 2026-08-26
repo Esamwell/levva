@@ -6,6 +6,18 @@ html {
   scroll-behavior: smooth;
 }
 
+/*
+ * Trava de segurança: nada no site deveria criar scroll horizontal, mas um
+ * elemento decorativo ou posicionamento absoluto mal calculado em algum
+ * canto esquecido pode passar batido. Isso garante que, mesmo se acontecer,
+ * o usuário não vê uma barra de rolagem lateral — só corta o excesso.
+ */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 @layer base {
   /*
    * Tokens semânticos do shadcn/ui, mapeados pra identidade da Mova
