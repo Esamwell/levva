@@ -377,7 +377,7 @@ export default function CadastroMotoristaPage() {
                           </button>
                         )}
                       </div>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                         <input
                           value={v.placa}
                           onChange={(e) => updateVeiculo(i, "placa", e.target.value.toUpperCase())}
@@ -388,7 +388,7 @@ export default function CadastroMotoristaPage() {
                           value={v.modelo}
                           onChange={(e) => updateVeiculo(i, "modelo", e.target.value)}
                           placeholder="Modelo (ex.: Fiat Ducato)"
-                          className="col-span-2 rounded-lg border border-cream-line px-3 py-2 text-sm outline-none focus:border-amber"
+                          className="rounded-lg border border-cream-line px-3 py-2 text-sm outline-none focus:border-amber sm:col-span-2"
                         />
                       </div>
                       <input

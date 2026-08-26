@@ -79,11 +79,11 @@ export default function LandingPage() {
             ))}
           </svg>
           <Bus
-            className="absolute -right-6 top-16 h-40 w-40 text-navy/[0.07] md:h-52 md:w-52"
+            className="absolute -right-6 top-16 h-24 w-24 text-navy/[0.07] sm:h-40 sm:w-40 md:h-52 md:w-52"
             strokeWidth={1.25}
           />
           <Bus
-            className="absolute bottom-0 left-[8%] h-24 w-24 -rotate-6 text-navy/[0.06]"
+            className="absolute bottom-0 left-[8%] hidden h-24 w-24 -rotate-6 text-navy/[0.06] sm:block"
             strokeWidth={1.25}
           />
         </div>
@@ -100,7 +100,11 @@ export default function LandingPage() {
               backgroundOpacity={0.16}
             >
               <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-navy" />
-              <span className="whitespace-nowrap">SALVADOR &amp; LAURO DE FREITAS · CHEGANDO EM BREVE</span>
+              {/* Texto curto no celular pra caber numa linha só sem estourar a tela. */}
+              <span className="whitespace-nowrap sm:hidden">SALVADOR · EM BREVE</span>
+              <span className="hidden whitespace-nowrap sm:inline">
+                SALVADOR &amp; LAURO DE FREITAS · CHEGANDO EM BREVE
+              </span>
             </GlassSurface>
             <h1 className="font-serif text-5xl leading-[1.06] md:text-6xl">
               O trajeto mais importante do dia, em{" "}
@@ -368,7 +372,7 @@ export default function LandingPage() {
           <p className="mt-3.5 text-white/70">
             Estamos abrindo por bairro. Deixe seu e-mail e avisamos assim que a Mova chegar na sua região.
           </p>
-          <form className="mx-auto mt-7 flex max-w-md gap-2.5">
+          <form className="mx-auto mt-7 flex max-w-md flex-col gap-2.5 sm:flex-row">
             <input
               type="email"
               placeholder="seu@email.com"

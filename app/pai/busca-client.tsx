@@ -11,7 +11,7 @@
  */
 
 import { useState } from "react";
-import { Star, Sparkles, MapPin, Search } from "lucide-react";
+import { Star, Sparkles, MapPin, Search, Check, ShieldCheck } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import { Avatar, AvatarFallback } from "../../components/ui/avatar";
@@ -84,41 +84,68 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
 
   return (
     <div>
-      <h1 className="font-serif text-3xl text-navy">Encontre o transporte do seu filho</h1>
-      <p className="mt-2 text-ink-soft">
-        Digite seu endereço e a escola, sem custo, sem cadastro obrigatório.
-      </p>
+      <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
+        <div>
+          <h1 className="font-serif text-3xl text-navy">Encontre o transporte do seu filho</h1>
+          <p className="mt-2 text-ink-soft">
+            Digite seu endereço e a escola, sem custo, sem cadastro obrigatório.
+          </p>
 
-      <form onSubmit={buscar} className="mt-8 max-w-md space-y-3 rounded-2xl border border-cream-line bg-white p-6">
-        <div className="relative">
-          <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-soft" />
-          <input
-            required
-            value={endereco}
-            onChange={(e) => setEndereco(e.target.value)}
-            placeholder="Seu endereço, em Salvador"
-            className="w-full rounded-xl border border-cream-line py-3 pl-10 pr-4 text-sm outline-none focus:border-amber"
-          />
+          <form onSubmit={buscar} className="mt-8 max-w-md space-y-3 rounded-2xl border border-cream-line bg-white p-6">
+            <div className="relative">
+              <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-soft" />
+              <input
+                required
+                value={endereco}
+                onChange={(e) => setEndereco(e.target.value)}
+                placeholder="Seu endereço, em Salvador"
+                className="w-full rounded-xl border border-cream-line py-3 pl-10 pr-4 text-sm outline-none focus:border-amber"
+              />
+            </div>
+            <input
+              required
+              value={escola}
+              onChange={(e) => setEscola(e.target.value)}
+              placeholder="Nome da escola"
+              className="w-full rounded-xl border border-cream-line px-4 py-3 text-sm outline-none focus:border-amber"
+            />
+            <Button
+              disabled={buscando}
+              className="w-full bg-navy py-5 text-sm font-bold text-white hover:bg-navy/90 disabled:opacity-50"
+            >
+              <Search className="h-4 w-4" />
+              {buscando ? "Buscando..." : "Buscar transportadores"}
+            </Button>
+            {erro && <p className="text-sm text-red-600">{erro}</p>}
+          </form>
         </div>
-        <input
-          required
-          value={escola}
-          onChange={(e) => setEscola(e.target.value)}
-          placeholder="Nome da escola"
-          className="w-full rounded-xl border border-cream-line px-4 py-3 text-sm outline-none focus:border-amber"
-        />
-        <Button
-          disabled={buscando}
-          className="w-full bg-navy py-5 text-sm font-bold text-white hover:bg-navy/90 disabled:opacity-50"
-        >
-          <Search className="h-4 w-4" />
-          {buscando ? "Buscando..." : "Buscar transportadores"}
-        </Button>
-        {erro && <p className="text-sm text-red-600">{erro}</p>}
-      </form>
+
+        {resultados === null && (
+          <div className="rounded-2xl border border-cream-line bg-white p-6 lg:mt-[4.75rem]">
+            <p className="font-mono text-xs uppercase tracking-wide text-sage">O que você vai ver</p>
+            <ul className="mt-4 space-y-3.5">
+              {[
+                "Foto real do veículo e do motorista",
+                "Selo de verificação documental",
+                "Avaliações de outras famílias da região",
+                "Escolas atendidas e faixa de preço, sem letra miúda",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2.5 text-sm text-ink-soft">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-sage" strokeWidth={2.5} />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6 flex items-center gap-2 border-t border-cream-line pt-4 text-xs text-ink-soft">
+              <ShieldCheck className="h-4 w-4 shrink-0 text-sage" />
+              CNH, curso de transporte escolar e antecedentes checados antes de qualquer motorista aparecer aqui.
+            </div>
+          </div>
+        )}
+      </div>
 
       {resultados !== null && (
-        <div className="mt-8 max-w-2xl">
+        <div className="mt-10 max-w-2xl">
           {escolaEncontrada === false && (
             <p className="text-sm text-ink-soft">
               Ainda não temos essa escola no nosso cadastro. Deixa seu contato que
