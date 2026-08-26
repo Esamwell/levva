@@ -7,6 +7,7 @@ import { FileCheck, FileX, Car } from "lucide-react";
 import { Avatar, AvatarFallback } from "../../../components/ui/avatar";
 import { Button } from "../../../components/ui/button";
 import SpotlightCard from "../../../components/SpotlightCard";
+import { ReprovarDialog } from "../../../components/reprovar-dialog";
 
 type Motorista = {
   id: string;
@@ -32,6 +33,7 @@ function iniciais(nome: string): string {
 export default function AprovacoesList({ motoristas }: { motoristas: Motorista[] }) {
   const router = useRouter();
   const [processando, setProcessando] = useState<string | null>(null);
+  const [reprovarAlvo, setReprovarAlvo] = useState<string | null>(null);
 
   async function aprovar(id: string) {
     setProcessando(id);
@@ -43,9 +45,7 @@ export default function AprovacoesList({ motoristas }: { motoristas: Motorista[]
     }
   }
 
-  async function reprovar(id: string) {
-    const motivo = window.prompt("Motivo da reprovação (o motorista vai receber isso):");
-    if (!motivo) return;
+  async function reprovar(id: string, motivo: string) {
     setProcessando(id);
     try {
       await fetch(`/api/admin/motoristas/${id}/reprovar`, {
@@ -53,6 +53,7 @@ export default function AprovacoesList({ motoristas }: { motoristas: Motorista[]
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ motivo }),
       });
+      setReprovarAlvo(null);
       router.refresh();
     } finally {
       setProcessando(null);
@@ -132,7 +133,7 @@ export default function AprovacoesList({ motoristas }: { motoristas: Motorista[]
               size="sm"
               variant="outline"
               disabled={processando === m.id}
-              onClick={() => reprovar(m.id)}
+              onClick={() => setReprovarAlvo(m.id)}
               className="flex-1 border-cream-line text-ink-soft hover:bg-cream"
             >
               Reprovar
@@ -140,6 +141,12 @@ export default function AprovacoesList({ motoristas }: { motoristas: Motorista[]
           </div>
         </SpotlightCard>
       ))}
+      <ReprovarDialog
+        open={reprovarAlvo !== null}
+        onOpenChange={(v) => !v && setReprovarAlvo(null)}
+        onConfirmar={(motivo) => reprovarAlvo && reprovar(reprovarAlvo, motivo)}
+        carregando={processando === reprovarAlvo}
+      />
     </div>
   );
 }

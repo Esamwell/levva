@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "../../../../components/ui/button";
+import { ReprovarDialog } from "../../../../components/reprovar-dialog";
 
 export default function MotoristaDetailActions({
   motoristaId,
@@ -18,6 +19,7 @@ export default function MotoristaDetailActions({
   const router = useRouter();
   const [carregando, setCarregando] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [dialogReprovar, setDialogReprovar] = useState(false);
 
   async function aprovar() {
     setCarregando("aprovar");
@@ -33,9 +35,7 @@ export default function MotoristaDetailActions({
     }
   }
 
-  async function reprovar() {
-    const motivo = window.prompt("Motivo da reprovação (o motorista vai receber isso):");
-    if (!motivo) return;
+  async function reprovar(motivo: string) {
     setCarregando("reprovar");
     setErro(null);
     try {
@@ -45,6 +45,7 @@ export default function MotoristaDetailActions({
         body: JSON.stringify({ motivo }),
       });
       if (!res.ok) throw new Error();
+      setDialogReprovar(false);
       router.refresh();
     } catch {
       setErro("Não foi possível reprovar.");
@@ -78,7 +79,7 @@ export default function MotoristaDetailActions({
             <Button size="sm" disabled={!!carregando} onClick={aprovar} className="bg-sage text-white hover:bg-sage/90">
               Aprovar
             </Button>
-            <Button size="sm" variant="outline" disabled={!!carregando} onClick={reprovar} className="border-cream-line text-ink-soft hover:bg-cream">
+            <Button size="sm" variant="outline" disabled={!!carregando} onClick={() => setDialogReprovar(true)} className="border-cream-line text-ink-soft hover:bg-cream">
               Reprovar
             </Button>
           </>
@@ -94,6 +95,12 @@ export default function MotoristaDetailActions({
         </Button>
       </div>
       {erro && <p className="text-xs text-red-600">{erro}</p>}
+      <ReprovarDialog
+        open={dialogReprovar}
+        onOpenChange={setDialogReprovar}
+        onConfirmar={reprovar}
+        carregando={carregando === "reprovar"}
+      />
     </div>
   );
 }
