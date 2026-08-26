@@ -2,10 +2,21 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Search, FileText } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Search, FileText, ExternalLink, CircleDollarSign } from "lucide-react";
 import { EmptyState } from "../../../components/empty-state";
 import { Badge } from "../../../components/ui/badge";
+import { Button } from "../../../components/ui/button";
 import { cn } from "../../../lib/utils";
+
+type Cobranca = {
+  id: string;
+  competencia: string;
+  valorCentavos: number;
+  paga: boolean;
+  asaasPaymentId: string | null;
+  linkPagamento: string | null;
+};
 
 type Contrato = {
   id: string;
@@ -19,6 +30,8 @@ type Contrato = {
   motoristaNome: string;
   paiId: string;
   paiNome: string;
+  paiTemCpfCnpj: boolean;
+  cobrancas: Cobranca[];
 };
 
 const PERIODO_LABEL: Record<Contrato["periodicidade"], string> = {
@@ -36,6 +49,93 @@ const FILTROS = [
 
 function formatarReais(centavos: number): string {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function CobrancasContrato({ contrato }: { contrato: Contrato }) {
+  const router = useRouter();
+  const [gerando, setGerando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+
+  const pendente = contrato.cobrancas.find((cb) => !cb.paga && cb.asaasPaymentId);
+
+  async function gerarCobranca() {
+    setErro(null);
+    setGerando(true);
+    try {
+      const res = await fetch(`/api/admin/contratos/${contrato.id}/gerar-cobranca`, { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Não deu pra gerar a cobrança.");
+      router.refresh();
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Não deu pra gerar a cobrança.");
+    } finally {
+      setGerando(false);
+    }
+  }
+
+  return (
+    <div className="mt-3 border-t border-cream-line pt-3">
+      {contrato.cobrancas.length > 0 && (
+        <ul className="space-y-1.5">
+          {contrato.cobrancas.map((cb) => (
+            <li key={cb.id} className="flex flex-wrap items-center justify-between gap-2 text-xs">
+              <span className="text-ink-soft">
+                {new Date(cb.competencia).toLocaleDateString("pt-BR")} · {formatarReais(cb.valorCentavos)}
+              </span>
+              <div className="flex items-center gap-2">
+                {cb.paga ? (
+                  <Badge variant="outline" className="border-transparent bg-sage-soft text-[10px] font-semibold text-sage">
+                    Paga
+                  </Badge>
+                ) : cb.asaasPaymentId ? (
+                  <Badge variant="outline" className="border-transparent bg-amber-soft text-[10px] font-semibold text-navy">
+                    Aguardando pagamento
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="border-transparent bg-cream text-[10px] font-semibold text-ink-soft">
+                    Marcada manualmente
+                  </Badge>
+                )}
+                {cb.linkPagamento && (
+                  <a
+                    href={cb.linkPagamento}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1 font-semibold text-navy hover:underline"
+                  >
+                    Ver cobrança <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="mt-2.5 flex flex-wrap items-center gap-2">
+        {pendente ? (
+          <p className="text-xs text-ink-soft">Já tem uma cobrança aguardando pagamento pra esse ciclo.</p>
+        ) : (
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={gerando}
+            onClick={gerarCobranca}
+            className="h-7 gap-1.5 rounded-full border-cream-line text-xs text-navy hover:bg-cream"
+          >
+            <CircleDollarSign className="h-3.5 w-3.5" />
+            {gerando ? "Gerando..." : "Gerar cobrança Asaas"}
+          </Button>
+        )}
+        {!contrato.paiTemCpfCnpj && (
+          <Link href={`/admin/pais/${contrato.paiId}`} className="text-xs text-ink-soft hover:text-navy hover:underline">
+            Falta o CPF/CNPJ do responsável →
+          </Link>
+        )}
+      </div>
+      {erro && <p className="mt-1.5 text-xs text-red-600">{erro}</p>}
+    </div>
+  );
 }
 
 export default function FinanceiroList({ contratos }: { contratos: Contrato[] }) {
@@ -117,6 +217,8 @@ export default function FinanceiroList({ contratos }: { contratos: Contrato[] })
                   <p className="mt-0.5 font-semibold text-navy">{c.pagadorTaxa === "MOTORISTA" ? "Motorista" : "Família"}</p>
                 </div>
               </div>
+
+              <CobrancasContrato contrato={c} />
             </div>
           ))
         )}

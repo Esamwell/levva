@@ -309,3 +309,75 @@ export function emailNovoTicketAdmin(params: {
     ),
   };
 }
+
+export function emailCobrancaGerada(params: {
+  paiNome: string;
+  motoristaNome: string;
+  valorFormatado: string;
+  vencimentoFormatado: string;
+  link: string;
+}): Omit<Mensagem, "para"> {
+  return {
+    assunto: `Cobrança do transporte de ${params.motoristaNome}`,
+    texto:
+      `Olá, ${params.paiNome}.\n\n` +
+      `Segue o link de pagamento do transporte escolar com ${params.motoristaNome}: ${params.valorFormatado}, ` +
+      `vencimento em ${params.vencimentoFormatado}.\n\n` +
+      `Pagar: ${params.link}\n\n` +
+      `Você pode pagar por Pix, boleto ou cartão.`,
+    html: moldura(
+      "Cobrança do transporte escolar",
+      `<p style="font-size:15px;line-height:1.6;color:#6B6B6B;margin:16px 0 0">
+         Olá, ${escaparHtml(params.paiNome)}. Segue o link de pagamento do transporte com
+         <strong>${escaparHtml(params.motoristaNome)}</strong>.
+       </p>
+       <table style="width:100%;font-size:14px;color:#6B6B6B;margin:16px 0 0;border-collapse:collapse">
+         <tr><td style="padding:6px 0;color:#8A8A8A">Valor</td><td style="padding:6px 0;color:#111111;font-weight:600">${escaparHtml(params.valorFormatado)}</td></tr>
+         <tr><td style="padding:6px 0;color:#8A8A8A">Vencimento</td><td style="padding:6px 0;color:#111111;font-weight:600">${escaparHtml(params.vencimentoFormatado)}</td></tr>
+       </table>
+       ${botao(params.link, "Pagar agora")}
+       <p style="font-size:13px;line-height:1.6;color:#8A8A8A;margin:20px 0 0">
+         Pix, boleto ou cartão — escolha na própria página de pagamento.
+       </p>`
+    ),
+  };
+}
+
+export function emailSaqueSolicitadoAdmin(params: {
+  motoristaNome: string;
+  valorFormatado: string;
+  link: string;
+}): Omit<Mensagem, "para"> {
+  return {
+    assunto: `${params.motoristaNome} pediu saque de ${params.valorFormatado}`,
+    texto:
+      `${params.motoristaNome} solicitou saque de ${params.valorFormatado}. Faz o Pix manual e dá baixa no painel.\n\n` +
+      `Abrir o painel: ${params.link}`,
+    html: moldura(
+      "Saque solicitado",
+      `<table style="width:100%;font-size:14px;color:#6B6B6B;margin:16px 0 0;border-collapse:collapse">
+         <tr><td style="padding:6px 0;color:#8A8A8A">Motorista</td><td style="padding:6px 0;color:#111111;font-weight:600">${escaparHtml(params.motoristaNome)}</td></tr>
+         <tr><td style="padding:6px 0;color:#8A8A8A">Valor</td><td style="padding:6px 0;color:#111111;font-weight:600">${escaparHtml(params.valorFormatado)}</td></tr>
+       </table>
+       <p style="font-size:13px;line-height:1.6;color:#8A8A8A;margin:16px 0 0">
+         Faz o Pix manual pro motorista e depois marca como pago no painel.
+       </p>
+       ${botao(params.link, "Ver saques pendentes")}`
+    ),
+  };
+}
+
+export function emailSaquePago(params: { nome: string; valorFormatado: string }): Omit<Mensagem, "para"> {
+  return {
+    assunto: `Saque de ${params.valorFormatado} confirmado`,
+    texto: `Olá, ${params.nome}.\n\nSeu saque de ${params.valorFormatado} foi pago via Pix. Confere na sua conta.`,
+    html: moldura(
+      "Saque confirmado",
+      `<p style="font-size:15px;line-height:1.6;color:#6B6B6B;margin:16px 0 0">
+         Olá, ${escaparHtml(params.nome)}. Seu saque de <strong>${escaparHtml(params.valorFormatado)}</strong> foi
+         pago via Pix — confere na sua conta.
+       </p>`
+    ),
+  };
+}
+

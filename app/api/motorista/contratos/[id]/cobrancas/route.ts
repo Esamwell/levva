@@ -25,7 +25,9 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
   const contrato = await db.contrato.findUnique({
     where: { id },
-    include: { cobrancas: { orderBy: { competencia: "desc" }, take: 1 } },
+    // Só cobranças pagas contam pra calcular o próximo ciclo — uma cobrança
+    // Asaas gerada mas ainda não paga não pode empurrar a competência.
+    include: { cobrancas: { where: { paga: true }, orderBy: { competencia: "desc" }, take: 1 } },
   });
   if (!contrato || contrato.motoristaId !== motorista.id) {
     return NextResponse.json({ error: "Contrato não encontrado." }, { status: 404 });

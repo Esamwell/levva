@@ -30,6 +30,7 @@ export default function ConfiguracoesAsaasForm() {
   const [ambiente, setAmbiente] = useState<Ambiente>("SANDBOX");
   const [salvando, setSalvando] = useState(false);
   const [testando, setTestando] = useState(false);
+  const [configurandoWebhook, setConfigurandoWebhook] = useState(false);
   const [mensagem, setMensagem] = useState<{ tipo: "ok" | "erro"; texto: string } | null>(null);
 
   async function carregarStatus() {
@@ -85,6 +86,21 @@ export default function ConfiguracoesAsaasForm() {
       setMensagem({ tipo: "erro", texto: err instanceof Error ? err.message : "Falha ao testar." });
     } finally {
       setTestando(false);
+    }
+  }
+
+  async function configurarWebhook() {
+    setMensagem(null);
+    setConfigurandoWebhook(true);
+    try {
+      const res = await fetch("/api/admin/configuracoes/asaas/webhook", { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Falha ao configurar o webhook.");
+      setMensagem({ tipo: "ok", texto: "Webhook registrado — pagamentos confirmados agora avisam o sistema automaticamente." });
+    } catch (err) {
+      setMensagem({ tipo: "erro", texto: err instanceof Error ? err.message : "Falha ao configurar o webhook." });
+    } finally {
+      setConfigurandoWebhook(false);
     }
   }
 
@@ -173,6 +189,23 @@ export default function ConfiguracoesAsaasForm() {
           </Button>
         </div>
       </form>
+
+      <section className="rounded-2xl border border-cream-line bg-white p-5">
+        <h2 className="font-serif text-lg text-navy">Webhook de pagamentos</h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          Avisa o sistema automaticamente quando um pagamento é confirmado, pra liberar o repasse
+          pro motorista. Registra direto na conta configurada acima — sem precisar mexer no painel
+          do Asaas.
+        </p>
+        <Button
+          type="button"
+          disabled={configurandoWebhook || !status?.configurado}
+          onClick={configurarWebhook}
+          className="mt-3 bg-navy text-white hover:bg-navy/90"
+        >
+          {configurandoWebhook ? "Registrando..." : "Configurar webhook"}
+        </Button>
+      </section>
     </div>
   );
 }

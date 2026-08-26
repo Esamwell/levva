@@ -160,6 +160,12 @@ model Pai {
   lng       Float?
   createdAt DateTime @default(now())
 
+  // Exigidos pelo Asaas pra criar cobrança (ver lib/asaas.ts) — preenchidos
+  // só quando o admin gera a primeira cobrança pra esse pai, não no
+  // cadastro (nem todo pai chega a fechar contrato).
+  cpfCnpj         String?
+  asaasCustomerId String?
+
   filhos     Filho[]
   leads      Lead[]
   avaliacoes Avaliacao[]
@@ -249,6 +255,7 @@ model Motorista {
   assinatura  Assinatura?
   contratos   Contrato[]
   extras      MotoristaExtra[]
+  saques      SolicitacaoSaque[]
 
   // Regra de enquadramento no plano Frota (ver /lib/plano.ts):
   // múltiplos veículos OU 3+ escolas atendidas -> Frota
@@ -442,6 +449,46 @@ model Cobranca {
   competencia   DateTime
   valorCentavos Int
   createdAt     DateTime @default(now())
+
+  // Preenchidos quando a cobrança nasce de uma cobrança gerada no Asaas
+  // (ver lib/asaas.ts) em vez de marcada manualmente pelo motorista.
+  // `paga` só é false nesse caso — uma marcação manual já representa
+  // dinheiro recebido, então nasce paga (default true preserva as linhas
+  // criadas antes dessa coluna existir).
+  asaasPaymentId String?   @unique
+  linkPagamento  String?
+  paga           Boolean   @default(true)
+  pagaEm         DateTime?
+
+  // Uma cobrança paga (Asaas) e ainda sem saque vinculado está "disponível"
+  // pro motorista sacar (ver lib/financeiro.ts saldoDisponivelMotorista).
+  // Vincular a uma SolicitacaoSaque reserva o valor pra aquele pedido —
+  // pedir de novo antes do primeiro ser pago não soma o mesmo valor duas
+  // vezes, porque a cobrança já não conta mais como "livre".
+  solicitacaoSaque   SolicitacaoSaque? @relation(fields: [solicitacaoSaqueId], references: [id])
+  solicitacaoSaqueId String?
+}
+
+enum StatusSaque {
+  PENDENTE
+  PAGO
+}
+
+// Pedido do motorista pra sacar o que já foi pago pelo pai via Asaas mas
+// ainda não foi repassado (Pix manual, fora do Asaas — ver lib/asaas.ts).
+// O valor é travado no momento do pedido (soma das cobranças livres na
+// hora), não recalculado depois — assim o motorista sabe exatamente quanto
+// vai receber, mesmo que uma cobrança nova seja paga enquanto isso.
+model SolicitacaoSaque {
+  id            String      @id @default(cuid())
+  motorista     Motorista   @relation(fields: [motoristaId], references: [id])
+  motoristaId   String
+  valorCentavos Int
+  status        StatusSaque @default(PENDENTE)
+  createdAt     DateTime    @default(now())
+  pagoEm        DateTime?
+
+  cobrancas Cobranca[]
 }
 
 enum AmbienteAsaas {
@@ -462,5 +509,10 @@ model ConfiguracaoAsaas {
   contaNome     String?
   contaEmail    String?
   testadoEm     DateTime?
-  atualizadoEm  DateTime      @updatedAt
+  // Token que o Asaas manda de volta em cada webhook (header
+  // asaas-access-token) — gerado por nós ao registrar o webhook via API
+  // (ver lib/asaas.ts configurarWebhookAsaas), cifrado do mesmo jeito que
+  // a chave de API.
+  webhookTokenCifrada String?
+  atualizadoEm        DateTime @updatedAt
 }

@@ -20,7 +20,8 @@ export default async function FinanceiroPage() {
       orderBy: { createdAt: "desc" },
       include: {
         motorista: { select: { id: true, user: { select: { nome: true } } } },
-        pai: { select: { id: true, user: { select: { nome: true } } } },
+        pai: { select: { id: true, user: { select: { nome: true } }, cpfCnpj: true } },
+        cobrancas: { orderBy: { createdAt: "desc" } },
       },
     }),
     db.motoristaExtra.findMany({ where: { status: "ATIVO" } }),
@@ -42,8 +43,8 @@ export default async function FinanceiroPage() {
       <h1 className="font-serif text-3xl text-navy">Financeiro</h1>
       <p className="mt-1 text-sm text-ink-soft">
         Modelo em avaliação: sem mensalidade pra ficar listado — só uma taxa de {TAXA_MOVA_PERCENTUAL}% em cima de
-        cada contrato fechado, mais os extras que o motorista contratar avulso. Cobrança de verdade (Asaas) ainda
-        não está integrada; aqui é só o registro do acordo.
+        cada contrato fechado, mais os extras que o motorista contratar avulso. A Mova cobra o pai via Asaas (Pix,
+        boleto ou cartão) e repassa a parte do motorista por fora, manualmente.
       </p>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -85,6 +86,15 @@ export default async function FinanceiroPage() {
           motoristaNome: c.motorista.user.nome,
           paiId: c.pai.id,
           paiNome: c.pai.user.nome,
+          paiTemCpfCnpj: !!c.pai.cpfCnpj,
+          cobrancas: c.cobrancas.map((cb) => ({
+            id: cb.id,
+            competencia: cb.competencia.toISOString(),
+            valorCentavos: cb.valorCentavos,
+            paga: cb.paga,
+            asaasPaymentId: cb.asaasPaymentId,
+            linkPagamento: cb.linkPagamento,
+          })),
         }))}
       />
     </div>

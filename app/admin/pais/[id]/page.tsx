@@ -8,6 +8,7 @@ import { Badge } from "../../../../components/ui/badge";
 import { StatusBadge } from "../../../../components/status-badge";
 import { EmptyState } from "../../../../components/empty-state";
 import PaiDetailActions from "./pai-detail-actions";
+import CpfCnpjEditor from "./cpf-cnpj-editor";
 
 function iniciais(nome: string): string {
   return nome.trim().split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
@@ -63,6 +64,7 @@ export default async function PaiDetailPage({ params }: { params: Promise<{ id: 
               {pai.user.telefone && ` · ${pai.user.telefone}`}
             </p>
             <p className="mt-0.5 text-xs text-ink-soft">{pai.endereco}</p>
+            <CpfCnpjEditor paiId={pai.id} valorAtual={pai.cpfCnpj} />
           </div>
         </div>
         <PaiDetailActions userId={pai.userId} ativo={pai.user.ativo} />

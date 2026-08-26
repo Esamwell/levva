@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShieldCheck, Car, Users, MessageSquare, LifeBuoy, Wallet, School, Settings } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, Car, Users, MessageSquare, LifeBuoy, Wallet, School, Settings, Banknote } from "lucide-react";
 import { db } from "../../lib/db";
 import { DashboardShell, type DashboardNavItem } from "../../components/dashboard-shell";
 
@@ -14,10 +14,11 @@ import { DashboardShell, type DashboardNavItem } from "../../components/dashboar
 export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const [pendentes, depoimentosPendentes, ticketsAbertos] = await Promise.all([
+  const [pendentes, depoimentosPendentes, ticketsAbertos, saquesPendentes] = await Promise.all([
     db.motorista.count({ where: { statusAprovacao: "PENDENTE" } }),
     db.avaliacao.count({ where: { moderado: false } }),
     db.ticket.count({ where: { status: "ABERTO" } }),
+    db.solicitacaoSaque.count({ where: { status: "PENDENTE" } }),
   ]);
 
   const navItems: DashboardNavItem[] = [
@@ -43,6 +44,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       badge: ticketsAbertos,
     },
     { href: "/admin/financeiro", label: "Financeiro", icon: <Wallet className="h-4 w-4" strokeWidth={1.75} /> },
+    {
+      href: "/admin/saques",
+      label: "Saques",
+      icon: <Banknote className="h-4 w-4" strokeWidth={1.75} />,
+      badge: saquesPendentes,
+    },
     { href: "/admin/escolas", label: "Escolas", icon: <School className="h-4 w-4" strokeWidth={1.75} /> },
     { href: "/admin/configuracoes", label: "Configurações", icon: <Settings className="h-4 w-4" strokeWidth={1.75} /> },
   ];

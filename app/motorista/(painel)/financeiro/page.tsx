@@ -3,9 +3,11 @@ import { Wallet, TrendingUp, Clock } from "lucide-react";
 import { exigirPapel } from "../../../../lib/auth";
 import { db } from "../../../../lib/db";
 import { TAXA_MOVA_PERCENTUAL, proximoVencimento } from "../../../../lib/financeiro";
+import { saldoDisponivelMotorista } from "../../../../lib/saques";
 import { StatCard } from "../../../../components/stat-card";
 import { EmptyState } from "../../../../components/empty-state";
 import FinanceiroMotoristaList from "./financeiro-motorista-list";
+import SaqueSection from "./saque-section";
 
 function formatarReais(centavos: number): string {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -24,7 +26,11 @@ export default async function FinanceiroMotoristaPage() {
     include: {
       lead: { include: { filho: { include: { escola: true } } } },
       pai: { include: { user: { select: { nome: true } } } },
-      cobrancas: { orderBy: { competencia: "desc" }, take: 1 },
+      // Só cobranças efetivamente pagas contam pro "último recebimento" e
+      // pro cálculo do próximo vencimento — uma cobrança Asaas gerada mas
+      // ainda não paga (ver lib/asaas.ts) não pode fingir que o ciclo já
+      // foi recebido.
+      cobrancas: { where: { paga: true }, orderBy: { competencia: "desc" }, take: 1 },
     },
   });
 
@@ -53,6 +59,11 @@ export default async function FinanceiroMotoristaPage() {
   const receitaLiquidaPorCiclo = linhas.reduce((s, l) => s + l.liquidoCentavos, 0);
   const aguardando = linhas.filter((l) => !l.emDia).length;
 
+  const [saldoCentavos, saques] = await Promise.all([
+    saldoDisponivelMotorista(motorista.id),
+    db.solicitacaoSaque.findMany({ where: { motoristaId: motorista.id }, orderBy: { createdAt: "desc" } }),
+  ]);
+
   return (
     <div>
       <h1 className="font-serif text-3xl text-navy">Financeiro</h1>
@@ -65,6 +76,19 @@ export default async function FinanceiroMotoristaPage() {
         <StatCard icon={Wallet} label="Contratos ativos" value={String(linhas.length)} />
         <StatCard icon={TrendingUp} label="Você recebe por ciclo" value={formatarReais(receitaLiquidaPorCiclo)} />
         <StatCard icon={Clock} label="Aguardando recebimento" value={String(aguardando)} />
+      </div>
+
+      <div className="mt-6">
+        <SaqueSection
+          saldoCentavos={saldoCentavos}
+          saques={saques.map((s) => ({
+            id: s.id,
+            valorCentavos: s.valorCentavos,
+            status: s.status,
+            createdAt: s.createdAt.toISOString(),
+            pagoEm: s.pagoEm?.toISOString() ?? null,
+          }))}
+        />
       </div>
 
       {linhas.length === 0 ? (
