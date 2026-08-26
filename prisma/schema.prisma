@@ -443,3 +443,24 @@ model Cobranca {
   valorCentavos Int
   createdAt     DateTime @default(now())
 }
+
+enum AmbienteAsaas {
+  SANDBOX
+  PRODUCAO
+}
+
+// Linha única (id fixo "asaas") com a conta Asaas usada pra cobrança —
+// existe pra não deixar a chave de API hardcoded no código/.env: trocar de
+// conta Asaas vira uma tela em /admin/configuracoes, não um deploy. A chave
+// nunca fica em texto puro no banco (ver lib/cripto.ts); contaNome/contaEmail
+// são só um cache do último "testar conexão", pra mostrar no admin qual
+// conta está configurada sem precisar decifrar a chave de novo.
+model ConfiguracaoAsaas {
+  id            String        @id @default("asaas")
+  apiKeyCifrada String?
+  ambiente      AmbienteAsaas @default(SANDBOX)
+  contaNome     String?
+  contaEmail    String?
+  testadoEm     DateTime?
+  atualizadoEm  DateTime      @updatedAt
+}
