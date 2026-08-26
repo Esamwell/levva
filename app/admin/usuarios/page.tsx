@@ -20,6 +20,7 @@ export default async function UsuariosPage() {
       ativo: true,
       createdAt: true,
       motorista: { select: { id: true } },
+      pai: { select: { id: true } },
     },
   });
 
@@ -52,6 +53,7 @@ export default async function UsuariosPage() {
           ativo: u.ativo,
           createdAt: u.createdAt.toISOString(),
           motoristaId: u.motorista?.id ?? null,
+          paiId: u.pai?.id ?? null,
         }))}
         contaAtualId={session.userId}
       />

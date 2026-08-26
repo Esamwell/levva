@@ -18,6 +18,7 @@ type Usuario = {
   ativo: boolean;
   createdAt: string;
   motoristaId: string | null;
+  paiId: string | null;
 };
 
 const PAPEL_LABEL: Record<Usuario["role"], string> = {
@@ -136,9 +137,9 @@ export default function UsuariosList({
                 <Badge variant="outline" className="border-cream-line text-ink-soft">
                   {PAPEL_LABEL[u.role]}
                 </Badge>
-                {u.motoristaId && (
+                {(u.motoristaId || u.paiId) && (
                   <Link
-                    href={`/admin/motoristas/${u.motoristaId}`}
+                    href={u.motoristaId ? `/admin/motoristas/${u.motoristaId}` : `/admin/pais/${u.paiId}`}
                     className="flex items-center gap-1 text-xs font-semibold text-sage hover:underline"
                   >
                     Ver perfil <ArrowRight className="h-3 w-3" />
