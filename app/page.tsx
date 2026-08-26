@@ -173,6 +173,42 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* QUEM SOMOS */}
+      <section className="bg-white px-[6vw] py-28">
+        <AnimatedContent
+          distance={24}
+          duration={0.6}
+          className="mx-auto grid max-w-6xl items-center gap-16 lg:grid-cols-[1.05fr_0.95fr]"
+        >
+          <div>
+            <div className="mb-3.5 font-mono text-xs uppercase tracking-widest text-sage">Quem somos</div>
+            <h2 className="max-w-lg font-serif text-4xl leading-tight text-navy md:text-5xl">
+              Nascemos da vontade de trazer segurança pras nossas crianças.
+            </h2>
+            <p className="mt-5 max-w-md leading-relaxed text-ink-soft">
+              A Mova nasceu de uma pergunta que todo pai e mãe já se fez: quem está
+              dirigindo a van do meu filho? Documento vencido, motorista sem
+              antecedentes verificados, van sem seguro — histórias que a gente ouviu
+              demais pra ficar de braços cruzados.
+            </p>
+            <p className="mt-4 max-w-md leading-relaxed text-ink-soft">
+              Por isso criamos um jeito simples de verificar quem transporta as
+              crianças de Salvador: CNH, curso de transporte escolar e antecedentes
+              criminais checados antes de qualquer motorista aparecer numa busca. Sem
+              comissão escondida, sem letra miúda — só a tranquilidade de saber que
+              seu filho está em boas mãos.
+            </p>
+          </div>
+
+          <div className="flex justify-center lg:justify-end">
+            <div className="flex h-64 w-64 items-center justify-center rounded-full bg-amber/10">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/mova-mark.png" alt="Mova" className="h-40 w-auto" />
+            </div>
+          </div>
+        </AnimatedContent>
+      </section>
+
       {/* SHOWCASE */}
       <section id="motoristas" className="bg-amber px-[6vw] py-28 text-navy">
         <div className="mx-auto grid max-w-6xl items-center gap-16 lg:grid-cols-[0.95fr_1.05fr]">
