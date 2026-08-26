@@ -73,7 +73,9 @@ function SidebarBody({
         <Logo on="dark" size="sm" />
         <span className="ml-9 font-mono text-[11px] uppercase tracking-widest text-white/50">{brandLabel}</span>
       </div>
-      <div className="mt-8 flex-1">
+      {/* Só essa faixa rola, se um dia os itens não couberem — logo e
+          rodapé (plano/nome/sair) ficam sempre visíveis. */}
+      <div className="mt-8 flex-1 overflow-y-auto">
         <NavLinks navItems={navItems} pathname={pathname} />
       </div>
       <div className="mt-6 space-y-3 border-t border-white/10 pt-5">
@@ -104,10 +106,13 @@ export function DashboardShell({
 
   return (
     <div className="min-h-screen bg-cream md:flex">
-      {/* Sidebar fixa — desktop. sticky + h-screen + overflow-y-auto: fica
-          parada na viewport mesmo quando o conteúdo principal é mais alto
-          que a tela, com scroll próprio se o menu algum dia não couber. */}
-      <aside className="hidden w-64 shrink-0 bg-navy px-5 py-7 md:sticky md:top-0 md:block md:h-screen md:overflow-y-auto">
+      {/* Sidebar fixa — desktop. sticky + h-screen: fica parada na viewport
+          mesmo quando o conteúdo principal é mais alto que a tela. Sem
+          overflow-y-auto aqui: se ela rolasse por conta própria, logo e
+          rodapé saíam de vista e o scroll dela ficava fora de sincronia com
+          o da página. Só a faixa de links no meio rola, se precisar
+          (ver SidebarBody). */}
+      <aside className="hidden w-64 shrink-0 bg-navy px-5 py-7 md:sticky md:top-0 md:block md:h-screen">
         <SidebarBody
           brandLabel={brandLabel}
           navItems={navItems}
