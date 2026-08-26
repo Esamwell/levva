@@ -502,17 +502,23 @@ enum AmbienteAsaas {
 // nunca fica em texto puro no banco (ver lib/cripto.ts); contaNome/contaEmail
 // são só um cache do último "testar conexão", pra mostrar no admin qual
 // conta está configurada sem precisar decifrar a chave de novo.
+// Uma linha por ambiente (PRODUCAO e SANDBOX podem conviver, cada uma com
+// sua própria chave/webhook/conta testada) — o admin cadastra as duas em
+// /admin/configuracoes e escolhe qual fica `ativo`, sem precisar apagar
+// e recolar a chave toda vez que quiser alternar entre elas pra testar.
+// Só uma linha tem ativo=true por vez (garantido em lib/asaas.ts).
 model ConfiguracaoAsaas {
-  id            String        @id @default("asaas")
+  id            AmbienteAsaas @id
   apiKeyCifrada String?
-  ambiente      AmbienteAsaas @default(SANDBOX)
   contaNome     String?
   contaEmail    String?
   testadoEm     DateTime?
   // Token que o Asaas manda de volta em cada webhook (header
   // asaas-access-token) — gerado por nós ao registrar o webhook via API
   // (ver lib/asaas.ts configurarWebhookAsaas), cifrado do mesmo jeito que
-  // a chave de API.
+  // a chave de API. Um por ambiente, já que sandbox e produção são contas
+  // Asaas diferentes com webhooks registrados separadamente.
   webhookTokenCifrada String?
+  ativo               Boolean  @default(false)
   atualizadoEm        DateTime @updatedAt
 }

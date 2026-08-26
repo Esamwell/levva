@@ -14,7 +14,7 @@ export default async function ConfiguracoesPage() {
         aqui não precisa de deploy nem de mexer em código.
       </p>
 
-      <div className="mt-8 max-w-lg">
+      <div className="mt-8 max-w-2xl">
         <ConfiguracoesAsaasForm />
       </div>
     </div>

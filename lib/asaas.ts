@@ -27,36 +27,62 @@ export const PREFIXO_CHAVE: Record<"SANDBOX" | "PRODUCAO", string> = {
   PRODUCAO: "$aact_prod_",
 };
 
+export type Ambiente = "SANDBOX" | "PRODUCAO";
+
 type ConfigAsaas = {
   apiKey: string;
-  ambiente: "SANDBOX" | "PRODUCAO";
+  ambiente: Ambiente;
   baseUrl: string;
 };
 
+/** Configuração do ambiente ativo agora (o que asaasFetch usa de verdade). */
 export async function obterConfigAsaas(): Promise<ConfigAsaas | null> {
-  const config = await db.configuracaoAsaas.findUnique({ where: { id: "asaas" } });
-  if (!config?.apiKeyCifrada) return null;
+  const ativo = await db.configuracaoAsaas.findFirst({ where: { ativo: true } });
+  if (!ativo?.apiKeyCifrada) return null;
   return {
-    apiKey: decifrar(config.apiKeyCifrada),
-    ambiente: config.ambiente,
-    baseUrl: BASE_URL[config.ambiente],
+    apiKey: decifrar(ativo.apiKeyCifrada),
+    ambiente: ativo.id,
+    baseUrl: BASE_URL[ativo.id],
   };
 }
 
-/** Salva/atualiza a conta configurada. apiKey omitido mantém a chave já salva (só troca ambiente, por exemplo). */
-export async function salvarConfigAsaas(dados: { apiKey?: string; ambiente: "SANDBOX" | "PRODUCAO" }) {
-  await db.configuracaoAsaas.upsert({
-    where: { id: "asaas" },
-    create: {
-      id: "asaas",
-      ambiente: dados.ambiente,
-      apiKeyCifrada: dados.apiKey ? cifrar(dados.apiKey) : null,
-    },
-    update: {
-      ambiente: dados.ambiente,
-      ...(dados.apiKey ? { apiKeyCifrada: cifrar(dados.apiKey), contaNome: null, contaEmail: null, testadoEm: null } : {}),
-    },
+/** As duas linhas (produção e sandbox), pra tela de configurações mostrar status de cada uma. */
+export async function listarConfiguracoesAsaas() {
+  const linhas = await db.configuracaoAsaas.findMany();
+  const porAmbiente = new Map(linhas.map((l) => [l.id, l]));
+  return (["SANDBOX", "PRODUCAO"] as const).map((ambiente) => {
+    const linha = porAmbiente.get(ambiente);
+    return {
+      ambiente,
+      configurado: !!linha?.apiKeyCifrada,
+      ativo: linha?.ativo ?? false,
+      contaNome: linha?.contaNome ?? null,
+      contaEmail: linha?.contaEmail ?? null,
+      testadoEm: linha?.testadoEm ?? null,
+    };
   });
+}
+
+/** Salva a chave de um ambiente específico — não mexe em qual está ativo. */
+export async function salvarChaveAsaas(ambiente: Ambiente, apiKey: string) {
+  await db.configuracaoAsaas.upsert({
+    where: { id: ambiente },
+    create: { id: ambiente, apiKeyCifrada: cifrar(apiKey) },
+    update: { apiKeyCifrada: cifrar(apiKey), contaNome: null, contaEmail: null, testadoEm: null },
+  });
+}
+
+/** Ativa um ambiente (desativa o outro) — trocar não pede a chave de novo. */
+export async function ativarAmbienteAsaas(ambiente: Ambiente): Promise<{ ok: true } | { ok: false; erro: string }> {
+  const config = await db.configuracaoAsaas.findUnique({ where: { id: ambiente } });
+  if (!config?.apiKeyCifrada) {
+    return { ok: false, erro: `Cadastra a chave de ${ambiente === "PRODUCAO" ? "produção" : "sandbox"} antes de ativar.` };
+  }
+  await db.$transaction([
+    db.configuracaoAsaas.updateMany({ data: { ativo: false } }),
+    db.configuracaoAsaas.update({ where: { id: ambiente }, data: { ativo: true } }),
+  ]);
+  return { ok: true };
 }
 
 /** Chamada autenticada genérica — base pra qualquer integração futura (cobrança, split, etc). */
@@ -83,7 +109,7 @@ export async function testarConexaoAsaas(): Promise<
   { ok: true; nome: string; email: string | null } | { ok: false; erro: string }
 > {
   const config = await obterConfigAsaas();
-  if (!config) return { ok: false, erro: "Nenhuma chave configurada." };
+  if (!config) return { ok: false, erro: "Nenhuma chave ativa configurada." };
 
   try {
     const res = await asaasFetch("/myAccount/commercialInfo/");
@@ -94,7 +120,7 @@ export async function testarConexaoAsaas(): Promise<
     const nome = dados.companyName || dados.name || "Conta sem nome cadastrado";
 
     await db.configuracaoAsaas.update({
-      where: { id: "asaas" },
+      where: { id: config.ambiente },
       data: { contaNome: nome, contaEmail: dados.email ?? null, testadoEm: new Date() },
     });
 
@@ -143,7 +169,7 @@ export async function configurarWebhookAsaas(emailNotificacao: string): Promise<
       return { ok: false, erro };
     }
 
-    await db.configuracaoAsaas.update({ where: { id: "asaas" }, data: { webhookTokenCifrada: cifrar(token) } });
+    await db.configuracaoAsaas.update({ where: { id: config.ambiente }, data: { webhookTokenCifrada: cifrar(token) } });
     return { ok: true };
   } catch (err) {
     console.error("Falha ao configurar webhook do Asaas:", err);
@@ -152,11 +178,16 @@ export async function configurarWebhookAsaas(emailNotificacao: string): Promise<
 }
 
 /** Confere o header asaas-access-token de uma requisição de webhook contra o token que a gente mesmo gerou. */
+/**
+ * Confere contra o token de QUALQUER ambiente configurado, não só o ativo —
+ * um webhook registrado em sandbox continua chegando de lá mesmo depois do
+ * admin trocar o ambiente ativo pra produção (são contas Asaas diferentes,
+ * cada uma manda pro mesmo endpoint com o token que foi dado a ela).
+ */
 export async function webhookTokenValido(tokenRecebido: string | null): Promise<boolean> {
   if (!tokenRecebido) return false;
-  const config = await db.configuracaoAsaas.findUnique({ where: { id: "asaas" } });
-  if (!config?.webhookTokenCifrada) return false;
-  return decifrar(config.webhookTokenCifrada) === tokenRecebido;
+  const linhas = await db.configuracaoAsaas.findMany({ where: { webhookTokenCifrada: { not: null } } });
+  return linhas.some((l) => l.webhookTokenCifrada && decifrar(l.webhookTokenCifrada) === tokenRecebido);
 }
 
 /** Garante que o pai tem um cliente no Asaas, criando se ainda não tiver — exige CPF/CNPJ já cadastrado. */
