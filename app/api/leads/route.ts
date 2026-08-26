@@ -12,6 +12,7 @@ import {
 } from "../../../lib/auth";
 import { ipDoCliente, userAgentDoCliente } from "../../../lib/request";
 import { enviarEmail, emailNovoLeadAdmin, urlBase } from "../../../lib/email";
+import { TERMOS_VERSAO_ATUAL } from "../../../lib/termos";
 
 /**
  * POST /api/leads
@@ -43,6 +44,7 @@ const leadSchema = z.union([
     emailPai: z.string().email("E-mail inválido."),
     senha: z.string().min(8),
     telefonePai: z.string().min(10),
+    termosAceitos: z.literal(true, { errorMap: () => ({ message: "É preciso aceitar os Termos de Uso." }) }),
   }),
   // Pai já logado — só a solicitação.
   z.object(comumSchema),
@@ -142,6 +144,8 @@ export async function POST(req: Request) {
         email,
         senhaHash,
         telefone,
+        termosAceitosEm: new Date(),
+        termosVersao: TERMOS_VERSAO_ATUAL,
           pai: {
           create: {
             endereco: novo.enderecoPai,

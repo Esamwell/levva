@@ -69,6 +69,7 @@ export default function CadastroMotoristaPage() {
   ]);
 
   const [docs, setDocs] = useState<DocState>({});
+  const [termosAceitos, setTermosAceitos] = useState(false);
 
   const numVeiculos = veiculos.length;
 
@@ -129,6 +130,7 @@ export default function CadastroMotoristaPage() {
           cidade,
           cnhNumero,
           cnhCategoria,
+          termosAceitos,
           veiculos: veiculos.map((v) => ({
             placa: v.placa,
             modelo: v.modelo,
@@ -507,6 +509,21 @@ export default function CadastroMotoristaPage() {
                   </dd>
                 </div>
               </dl>
+              <label className="flex items-start gap-3 rounded-lg border border-cream-line px-4 py-3">
+                <input
+                  type="checkbox"
+                  checked={termosAceitos}
+                  onChange={(e) => setTermosAceitos(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 accent-amber"
+                />
+                <span className="text-sm text-ink-soft">
+                  Li e concordo com os{" "}
+                  <a href="/termos#motoristas" target="_blank" rel="noreferrer" className="font-semibold text-sage hover:underline">
+                    Termos de Uso da Mova
+                  </a>
+                  , incluindo a comissão sobre contrato fechado e a verificação documental.
+                </span>
+              </label>
               {erro && <p className="text-sm text-red-600">{erro}</p>}
               <p className="text-xs text-ink-soft">
                 Ao enviar, criamos sua conta e subimos seus documentos. Você
@@ -538,7 +555,7 @@ export default function CadastroMotoristaPage() {
             ) : (
               <button
                 type="button"
-                disabled={enviando}
+                disabled={enviando || !termosAceitos}
                 onClick={enviarCadastro}
                 className="w-full rounded-full bg-amber px-6 py-2.5 text-sm font-bold text-navy disabled:opacity-50 sm:w-auto"
               >

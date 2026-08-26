@@ -247,6 +247,7 @@ function ModalContato({
   const [telefonePai, setTelefonePai] = useState("");
   const [enderecoPai, setEnderecoPai] = useState(enderecoInicial);
   const [nomeFilho, setNomeFilho] = useState("");
+  const [termosAceitos, setTermosAceitos] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -257,6 +258,10 @@ function ModalContato({
     e.preventDefault();
     if (!jaLogado && !senhaOk) {
       setErro("A senha precisa ter 8 caracteres, com uma letra e um número.");
+      return;
+    }
+    if (!jaLogado && !termosAceitos) {
+      setErro("É preciso aceitar os Termos de Uso.");
       return;
     }
     setErro(null);
@@ -275,6 +280,7 @@ function ModalContato({
             nomeFilho,
             escolaId,
             motoristaId: motorista.id,
+            termosAceitos,
           };
 
       const res = await fetch("/api/leads", {
@@ -410,6 +416,24 @@ function ModalContato({
               className={campo}
             />
 
+            {!jaLogado && (
+              <label className="flex items-start gap-2.5">
+                <input
+                  type="checkbox"
+                  checked={termosAceitos}
+                  onChange={(e) => setTermosAceitos(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 accent-amber"
+                />
+                <span className="text-xs text-ink-soft">
+                  Li e concordo com os{" "}
+                  <a href="/termos#familias" target="_blank" rel="noreferrer" className="font-semibold text-sage hover:underline">
+                    Termos de Uso da Mova
+                  </a>
+                  .
+                </span>
+              </label>
+            )}
+
             {erro && (
               <p role="alert" className="text-sm text-red-600">
                 {erro}
@@ -425,7 +449,7 @@ function ModalContato({
                 Cancelar
               </button>
               <button
-                disabled={enviando}
+                disabled={enviando || (!jaLogado && !termosAceitos)}
                 className="flex-1 rounded-full bg-amber py-2 text-sm font-bold text-navy disabled:opacity-50"
               >
                 {enviando ? "Enviando..." : "Enviar"}

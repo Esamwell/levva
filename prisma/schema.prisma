@@ -68,6 +68,13 @@ model User {
   // Não apaga nada — é reversível.
   ativo     Boolean  @default(true)
 
+  // Aceite dos Termos de Uso (ver /termos) — obrigatório desde que essa
+  // coluna existe; contas criadas antes disso ficam null (não há aceite
+  // retroativo automático). termosVersao guarda qual redação foi aceita,
+  // pra rastrear se precisa pedir aceite de novo quando os termos mudarem.
+  termosAceitosEm DateTime?
+  termosVersao    String?
+
   // Relação 1:1 com o perfil específico do papel
   pai       Pai?
   motorista Motorista?

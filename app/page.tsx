@@ -368,6 +368,7 @@ export default function LandingPage() {
             <a href="#rota">Como funciona</a>
             <a href="#quem-somos">Quem somos</a>
             <a href="#motoristas">Para motoristas</a>
+            <Link href="/termos">Termos de uso</Link>
             <a href="#">Instagram</a>
             <span className="font-mono text-xs text-amber-soft">#vaidemova</span>
           </div>

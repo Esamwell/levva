@@ -9,6 +9,7 @@ import {
   criarSessao,
 } from "../../../lib/auth";
 import { ipDoCliente, userAgentDoCliente } from "../../../lib/request";
+import { TERMOS_VERSAO_ATUAL } from "../../../lib/termos";
 
 /**
  * POST /api/motoristas
@@ -39,6 +40,7 @@ const bodySchema = z.object({
   cidade: z.string().min(2),
   cnhNumero: z.string().min(4),
   cnhCategoria: z.string().min(1),
+  termosAceitos: z.literal(true, { errorMap: () => ({ message: "É preciso aceitar os Termos de Uso." }) }),
   veiculos: z.array(veiculoSchema).min(1),
 });
 
@@ -72,7 +74,15 @@ export async function POST(req: Request) {
 
   const criado = await db.$transaction(async (tx) => {
     const user = await tx.user.create({
-      data: { role: "MOTORISTA", nome: data.nome, email, senhaHash, telefone },
+      data: {
+        role: "MOTORISTA",
+        nome: data.nome,
+        email,
+        senhaHash,
+        telefone,
+        termosAceitosEm: new Date(),
+        termosVersao: TERMOS_VERSAO_ATUAL,
+      },
     });
 
     const motorista = await tx.motorista.create({
