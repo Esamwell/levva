@@ -27,7 +27,7 @@ export const TERMOS_MOTORISTA: ClausulaTermos[] = [
   },
   {
     titulo: "3. Verificação documental.",
-    texto: "CNH válida, curso de transporte escolar e certidão de antecedentes criminais são exigidos e conferidos pela nossa equipe antes da aprovação do seu perfil. Documentos vencidos ou substituídos precisam ser reenviados e passam por nova conferência — enquanto isso, seu perfil pode ficar fora das buscas.",
+    texto: "CNH válida, curso de transporte escolar, certidão de antecedentes criminais e CRLV atualizado do veículo são exigidos e conferidos pela nossa equipe antes da aprovação do seu perfil. Documentos vencidos ou substituídos precisam ser reenviados e passam por nova conferência — enquanto isso, seu perfil pode ficar fora das buscas. Também é sua responsabilidade manter em dia qualquer autorização ou alvará exigido pelo órgão de trânsito local pra operar transporte escolar, mesmo quando esse documento específico não é coletado diretamente pela Mova.",
   },
   {
     titulo: "4. Uso de boa fé da plataforma.",
@@ -44,6 +44,10 @@ export const TERMOS_MOTORISTA: ClausulaTermos[] = [
   {
     titulo: "7. Dados pessoais.",
     texto: "Seus dados e documentos são usados só pra operar a plataforma (verificação, busca, contato com famílias, cobrança da comissão) e tratados conforme a LGPD.",
+  },
+  {
+    titulo: "8. Encerramento da conta.",
+    texto: "Você pode encerrar sua conta na Mova quando quiser, desde que não haja comissão pendente de contrato já fechado através da plataforma. Contratos em andamento continuam sob sua responsabilidade direta com a família, independente do encerramento do cadastro.",
   },
 ];
 

@@ -3,4 +3,4 @@
  * que o texto mudar de forma relevante — é o que permite, no futuro, saber
  * quem aceitou uma versão antiga e pedir um novo aceite.
  */
-export const TERMOS_VERSAO_ATUAL = "1.0";
+export const TERMOS_VERSAO_ATUAL = "1.1";
