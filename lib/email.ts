@@ -100,6 +100,21 @@ function botao(href: string, texto: string): string {
   return `<a href="${href}" style="display:inline-block;margin:24px 0 0;background:#FEDB1A;color:#111111;font-weight:700;font-size:14px;text-decoration:none;padding:12px 24px;border-radius:999px">${texto}</a>`;
 }
 
+/**
+ * Todo texto abaixo que vem de campo digitado por usuário (nome, motivo de
+ * reprovação, assunto de chamado...) passa por aqui antes de entrar no HTML
+ * do e-mail — sem isso, um nome como `<img src=x onerror=...>` ia direto
+ * pro corpo da mensagem que a equipe abre no cliente de e-mail.
+ */
+function escaparHtml(texto: string): string {
+  return texto
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export function emailRecuperacaoSenha(params: {
   nome: string;
   link: string;
@@ -118,7 +133,7 @@ export function emailRecuperacaoSenha(params: {
     html: moldura(
       "Redefinir sua senha",
       `<p style="font-size:15px;line-height:1.6;color:#6B6B6B;margin:16px 0 0">
-         Olá, ${nome}. Você pediu para redefinir sua senha na Mova.
+         Olá, ${escaparHtml(nome)}. Você pediu para redefinir sua senha na Mova.
          Clique no botão abaixo para escolher uma nova.
        </p>
        ${botao(link, "Escolher nova senha")}
@@ -144,7 +159,7 @@ export function emailMotoristaAprovado(params: {
     html: moldura(
       "Cadastro aprovado",
       `<p style="font-size:15px;line-height:1.6;color:#6B6B6B;margin:16px 0 0">
-         Olá, ${params.nome}. Seus documentos foram conferidos e seu cadastro está aprovado.
+         Olá, ${escaparHtml(params.nome)}. Seus documentos foram conferidos e seu cadastro está aprovado.
          A partir de agora você aparece nas buscas dos pais e recebe leads direto no painel.
        </p>
        ${botao(params.link, "Abrir meu painel")}`
@@ -166,10 +181,10 @@ export function emailMotoristaReprovado(params: {
     html: moldura(
       "Sobre seu cadastro",
       `<p style="font-size:15px;line-height:1.6;color:#6B6B6B;margin:16px 0 0">
-         Olá, ${params.nome}. Revisamos seu cadastro e ele não pôde ser aprovado agora.
+         Olá, ${escaparHtml(params.nome)}. Revisamos seu cadastro e ele não pôde ser aprovado agora.
        </p>
        <p style="font-size:15px;line-height:1.6;color:#111111;background:#FFF6D6;border-left:3px solid #FEDB1A;border-radius:0 10px 10px 0;padding:14px 16px;margin:16px 0 0">
-         ${params.motivo}
+         ${escaparHtml(params.motivo)}
        </p>
        <p style="font-size:13px;line-height:1.6;color:#8A8A8A;margin:20px 0 0">
          Corrija o que foi apontado e responda este e-mail para uma nova análise.
@@ -196,10 +211,10 @@ export function emailNovoLeadAdmin(params: {
     html: moldura(
       "Novo lead aguardando repasse",
       `<table style="width:100%;font-size:14px;color:#6B6B6B;margin:16px 0 0;border-collapse:collapse">
-         <tr><td style="padding:6px 0;color:#8A8A8A">Pai</td><td style="padding:6px 0;color:#111111;font-weight:600">${params.paiNome}</td></tr>
-         <tr><td style="padding:6px 0;color:#8A8A8A">Motorista</td><td style="padding:6px 0;color:#111111;font-weight:600">${params.motoristaNome}</td></tr>
-         <tr><td style="padding:6px 0;color:#8A8A8A">Criança</td><td style="padding:6px 0;color:#111111;font-weight:600">${params.filhoNome}</td></tr>
-         <tr><td style="padding:6px 0;color:#8A8A8A">Escola</td><td style="padding:6px 0;color:#111111;font-weight:600">${params.escolaNome}</td></tr>
+         <tr><td style="padding:6px 0;color:#8A8A8A">Pai</td><td style="padding:6px 0;color:#111111;font-weight:600">${escaparHtml(params.paiNome)}</td></tr>
+         <tr><td style="padding:6px 0;color:#8A8A8A">Motorista</td><td style="padding:6px 0;color:#111111;font-weight:600">${escaparHtml(params.motoristaNome)}</td></tr>
+         <tr><td style="padding:6px 0;color:#8A8A8A">Criança</td><td style="padding:6px 0;color:#111111;font-weight:600">${escaparHtml(params.filhoNome)}</td></tr>
+         <tr><td style="padding:6px 0;color:#8A8A8A">Escola</td><td style="padding:6px 0;color:#111111;font-weight:600">${escaparHtml(params.escolaNome)}</td></tr>
        </table>
        ${botao(params.link, "Abrir o painel")}`
     ),
@@ -221,9 +236,9 @@ export function emailExtraPendenteAdmin(params: {
     html: moldura(
       "Extra aguardando confirmação",
       `<table style="width:100%;font-size:14px;color:#6B6B6B;margin:16px 0 0;border-collapse:collapse">
-         <tr><td style="padding:6px 0;color:#8A8A8A">Motorista</td><td style="padding:6px 0;color:#111111;font-weight:600">${params.motoristaNome}</td></tr>
-         <tr><td style="padding:6px 0;color:#8A8A8A">Serviço</td><td style="padding:6px 0;color:#111111;font-weight:600">${params.servico}</td></tr>
-         <tr><td style="padding:6px 0;color:#8A8A8A">Valor</td><td style="padding:6px 0;color:#111111;font-weight:600">${params.valorFormatado}</td></tr>
+         <tr><td style="padding:6px 0;color:#8A8A8A">Motorista</td><td style="padding:6px 0;color:#111111;font-weight:600">${escaparHtml(params.motoristaNome)}</td></tr>
+         <tr><td style="padding:6px 0;color:#8A8A8A">Serviço</td><td style="padding:6px 0;color:#111111;font-weight:600">${escaparHtml(params.servico)}</td></tr>
+         <tr><td style="padding:6px 0;color:#8A8A8A">Valor</td><td style="padding:6px 0;color:#111111;font-weight:600">${escaparHtml(params.valorFormatado)}</td></tr>
        </table>
        ${botao(params.link, "Confirmar pagamento")}`
     ),
@@ -242,11 +257,34 @@ export function emailExtraConfirmado(params: {
       `Confirmamos seu pagamento e ${params.servico} já está ativo no seu perfil.\n\n` +
       `${params.link}`,
     html: moldura(
-      `${params.servico} ativado`,
+      `${escaparHtml(params.servico)} ativado`,
       `<p style="font-size:15px;line-height:1.6;color:#6B6B6B;margin:16px 0 0">
-         Olá, ${params.nome}. Confirmamos seu pagamento e ${params.servico} já está ativo no seu perfil.
+         Olá, ${escaparHtml(params.nome)}. Confirmamos seu pagamento e ${escaparHtml(params.servico)} já está ativo no seu perfil.
        </p>
        ${botao(params.link, "Ver meu perfil")}`
+    ),
+  };
+}
+
+export function emailNovoTicketAdmin(params: {
+  autorNome: string;
+  assunto: string;
+  link: string;
+}): Omit<Mensagem, "para"> {
+  return {
+    assunto: `Novo chamado: ${params.autorNome}`,
+    texto:
+      `Novo chamado de suporte aguardando resposta.\n\n` +
+      `De: ${params.autorNome}\n` +
+      `Assunto: ${params.assunto}\n\n` +
+      `Abrir o painel: ${params.link}`,
+    html: moldura(
+      "Novo chamado de suporte",
+      `<table style="width:100%;font-size:14px;color:#6B6B6B;margin:16px 0 0;border-collapse:collapse">
+         <tr><td style="padding:6px 0;color:#8A8A8A">De</td><td style="padding:6px 0;color:#111111;font-weight:600">${escaparHtml(params.autorNome)}</td></tr>
+         <tr><td style="padding:6px 0;color:#8A8A8A">Assunto</td><td style="padding:6px 0;color:#111111;font-weight:600">${escaparHtml(params.assunto)}</td></tr>
+       </table>
+       ${botao(params.link, "Responder chamado")}`
     ),
   };
 }

@@ -22,6 +22,19 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
+/**
+ * Sair da conta encerra a sessão no servidor, mas não mexe no cache do
+ * navegador — sem isso, num aparelho compartilhado, quem abrisse o app
+ * offline logo depois de alguém sair ainda veria a última tela
+ * autenticada (financeiro, leads, dados do filho) que ficou em
+ * CACHE_PAGINAS. logout-button.tsx manda essa mensagem antes de redirecionar.
+ */
+self.addEventListener("message", (event) => {
+  if (event.data === "LIMPAR_CACHE_PAGINAS") {
+    event.waitUntil(caches.delete(CACHE_PAGINAS));
+  }
+});
+
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((chaves) =>

@@ -135,6 +135,18 @@ model TentativaLogin {
   @@index([chave, criadaEm])
 }
 
+// Limite de taxa genérico pra rota que não é login (busca, recuperação de
+// senha) — mesma ideia de TentativaLogin, mas separado por `escopo` pra não
+// misturar contagem de coisas diferentes na mesma chave. Ver lib/rate-limit.ts.
+model LimiteTaxa {
+  id       String   @id @default(cuid())
+  escopo   String
+  chave    String
+  criadaEm DateTime @default(now())
+
+  @@index([escopo, chave, criadaEm])
+}
+
 // ---------- PERFIL DO PAI ----------
 model Pai {
   id        String   @id @default(cuid())

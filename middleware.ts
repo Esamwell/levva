@@ -42,12 +42,10 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Cabeçalhos de segurança em toda resposta que passa por aqui.
-  const res = NextResponse.next();
-  res.headers.set("X-Content-Type-Options", "nosniff");
-  res.headers.set("X-Frame-Options", "DENY");
-  res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  return res;
+  // Cabeçalhos de segurança saíram daqui — agora vêm de next.config.js
+  // (headers()), que cobre toda rota, não só as que passam por este
+  // matcher. Ver comentário lá.
+  return NextResponse.next();
 }
 
 export const config = {

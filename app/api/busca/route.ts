@@ -2,6 +2,16 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "../../../lib/db";
 import { geocodeEndereco, distanciaKm, RAIO_BUSCA_PADRAO_KM } from "../../../lib/geo";
+import { limiteExcedido, registrarUso } from "../../../lib/rate-limit";
+import { ipDoCliente } from "../../../lib/request";
+import { normalizarBusca } from "../../../lib/texto";
+
+// GeocodeCache evita bater duas vezes no Nominatim pro mesmo endereço, mas
+// endereço variando a cada chamada ainda esgotaria a cota (1 req/s, bloqueio
+// por IP) rapidinho. Generoso o bastante pra alguém ajustando a busca várias
+// vezes, apertado o bastante pra travar um script.
+const JANELA_MINUTOS = 10;
+const MAX_BUSCAS = 30;
 
 /**
  * POST /api/busca
@@ -23,15 +33,28 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
+  const chave = `ip:${ipDoCliente(req)}`;
+  if (await limiteExcedido("busca", chave, JANELA_MINUTOS, MAX_BUSCAS)) {
+    return NextResponse.json(
+      { error: "Muitas buscas em pouco tempo. Espera uns minutinhos e tenta de novo." },
+      { status: 429 }
+    );
+  }
+  await registrarUso("busca", chave);
+
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
   const { endereco, escola } = parsed.data;
 
-  const escolaEncontrada = await db.escola.findFirst({
-    where: { nome: { contains: escola, mode: "insensitive" } },
-  });
+  // `contains`+`insensitive` do Postgres ignora maiúscula/minúscula, mas não
+  // acento — "Antonio" não achava "Antônio". Base de escolas é pequena
+  // (dezenas), então filtra em memória em vez de mexer com extensão do
+  // banco (unaccent) só pra isso.
+  const termoBusca = normalizarBusca(escola);
+  const todasEscolas = await db.escola.findMany();
+  const escolaEncontrada = todasEscolas.find((e) => normalizarBusca(e.nome).includes(termoBusca));
   if (!escolaEncontrada) {
     return NextResponse.json({
       escolaEncontrada: false,
