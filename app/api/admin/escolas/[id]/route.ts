@@ -12,6 +12,51 @@ const schema = z.object({
   lng: z.number().optional(),
 });
 
+/** GET — detalhe: quais alunos estão matriculados e quais motoristas atendem essa escola. */
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const session = await exigirPapel("ADMIN");
+  if (!session) {
+    return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
+  }
+
+  const { id } = await params;
+
+  const escola = await db.escola.findUnique({
+    where: { id },
+    include: {
+      filhos: {
+        include: { pai: { include: { user: { select: { nome: true, telefone: true } } } } },
+        orderBy: { nome: "asc" },
+      },
+      transportadores: {
+        include: {
+          motorista: {
+            include: { user: { select: { nome: true, telefone: true } } },
+          },
+        },
+      },
+    },
+  });
+  if (!escola) {
+    return NextResponse.json({ error: "Escola não encontrada." }, { status: 404 });
+  }
+
+  return NextResponse.json({
+    alunos: escola.filhos.map((f) => ({
+      id: f.id,
+      nome: f.nome,
+      paiNome: f.pai.user.nome,
+      paiTelefone: f.pai.user.telefone,
+    })),
+    motoristas: escola.transportadores.map((me) => ({
+      id: me.motorista.id,
+      nome: me.motorista.user.nome,
+      telefone: me.motorista.user.telefone,
+      statusAprovacao: me.motorista.statusAprovacao,
+    })),
+  });
+}
+
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await exigirPapel("ADMIN");
   if (!session) {
