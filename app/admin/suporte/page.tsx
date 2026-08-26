@@ -11,10 +11,19 @@ export default async function SuporteAdminPage() {
 
   const tickets = await db.ticket.findMany({
     orderBy: { updatedAt: "desc" },
-    include: { autor: { select: { nome: true, role: true } } },
+    include: { autor: { select: { nome: true, role: true, motorista: { select: { destaqueAtivo: true } } } } },
   });
 
   const abertos = tickets.filter((t) => t.status === "ABERTO").length;
+
+  // Suporte prioritário é benefício de quem tem Destaque ativo (ver
+  // app/motorista/(painel)/extras) — chamados deles sobem na fila,
+  // mesma lógica de "aberto primeiro" que já ordenava a lista.
+  const ordenados = [...tickets].sort((a, b) => {
+    const prioridadeA = a.status === "ABERTO" && a.autor.motorista?.destaqueAtivo ? 1 : 0;
+    const prioridadeB = b.status === "ABERTO" && b.autor.motorista?.destaqueAtivo ? 1 : 0;
+    return prioridadeB - prioridadeA;
+  });
 
   return (
     <div>
@@ -28,13 +37,14 @@ export default async function SuporteAdminPage() {
       </div>
 
       <SuporteList
-        tickets={tickets.map((t) => ({
+        tickets={ordenados.map((t) => ({
           id: t.id,
           assunto: t.assunto,
           status: t.status,
           updatedAt: t.updatedAt.toISOString(),
           autorNome: t.autor.nome,
           autorRole: t.autor.role,
+          prioritario: !!t.autor.motorista?.destaqueAtivo,
         }))}
       />
     </div>

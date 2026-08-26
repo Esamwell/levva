@@ -326,6 +326,7 @@ model TicketMensagem {
 }
 
 enum StatusExtra {
+  PENDENTE  // motorista contratou, aguardando confirmação de pagamento pelo admin
   ATIVO
   CANCELADO
 }
@@ -345,7 +346,7 @@ model MotoristaExtra {
   tipo          String
   valorCentavos Int
   periodicidade Periodicidade
-  status        StatusExtra   @default(ATIVO)
+  status        StatusExtra   @default(PENDENTE)
   createdAt     DateTime      @default(now())
   canceladoEm   DateTime?
 }
@@ -391,4 +392,20 @@ model Contrato {
   taxaCentavos   Int
 
   createdAt DateTime @default(now())
+  cobrancas Cobranca[]
+}
+
+// Um registro por ciclo pago (mensal/trimestral/anual) de um Contrato — não
+// existe cobrança automática ainda (sem Asaas), o motorista marca manualmente
+// quando recebe. É o que dá pra calcular "próximo vencimento" e "em dia vs.
+// aguardando" em /motorista/financeiro, sem precisar de job agendado.
+model Cobranca {
+  id            String   @id @default(cuid())
+  contrato      Contrato @relation(fields: [contratoId], references: [id])
+  contratoId    String
+  // Primeiro dia do ciclo que essa cobrança cobre — não é a data em que foi
+  // marcada como paga (essa é createdAt).
+  competencia   DateTime
+  valorCentavos Int
+  createdAt     DateTime @default(now())
 }

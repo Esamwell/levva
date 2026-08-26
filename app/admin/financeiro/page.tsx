@@ -5,6 +5,7 @@ import { exigirPapel } from "../../../lib/auth";
 import { StatCard } from "../../../components/stat-card";
 import { TAXA_MOVA_PERCENTUAL } from "../../../lib/financeiro";
 import FinanceiroList from "./financeiro-list";
+import ExtrasPendentesList from "./extras-pendentes-list";
 
 function formatarReais(centavos: number): string {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -14,7 +15,7 @@ export default async function FinanceiroPage() {
   const session = await exigirPapel("ADMIN");
   if (!session) redirect("/entrar");
 
-  const [contratos, extrasAtivos] = await Promise.all([
+  const [contratos, extrasAtivos, extrasPendentes] = await Promise.all([
     db.contrato.findMany({
       orderBy: { createdAt: "desc" },
       include: {
@@ -23,6 +24,11 @@ export default async function FinanceiroPage() {
       },
     }),
     db.motoristaExtra.findMany({ where: { status: "ATIVO" } }),
+    db.motoristaExtra.findMany({
+      where: { status: "PENDENTE" },
+      orderBy: { createdAt: "asc" },
+      include: { motorista: { select: { id: true, user: { select: { nome: true } } } } },
+    }),
   ]);
 
   const receitaTotal = contratos.reduce((s, c) => s + c.taxaCentavos, 0);
@@ -51,6 +57,20 @@ export default async function FinanceiroPage() {
           hint={receitaExtrasMensal > 0 ? `${formatarReais(receitaExtrasMensal)}/mês em extras mensais` : undefined}
         />
       </div>
+
+      {extrasPendentes.length > 0 && (
+        <ExtrasPendentesList
+          extras={extrasPendentes.map((e) => ({
+            id: e.id,
+            tipo: e.tipo,
+            valorCentavos: e.valorCentavos,
+            periodicidade: e.periodicidade,
+            createdAt: e.createdAt.toISOString(),
+            motoristaId: e.motorista.id,
+            motoristaNome: e.motorista.user.nome,
+          }))}
+        />
+      )}
 
       <FinanceiroList
         contratos={contratos.map((c) => ({

@@ -205,3 +205,48 @@ export function emailNovoLeadAdmin(params: {
     ),
   };
 }
+
+export function emailExtraPendenteAdmin(params: {
+  motoristaNome: string;
+  servico: string;
+  valorFormatado: string;
+  link: string;
+}): Omit<Mensagem, "para"> {
+  return {
+    assunto: `${params.motoristaNome} contratou ${params.servico}`,
+    texto:
+      `${params.motoristaNome} contratou ${params.servico} (${params.valorFormatado}) e está aguardando a ` +
+      `confirmação do pagamento pra ativar.\n\n` +
+      `Abrir o painel: ${params.link}`,
+    html: moldura(
+      "Extra aguardando confirmação",
+      `<table style="width:100%;font-size:14px;color:#6B6B6B;margin:16px 0 0;border-collapse:collapse">
+         <tr><td style="padding:6px 0;color:#8A8A8A">Motorista</td><td style="padding:6px 0;color:#111111;font-weight:600">${params.motoristaNome}</td></tr>
+         <tr><td style="padding:6px 0;color:#8A8A8A">Serviço</td><td style="padding:6px 0;color:#111111;font-weight:600">${params.servico}</td></tr>
+         <tr><td style="padding:6px 0;color:#8A8A8A">Valor</td><td style="padding:6px 0;color:#111111;font-weight:600">${params.valorFormatado}</td></tr>
+       </table>
+       ${botao(params.link, "Confirmar pagamento")}`
+    ),
+  };
+}
+
+export function emailExtraConfirmado(params: {
+  nome: string;
+  servico: string;
+  link: string;
+}): Omit<Mensagem, "para"> {
+  return {
+    assunto: `${params.servico} está ativo`,
+    texto:
+      `Olá, ${params.nome}.\n\n` +
+      `Confirmamos seu pagamento e ${params.servico} já está ativo no seu perfil.\n\n` +
+      `${params.link}`,
+    html: moldura(
+      `${params.servico} ativado`,
+      `<p style="font-size:15px;line-height:1.6;color:#6B6B6B;margin:16px 0 0">
+         Olá, ${params.nome}. Confirmamos seu pagamento e ${params.servico} já está ativo no seu perfil.
+       </p>
+       ${botao(params.link, "Ver meu perfil")}`
+    ),
+  };
+}

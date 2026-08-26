@@ -1,4 +1,4 @@
-import { Inbox, UserRound, LifeBuoy, Sparkles } from "lucide-react";
+import { Inbox, UserRound, LifeBuoy, Sparkles, Wallet, Users } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getSession } from "../../../lib/auth";
 import { db } from "../../../lib/db";
@@ -20,6 +20,8 @@ export default async function MotoristaLayout({ children }: { children: React.Re
 
   const navItems: DashboardNavItem[] = [
     { href: "/motorista", label: "Leads", icon: <Inbox className="h-4 w-4" strokeWidth={1.75} /> },
+    { href: "/motorista/alunos", label: "Meus alunos", icon: <Users className="h-4 w-4" strokeWidth={1.75} /> },
+    { href: "/motorista/financeiro", label: "Financeiro", icon: <Wallet className="h-4 w-4" strokeWidth={1.75} /> },
     { href: "/motorista/perfil", label: "Meu perfil", icon: <UserRound className="h-4 w-4" strokeWidth={1.75} /> },
     { href: "/motorista/extras", label: "Extras", icon: <Sparkles className="h-4 w-4" strokeWidth={1.75} /> },
     { href: "/motorista/suporte", label: "Suporte", icon: <LifeBuoy className="h-4 w-4" strokeWidth={1.75} /> },

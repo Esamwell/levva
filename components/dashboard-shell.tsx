@@ -104,8 +104,10 @@ export function DashboardShell({
 
   return (
     <div className="min-h-screen bg-cream md:flex">
-      {/* Sidebar fixa — desktop */}
-      <aside className="hidden w-64 shrink-0 bg-navy px-5 py-7 md:block">
+      {/* Sidebar fixa — desktop. sticky + h-screen + overflow-y-auto: fica
+          parada na viewport mesmo quando o conteúdo principal é mais alto
+          que a tela, com scroll próprio se o menu algum dia não couber. */}
+      <aside className="hidden w-64 shrink-0 bg-navy px-5 py-7 md:sticky md:top-0 md:block md:h-screen md:overflow-y-auto">
         <SidebarBody
           brandLabel={brandLabel}
           navItems={navItems}

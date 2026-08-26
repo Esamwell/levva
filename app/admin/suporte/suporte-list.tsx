@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 import { EmptyState } from "../../../components/empty-state";
+import { Badge } from "../../../components/ui/badge";
 import { TicketStatusBadge } from "../../../components/ticket-status-badge";
 import { LifeBuoy } from "lucide-react";
 import { cn } from "../../../lib/utils";
@@ -15,6 +16,7 @@ type Ticket = {
   updatedAt: string;
   autorNome: string;
   autorRole: "PAI" | "MOTORISTA" | "ADMIN";
+  prioritario: boolean;
 };
 
 const PAPEL_LABEL: Record<Ticket["autorRole"], string> = { PAI: "Pai", MOTORISTA: "Motorista", ADMIN: "Admin" };
@@ -80,7 +82,14 @@ export default function SuporteList({ tickets }: { tickets: Ticket[] }) {
               className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cream-line bg-white p-5 hover:border-amber"
             >
               <div className="min-w-0">
-                <p className="truncate font-semibold text-navy">{t.assunto}</p>
+                <p className="flex items-center gap-1.5 truncate font-semibold text-navy">
+                  {t.assunto}
+                  {t.prioritario && (
+                    <Badge variant="outline" className="shrink-0 gap-1 border-transparent bg-amber-soft text-[10px] font-bold text-navy">
+                      <Sparkles className="h-2.5 w-2.5" /> Prioritário
+                    </Badge>
+                  )}
+                </p>
                 <p className="text-xs text-ink-soft">
                   {t.autorNome} · {PAPEL_LABEL[t.autorRole]} · {new Date(t.updatedAt).toLocaleDateString("pt-BR")}
                 </p>
