@@ -31,7 +31,7 @@ export default function LandingPage() {
           <Magnet padding={40} magnetStrength={4}>
             <Link
               href="/pai"
-              className="rounded-full bg-navy px-5 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center rounded-full bg-navy px-5 py-2.5 text-sm font-bold leading-none text-white transition hover:-translate-y-0.5"
             >
               Buscar transporte
             </Link>
@@ -60,7 +60,7 @@ export default function LandingPage() {
               O trajeto mais importante do dia, em{" "}
               <ShinyText
                 text="boas mãos"
-                className="font-serif italic"
+                className="font-serif"
                 color="#111111"
                 shineColor="#FFFFFF"
                 spread={80}
@@ -102,16 +102,16 @@ export default function LandingPage() {
               <input
                 name="endereco"
                 placeholder="Seu endereço, em Salvador"
-                className="mb-2.5 w-full rounded-xl border border-cream-line bg-white px-3.5 py-3 text-sm outline-none focus:border-amber"
+                className="mb-2.5 w-full rounded-xl border border-cream-line bg-white px-3.5 py-3 text-sm leading-normal outline-none focus:border-amber"
               />
               <input
                 name="escola"
                 placeholder="Nome da escola"
-                className="mb-2.5 w-full rounded-xl border border-cream-line bg-white px-3.5 py-3 text-sm outline-none focus:border-amber"
+                className="mb-2.5 w-full rounded-xl border border-cream-line bg-white px-3.5 py-3 text-sm leading-normal outline-none focus:border-amber"
               />
               <button
                 type="submit"
-                className="mt-2 w-full rounded-xl bg-navy py-3.5 text-sm font-bold text-white transition hover:bg-[#0C1730]"
+                className="mt-2 flex w-full items-center justify-center rounded-xl bg-navy py-3.5 text-sm font-bold leading-none text-white transition hover:bg-[#0C1730]"
               >
                 Ver transportadores da minha região →
               </button>
@@ -236,7 +236,7 @@ export default function LandingPage() {
                 <div className="font-mono text-xs text-ink-soft">
                   a partir de<br /><strong className="font-sans text-base text-ink">R$ 420/mês</strong>
                 </div>
-                <div className="rounded-full bg-navy px-4.5 py-2.5 text-xs font-bold text-white">Ver perfil</div>
+                <div className="inline-flex items-center justify-center rounded-full bg-navy px-4.5 py-2.5 text-xs font-bold leading-none text-white">Ver perfil</div>
               </div>
             </div>
           </SpotlightCard>
@@ -253,7 +253,7 @@ export default function LandingPage() {
               Busque por endereço e escola, compare transportadores da sua
               região e feche direto — sem taxa, sem letrinha miúda.
             </p>
-            <Link href="/pai" className="inline-flex items-center gap-2 rounded-full bg-navy px-5.5 py-3.5 text-sm font-bold text-white">
+            <Link href="/pai" className="inline-flex items-center justify-center gap-2 rounded-full bg-navy px-5.5 py-3.5 text-sm font-bold leading-none text-white">
               Buscar transporte →
             </Link>
           </div>
@@ -264,10 +264,18 @@ export default function LandingPage() {
               Crie seu perfil verificado e receba pedidos de famílias da sua
               região. Planos a partir de R$ 49/mês, sem comissão por indicação.
             </p>
-            <Link href="/motorista" className="inline-flex items-center gap-2 rounded-full bg-amber px-5.5 py-3.5 text-sm font-bold text-navy">
+            <Link href="/motorista" className="inline-flex items-center justify-center gap-2 rounded-full bg-amber px-5.5 py-3.5 text-sm font-bold leading-none text-navy">
               Cadastrar meu veículo →
             </Link>
           </div>
+        </AnimatedContent>
+      </section>
+
+      {/* MARCA — logo completa, sem recorte, num único lugar de destaque */}
+      <section className="bg-white px-[6vw] py-20 text-center">
+        <AnimatedContent distance={16} duration={0.6} className="mx-auto flex max-w-xs flex-col items-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/mova-logo-full.png" alt="Mova — #vaidemova" className="h-auto w-40" />
         </AnimatedContent>
       </section>
 
@@ -282,9 +290,9 @@ export default function LandingPage() {
             <input
               type="email"
               placeholder="seu@email.com"
-              className="flex-1 rounded-full border border-white/15 bg-white/[0.07] px-4.5 py-3.5 text-sm text-white outline-none placeholder:text-white/40"
+              className="flex-1 rounded-full border border-white/15 bg-white/[0.07] px-4.5 py-3.5 text-sm leading-normal text-white outline-none placeholder:text-white/40"
             />
-            <button className="whitespace-nowrap rounded-full bg-amber px-6 py-3.5 text-sm font-bold text-navy">
+            <button className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-amber px-6 py-3.5 text-sm font-bold leading-none text-navy">
               Entrar na lista
             </button>
           </form>
