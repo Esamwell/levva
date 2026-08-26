@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, Star } from "lucide-react";
+import { Check, Star, Bus } from "lucide-react";
 import { MobileNav } from "./mobile-nav";
 import CountUp from "../components/CountUp";
 import AnimatedContent from "../components/AnimatedContent";
@@ -42,8 +42,45 @@ export default function LandingPage() {
       </nav>
 
       {/* HERO */}
-      <header className="bg-amber px-[6vw] pb-28 pt-40 text-navy">
-        <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
+      <header className="relative overflow-hidden bg-amber px-[6vw] pb-28 pt-40 text-navy">
+        {/* Fundo decorativo: a rota até a escola, em opacidade bem baixa —
+            ecoa o pin + van da logo e a seção de "paradas" mais abaixo,
+            sem competir com o conteúdo por cima. */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <svg
+            viewBox="0 0 1200 600"
+            preserveAspectRatio="xMidYMid slice"
+            className="h-full w-full"
+          >
+            <path
+              d="M 40 520 C 280 380, 480 560, 720 320 C 860 180, 1000 260, 1160 90"
+              fill="none"
+              stroke="#111111"
+              strokeOpacity="0.08"
+              strokeWidth="3"
+              strokeDasharray="2 14"
+              strokeLinecap="round"
+            />
+            {[
+              [40, 520],
+              [430, 440],
+              [720, 320],
+              [1160, 90],
+            ].map(([cx, cy]) => (
+              <circle key={cx} cx={cx} cy={cy} r="7" fill="#111111" fillOpacity="0.1" />
+            ))}
+          </svg>
+          <Bus
+            className="absolute -right-6 top-16 h-40 w-40 text-navy/[0.07] md:h-52 md:w-52"
+            strokeWidth={1.25}
+          />
+          <Bus
+            className="absolute bottom-0 left-[8%] h-24 w-24 -rotate-6 text-navy/[0.06]"
+            strokeWidth={1.25}
+          />
+        </div>
+
+        <div className="relative mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
             <GlassSurface
               width="fit-content"
