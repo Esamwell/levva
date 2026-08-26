@@ -98,7 +98,7 @@ function CobrancasContrato({ contrato }: { contrato: Contrato }) {
                 )}
                 {cb.linkPagamento && (
                   <a
-                    href={cb.linkPagamento}
+                    href={`/pagar/${cb.id}`}
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center gap-1 font-semibold text-navy hover:underline"

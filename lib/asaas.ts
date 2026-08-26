@@ -238,7 +238,7 @@ export async function gerarCobrancaAsaas(
     }
     const cobrancaAsaas = await res.json();
 
-    await db.cobranca.create({
+    const novaCobranca = await db.cobranca.create({
       data: {
         contratoId: contrato.id,
         competencia,
@@ -257,7 +257,10 @@ export async function gerarCobrancaAsaas(
           motoristaNome: contrato.motorista.user.nome,
           valorFormatado: formatarReais(valorCobradoCentavos),
           vencimentoFormatado: competencia.toLocaleDateString("pt-BR"),
-          link: cobrancaAsaas.invoiceUrl,
+          // Página própria da Mova (Pix/boleto embutidos) em vez do checkout
+          // hospedado do Asaas direto — ver app/pagar/[id]. O link cru do
+          // Asaas ainda fica salvo em linkPagamento pra quem quiser cartão.
+          link: `${urlBase()}/pagar/${novaCobranca.id}`,
         }),
       });
     } catch (err) {
@@ -268,6 +271,48 @@ export async function gerarCobrancaAsaas(
   } catch (err) {
     console.error("Falha ao gerar cobrança Asaas:", err);
     return { ok: false, erro: err instanceof Error ? err.message : "Não deu pra gerar a cobrança agora." };
+  }
+}
+
+/**
+ * QR Code Pix pra exibir direto em /pagar/[id] — em vez de mandar o pai pro
+ * checkout hospedado do Asaas, a própria Mova mostra o QR code e o "copia
+ * e cola". Sem risco de PCI aqui (nenhum dado de cartão envolvido).
+ */
+export async function obterPixCobranca(
+  asaasPaymentId: string
+): Promise<{ ok: true; encodedImage: string; payload: string } | { ok: false; erro: string }> {
+  try {
+    const res = await asaasFetch(`/payments/${asaasPaymentId}/pixQrCode`);
+    if (!res.ok) return { ok: false, erro: `Asaas respondeu ${res.status}.` };
+    const dados = await res.json();
+    return { ok: true, encodedImage: dados.encodedImage, payload: dados.payload };
+  } catch (err) {
+    console.error("Falha ao obter QR code Pix:", err);
+    return { ok: false, erro: "Não deu pra gerar o QR code agora." };
+  }
+}
+
+/**
+ * Linha digitável + link do PDF do boleto — mesma ideia do Pix acima,
+ * mostrado direto na página da Mova. O PDF em si ainda é hospedado pelo
+ * Asaas (bankSlipUrl); não tem como evitar isso sem gerar o boleto do zero.
+ */
+export async function obterBoletoCobranca(
+  asaasPaymentId: string
+): Promise<{ ok: true; identificationField: string; bankSlipUrl: string | null } | { ok: false; erro: string }> {
+  try {
+    const [resLinha, resPagamento] = await Promise.all([
+      asaasFetch(`/payments/${asaasPaymentId}/identificationField`),
+      asaasFetch(`/payments/${asaasPaymentId}`),
+    ]);
+    if (!resLinha.ok) return { ok: false, erro: `Asaas respondeu ${resLinha.status}.` };
+    const linha = await resLinha.json();
+    const pagamento = resPagamento.ok ? await resPagamento.json() : null;
+    return { ok: true, identificationField: linha.identificationField, bankSlipUrl: pagamento?.bankSlipUrl ?? null };
+  } catch (err) {
+    console.error("Falha ao obter linha digitável do boleto:", err);
+    return { ok: false, erro: "Não deu pra gerar o boleto agora." };
   }
 }
 
