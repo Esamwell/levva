@@ -30,6 +30,11 @@ const MAX_BUSCAS = 30;
 const schema = z.object({
   endereco: z.string().min(4),
   escola: z.string().min(2),
+  // Preenchidos quando o pai escolhe uma sugestão do autocomplete de
+  // endereço (ver components/endereco-autocomplete.tsx) — evita depender
+  // do Nominatim geocodificar o texto de novo aqui.
+  lat: z.number().optional(),
+  lng: z.number().optional(),
 });
 
 export async function POST(req: Request) {
@@ -46,7 +51,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
-  const { endereco, escola } = parsed.data;
+  const { endereco, escola, lat, lng } = parsed.data;
 
   // `contains`+`insensitive` do Postgres ignora maiúscula/minúscula, mas não
   // acento — "Antonio" não achava "Antônio". Base de escolas é pequena
@@ -64,7 +69,7 @@ export async function POST(req: Request) {
     });
   }
 
-  const ponto = await geocodeEndereco(endereco);
+  const ponto = lat !== undefined && lng !== undefined ? { lat, lng } : await geocodeEndereco(endereco);
 
   const candidatos = await db.motorista.findMany({
     where: {

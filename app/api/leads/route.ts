@@ -31,6 +31,11 @@ import { TERMOS_VERSAO_ATUAL } from "../../../lib/termos";
  */
 const comumSchema = {
   enderecoPai: z.string().min(4),
+  // Preenchidos quando o pai escolhe uma sugestão do autocomplete de
+  // endereço (ver components/endereco-autocomplete.tsx) — evita depender
+  // do Nominatim geocodificar o texto de novo aqui.
+  latPai: z.number().optional(),
+  lngPai: z.number().optional(),
   nomeFilho: z.string().min(2),
   escolaId: z.string().min(1),
   motoristaId: z.string().min(1),
@@ -93,11 +98,6 @@ export async function POST(req: Request) {
     );
   }
 
-  // Se o endereço não geocodificar, seguimos assim mesmo: o lead é o momento
-  // mais valioso do funil, e o pai já escolheu com quem quer falar. Guardamos
-  // o endereço como texto e o admin resolve o resto no contato.
-  const ponto = await geocodeEndereco(data.enderecoPai);
-
   // ---- Resolve o perfil de pai: o da sessão, ou um cadastro novo ----
   let paiId: string;
   let usuarioNovo: { id: string } | null = null;
@@ -136,6 +136,16 @@ export async function POST(req: Request) {
     }
 
     const senhaHash = await gerarHashSenha(novo.senha);
+
+    // Se o pai escolheu uma sugestão do autocomplete já vem lat/lng prontos;
+    // senão, tenta geocodificar o texto — e se isso não reconhecer, seguimos
+    // assim mesmo: o lead é o momento mais valioso do funil, e o pai já
+    // escolheu com quem quer falar. Guardamos o endereço como texto e o
+    // admin resolve o resto no contato.
+    const ponto =
+      novo.latPai !== undefined && novo.lngPai !== undefined
+        ? { lat: novo.latPai, lng: novo.lngPai }
+        : await geocodeEndereco(novo.enderecoPai);
 
     const criado = await db.user.create({
       data: {

@@ -10,13 +10,14 @@
  * acesso ao sistema.
  */
 
-import { useState } from "react";
-import { Star, Sparkles, MapPin, Search, Check, ShieldCheck } from "lucide-react";
+import { useRef, useState } from "react";
+import { Star, Sparkles, School, Search, Check, ShieldCheck } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import { Avatar, AvatarFallback } from "../../components/ui/avatar";
 import SpotlightCard from "../../components/SpotlightCard";
 import { TermosModal } from "../../components/termos-modal";
+import { EnderecoAutocomplete, type PontoEndereco } from "../../components/endereco-autocomplete";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,67 @@ import {
   DialogTitle,
   DialogDescription,
 } from "../../components/ui/dialog";
+
+type EscolaSugestao = { id: string; nome: string };
+
+/** Autocomplete de escola já cadastrada — mesma lógica de app/pai/perfil/perfil-form.tsx,
+ * mas devolvendo só o nome (é o que /api/busca espera), não o id. */
+function EscolaAutocomplete({
+  value,
+  onChangeText,
+  className,
+}: {
+  value: string;
+  onChangeText: (texto: string) => void;
+  className: string;
+}) {
+  const [sugestoes, setSugestoes] = useState<EscolaSugestao[]>([]);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function digitar(texto: string) {
+    onChangeText(texto);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (texto.trim().length < 2) {
+      setSugestoes([]);
+      return;
+    }
+    debounceRef.current = setTimeout(async () => {
+      const res = await fetch(`/api/escolas?q=${encodeURIComponent(texto)}`);
+      const data = await res.json();
+      setSugestoes(data.escolas ?? []);
+    }, 300);
+  }
+
+  return (
+    <div className="relative">
+      <input
+        required
+        value={value}
+        onChange={(e) => digitar(e.target.value)}
+        placeholder="Nome da escola"
+        className={className}
+        autoComplete="off"
+      />
+      {sugestoes.length > 0 && (
+        <div className="absolute z-10 mt-1 w-full rounded-xl border border-cream-line bg-white shadow-lg">
+          {sugestoes.map((e) => (
+            <button
+              key={e.id}
+              type="button"
+              onClick={() => {
+                onChangeText(e.nome);
+                setSugestoes([]);
+              }}
+              className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-cream"
+            >
+              <School className="h-3.5 w-3.5 shrink-0 text-ink-soft" /> {e.nome}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 type Resultado = {
   id: string;
@@ -48,6 +110,7 @@ function iniciais(nome: string): string {
 
 export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
   const [endereco, setEndereco] = useState("");
+  const [enderecoPonto, setEnderecoPonto] = useState<PontoEndereco | null>(null);
   const [escola, setEscola] = useState("");
   const [buscando, setBuscando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -68,7 +131,11 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
       const res = await fetch("/api/busca", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ endereco, escola }),
+        body: JSON.stringify({
+          endereco,
+          escola,
+          ...(enderecoPonto ? { lat: enderecoPonto.lat, lng: enderecoPonto.lng } : {}),
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Falha na busca.");
@@ -93,21 +160,16 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
           </p>
 
           <form onSubmit={buscar} className="mt-8 max-w-md space-y-3 rounded-2xl border border-cream-line bg-white p-6">
-            <div className="relative">
-              <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-soft" />
-              <input
-                required
-                value={endereco}
-                onChange={(e) => setEndereco(e.target.value)}
-                placeholder="Seu endereço, em Salvador"
-                className="w-full rounded-xl border border-cream-line py-3 pl-10 pr-4 text-sm outline-none focus:border-amber"
-              />
-            </div>
-            <input
-              required
+            <EnderecoAutocomplete
+              value={endereco}
+              onChangeText={setEndereco}
+              onPonto={setEnderecoPonto}
+              placeholder="Seu endereço, em Salvador"
+              className="w-full rounded-xl border border-cream-line px-4 py-3 text-sm outline-none focus:border-amber"
+            />
+            <EscolaAutocomplete
               value={escola}
-              onChange={(e) => setEscola(e.target.value)}
-              placeholder="Nome da escola"
+              onChangeText={setEscola}
               className="w-full rounded-xl border border-cream-line px-4 py-3 text-sm outline-none focus:border-amber"
             />
             <Button
@@ -221,6 +283,7 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
           escolaId={escolaIdAtual}
           jaLogado={jaLogado}
           enderecoInicial={endereco}
+          pontoInicial={enderecoPonto}
           onClose={() => setModalMotorista(null)}
         />
       )}
@@ -233,12 +296,14 @@ function ModalContato({
   escolaId,
   jaLogado,
   enderecoInicial,
+  pontoInicial,
   onClose,
 }: {
   motorista: Resultado;
   escolaId: string;
   jaLogado: boolean;
   enderecoInicial: string;
+  pontoInicial: PontoEndereco | null;
   onClose: () => void;
 }) {
   const [nomePai, setNomePai] = useState("");
@@ -247,6 +312,7 @@ function ModalContato({
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [telefonePai, setTelefonePai] = useState("");
   const [enderecoPai, setEnderecoPai] = useState(enderecoInicial);
+  const [pontoPai, setPontoPai] = useState<PontoEndereco | null>(pontoInicial);
   const [nomeFilho, setNomeFilho] = useState("");
   const [termosAceitos, setTermosAceitos] = useState(false);
   const [termosAbertos, setTermosAbertos] = useState(false);
@@ -271,8 +337,9 @@ function ModalContato({
     try {
       // Quem já está logado manda só a solicitação; quem não está manda
       // também os dados da conta, e sai daqui cadastrado e com sessão aberta.
+      const ponto = pontoPai ? { latPai: pontoPai.lat, lngPai: pontoPai.lng } : {};
       const corpo = jaLogado
-        ? { enderecoPai, nomeFilho, escolaId, motoristaId: motorista.id }
+        ? { enderecoPai, nomeFilho, escolaId, motoristaId: motorista.id, ...ponto }
         : {
             nomePai,
             emailPai,
@@ -283,6 +350,7 @@ function ModalContato({
             escolaId,
             motoristaId: motorista.id,
             termosAceitos,
+            ...ponto,
           };
 
       const res = await fetch("/api/leads", {
@@ -403,10 +471,10 @@ function ModalContato({
               </>
             )}
 
-            <input
-              required
+            <EnderecoAutocomplete
               value={enderecoPai}
-              onChange={(e) => setEnderecoPai(e.target.value)}
+              onChangeText={setEnderecoPai}
+              onPonto={setPontoPai}
               placeholder="Seu endereço"
               className={campo}
             />
