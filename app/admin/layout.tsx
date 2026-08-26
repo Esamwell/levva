@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, Car, Users } from "lucide-react";
 import { db } from "../../lib/db";
 import { DashboardShell, type DashboardNavItem } from "../../components/dashboard-shell";
 
@@ -24,6 +24,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       icon: <ShieldCheck className="h-4 w-4" strokeWidth={1.75} />,
       badge: pendentes,
     },
+    { href: "/admin/motoristas", label: "Motoristas", icon: <Car className="h-4 w-4" strokeWidth={1.75} /> },
+    { href: "/admin/usuarios", label: "Usuários", icon: <Users className="h-4 w-4" strokeWidth={1.75} /> },
   ];
 
   return (

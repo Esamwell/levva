@@ -57,6 +57,10 @@ model User {
   createdAt DateTime @default(now())
   // Invalida sessões antigas quando a senha muda (ver lib/auth.ts).
   senhaAlteradaEm DateTime @default(now())
+  // Desativada pelo admin: login passa a falhar (ver autenticar() em
+  // lib/auth.ts) e, se for motorista, some da busca (ver /api/busca).
+  // Não apaga nada — é reversível.
+  ativo     Boolean  @default(true)
 
   // Relação 1:1 com o perfil específico do papel
   pai       Pai?

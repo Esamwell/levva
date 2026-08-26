@@ -338,7 +338,7 @@ export async function autenticar(
   const email = normalizarEmail(emailBruto);
   const user = await db.user.findUnique({
     where: { email },
-    select: { id: true, role: true, senhaHash: true },
+    select: { id: true, role: true, senhaHash: true, ativo: true },
   });
 
   if (!user) {
@@ -348,6 +348,10 @@ export async function autenticar(
 
   const confere = await conferirSenha(senha, user.senhaHash);
   if (!confere) return null;
+
+  // Conta desativada pelo admin: nega do mesmo jeito que senha errada —
+  // não revela pro usuário qual foi o motivo específico.
+  if (!user.ativo) return null;
 
   return { id: user.id, role: user.role };
 }

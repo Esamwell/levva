@@ -46,6 +46,8 @@ export async function POST(req: Request) {
   const candidatos = await db.motorista.findMany({
     where: {
       statusAprovacao: "APROVADO",
+      // Motorista desativado pelo admin some da busca mesmo já aprovado.
+      user: { ativo: true },
       escolas: { some: { escolaId: escolaEncontrada.id } },
     },
     include: { user: true, veiculos: true, avaliacoes: true },

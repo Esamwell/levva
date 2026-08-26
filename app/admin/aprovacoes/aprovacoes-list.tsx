@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { FileCheck, FileX, Car } from "lucide-react";
 import { Avatar, AvatarFallback } from "../../../components/ui/avatar";
 import { Button } from "../../../components/ui/button";
@@ -66,16 +67,24 @@ export default function AprovacoesList({ motoristas }: { motoristas: Motorista[]
           spotlightColor="rgba(74, 122, 94, 0.16)"
           className="rounded-2xl border border-cream-line bg-white p-5"
         >
-          <div className="flex items-start gap-3">
-            <Avatar className="h-10 w-10 shrink-0">
-              <AvatarFallback className="bg-navy text-xs font-bold text-white">{iniciais(m.nome)}</AvatarFallback>
-            </Avatar>
-            <div className="min-w-0">
-              <p className="truncate font-serif text-lg text-navy">{m.nome}</p>
-              <p className="text-xs text-ink-soft">
-                {m.telefone ?? "sem telefone"} · CNH {m.cnhCategoria} nº {m.cnhNumero}
-              </p>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <Avatar className="h-10 w-10 shrink-0">
+                <AvatarFallback className="bg-navy text-xs font-bold text-white">{iniciais(m.nome)}</AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <p className="truncate font-serif text-lg text-navy">{m.nome}</p>
+                <p className="text-xs text-ink-soft">
+                  {m.telefone ?? "sem telefone"} · CNH {m.cnhCategoria} nº {m.cnhNumero}
+                </p>
+              </div>
             </div>
+            <Link
+              href={`/admin/motoristas/${m.id}`}
+              className="shrink-0 whitespace-nowrap text-xs font-semibold text-sage hover:underline"
+            >
+              Ver perfil completo →
+            </Link>
           </div>
 
           <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-ink-soft">
