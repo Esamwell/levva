@@ -7,7 +7,7 @@ import AnimatedContent from "../components/AnimatedContent";
 import SpotlightCard from "../components/SpotlightCard";
 import Magnet from "../components/Magnet";
 import ShinyText from "../components/ShinyText";
-import GlassSurface from "../components/GlassSurface";
+import SplitFlapText from "../components/SplitFlapText";
 import { Logo } from "../components/logo";
 
 /**
@@ -59,22 +59,20 @@ export default function LandingPage() {
 
         <div className="relative mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
-            <GlassSurface
-              width="fit-content"
-              height={34}
-              borderRadius={999}
-              className="mb-6 gap-2 px-3.5 font-mono text-xs tracking-wide text-navy"
-              brightness={95}
-              opacity={0.5}
-              backgroundOpacity={0.16}
-            >
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-navy" />
-              {/* Texto curto no celular pra caber numa linha só sem estourar a tela. */}
-              <span className="whitespace-nowrap sm:hidden">SALVADOR · EM BREVE</span>
-              <span className="hidden whitespace-nowrap sm:inline">
-                SALVADOR &amp; LAURO DE FREITAS · CHEGANDO EM BREVE
-              </span>
-            </GlassSurface>
+            <div className="mb-6 overflow-x-auto">
+              <SplitFlapText
+                words={["SEGURANÇA", "PRATICIDADE", "#VAIDEMOVA"]}
+                padTo={11}
+                tileColor="#111111"
+                textColor="#FEDB1A"
+                fontSize={20}
+                gap={4}
+                tileRadius={5}
+                flipDuration={0.09}
+                stagger={0.045}
+                cycleDelay={1800}
+              />
+            </div>
             <h1 className="font-serif text-5xl leading-[1.06] md:text-6xl">
               O trajeto mais importante do dia, em{" "}
               <ShinyText
