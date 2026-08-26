@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Inbox } from "lucide-react";
 import LeadsList from "./leads-list";
 import { EmptyState } from "../../../components/empty-state";
+import { TAXA_MOVA_PERCENTUAL } from "../../../lib/financeiro";
 
 export default async function LeadsMotoristaPage() {
   const session = await exigirPapel("MOTORISTA");
@@ -42,6 +43,7 @@ export default async function LeadsMotoristaPage() {
               filhoNome: l.filho.nome,
               escolaNome: l.filho.escola.nome,
             }))}
+            taxaPercentual={TAXA_MOVA_PERCENTUAL}
           />
         </div>
       )}

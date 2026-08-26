@@ -24,6 +24,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { TAXA_MOVA_PERCENTUAL, calcularTaxa } from "../lib/financeiro";
 
 const db = new PrismaClient();
 const ROUNDS = 12;
@@ -224,6 +225,22 @@ async function main() {
         nota: 5,
         comentario: "Pontual e atencioso com as crianças.",
         moderado: true,
+      },
+    });
+  }
+
+  if ((await db.contrato.count({ where: { leadId: lead.id } })) === 0) {
+    const valorContrato = motorista.precoMax ?? 45000;
+    await db.contrato.create({
+      data: {
+        leadId: lead.id,
+        motoristaId: motorista.id,
+        paiId: pai.id,
+        valorCentavos: valorContrato,
+        periodicidade: "MENSAL",
+        taxaPercentual: TAXA_MOVA_PERCENTUAL,
+        pagadorTaxa: "MOTORISTA",
+        taxaCentavos: calcularTaxa(valorContrato),
       },
     });
   }

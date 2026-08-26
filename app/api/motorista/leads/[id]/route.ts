@@ -3,8 +3,11 @@ import { z } from "zod";
 import { db } from "../../../../../lib/db";
 import { exigirPapel } from "../../../../../lib/auth";
 
+// FECHADO sai daqui de propósito: fechar exige valor combinado, periodicidade
+// e quem paga a taxa da Mova — ver POST /api/motorista/leads/[id]/fechar,
+// que cria o Contrato junto com a mudança de status.
 const schema = z.object({
-  status: z.enum(["ENCAMINHADO", "EM_NEGOCIACAO", "FECHADO", "NAO_FECHOU"]),
+  status: z.enum(["ENCAMINHADO", "EM_NEGOCIACAO", "NAO_FECHOU"]),
   motivoNaoFechou: z.string().optional(),
 });
 

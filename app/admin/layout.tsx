@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShieldCheck, Car, Users, MessageSquare, LifeBuoy } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, Car, Users, MessageSquare, LifeBuoy, Wallet } from "lucide-react";
 import { db } from "../../lib/db";
 import { DashboardShell, type DashboardNavItem } from "../../components/dashboard-shell";
 
@@ -42,6 +42,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       icon: <LifeBuoy className="h-4 w-4" strokeWidth={1.75} />,
       badge: ticketsAbertos,
     },
+    { href: "/admin/financeiro", label: "Financeiro", icon: <Wallet className="h-4 w-4" strokeWidth={1.75} /> },
   ];
 
   return (

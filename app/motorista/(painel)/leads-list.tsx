@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback } from "../../../components/ui/avatar";
 import { Button } from "../../../components/ui/button";
 import { StatusBadge } from "../../../components/status-badge";
+import { FecharContratoDialog } from "./fechar-contrato-dialog";
 
 type Lead = {
   id: string;
@@ -18,7 +19,6 @@ type Lead = {
 const OPCOES = [
   { value: "ENCAMINHADO", label: "Contatei" },
   { value: "EM_NEGOCIACAO", label: "Negociando" },
-  { value: "FECHADO", label: "Fechado" },
   { value: "NAO_FECHOU", label: "Não fechou" },
 ];
 
@@ -31,9 +31,10 @@ function iniciais(nome: string): string {
     .join("");
 }
 
-export default function LeadsList({ leads }: { leads: Lead[] }) {
+export default function LeadsList({ leads, taxaPercentual }: { leads: Lead[]; taxaPercentual: number }) {
   const router = useRouter();
   const [atualizando, setAtualizando] = useState<string | null>(null);
+  const [fecharAlvo, setFecharAlvo] = useState<Lead | null>(null);
 
   async function atualizarStatus(id: string, status: string) {
     setAtualizando(id);
@@ -70,22 +71,42 @@ export default function LeadsList({ leads }: { leads: Lead[] }) {
             </div>
             <StatusBadge status={lead.status} />
           </div>
-          <div className="mt-3.5 flex flex-wrap gap-2 border-t border-cream-line pt-3.5">
-            {OPCOES.map((op) => (
+          {lead.status !== "FECHADO" && (
+            <div className="mt-3.5 flex flex-wrap gap-2 border-t border-cream-line pt-3.5">
+              {OPCOES.map((op) => (
+                <Button
+                  key={op.value}
+                  size="sm"
+                  variant="outline"
+                  disabled={atualizando === lead.id}
+                  onClick={() => atualizarStatus(lead.id, op.value)}
+                  className="rounded-full border-cream-line text-xs font-semibold text-ink-soft hover:border-amber hover:bg-amber-soft/20 hover:text-navy"
+                >
+                  {op.label}
+                </Button>
+              ))}
               <Button
-                key={op.value}
                 size="sm"
-                variant="outline"
                 disabled={atualizando === lead.id}
-                onClick={() => atualizarStatus(lead.id, op.value)}
-                className="rounded-full border-cream-line text-xs font-semibold text-ink-soft hover:border-amber hover:bg-amber-soft/20 hover:text-navy"
+                onClick={() => setFecharAlvo(lead)}
+                className="rounded-full bg-sage text-xs font-semibold text-white hover:bg-sage/90"
               >
-                {op.label}
+                Fechado
               </Button>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       ))}
+
+      <FecharContratoDialog
+        lead={fecharAlvo}
+        taxaPercentual={taxaPercentual}
+        onClose={() => setFecharAlvo(null)}
+        onFechado={() => {
+          setFecharAlvo(null);
+          router.refresh();
+        }}
+      />
     </div>
   );
 }

@@ -144,6 +144,7 @@ model Pai {
   filhos     Filho[]
   leads      Lead[]
   avaliacoes Avaliacao[]
+  contratos  Contrato[]
 }
 
 model Filho {
@@ -212,10 +213,16 @@ model Motorista {
   leads       Lead[]
   avaliacoes  Avaliacao[]
   assinatura  Assinatura?
+  contratos   Contrato[]
 
   // Regra de enquadramento no plano Frota (ver /lib/plano.ts):
   // múltiplos veículos OU 3+ escolas atendidas -> Frota
   // 1 veículo E até 2 escolas -> Básico
+  //
+  // Assinatura acima é o modelo antigo (mensalidade fixa pra ficar listado),
+  // mantido como está por enquanto. Contrato é o novo modelo em avaliação
+  // (taxa da Mova só em cima de contrato fechado, ver lib/financeiro.ts) —
+  // os dois convivem até uma decisão de aposentar o primeiro.
 }
 
 model Veiculo {
@@ -268,6 +275,9 @@ model Lead {
   // avaliação — é o que aponta que o pai realmente contratou aquele
   // motorista, em vez de qualquer um poder avaliar qualquer um.
   avaliacao Avaliacao?
+  // Idem pro contrato: só existe quando o motorista marca FECHADO
+  // informando valor/periodicidade (ver POST /api/motorista/leads/[id]/fechar).
+  contrato  Contrato?
 }
 
 model Avaliacao {
@@ -311,5 +321,48 @@ model TicketMensagem {
   autor     User     @relation(fields: [autorId], references: [id])
   autorId   String
   corpo     String
+  createdAt DateTime @default(now())
+}
+
+enum Periodicidade {
+  MENSAL
+  TRIMESTRAL
+  ANUAL
+}
+
+enum PagadorTaxa {
+  MOTORISTA // desconta do valor que o motorista recebe
+  PAI       // repassada: soma no valor cobrado da família
+}
+
+// Modelo de comissão em avaliação (ver lib/financeiro.ts): sem mensalidade
+// pra ficar listado, a Mova só ganha uma taxa percentual em cima do valor
+// combinado de cada contrato fechado de verdade. Nasce junto com o
+// Lead virando FECHADO — não existe Contrato sem lead fechado, nem lead
+// fechado sem Contrato (ver POST /api/motorista/leads/[id]/fechar).
+//
+// Fase 1: só registra o acordo dentro da plataforma (valor, taxa,
+// periodicidade). Cobrança de verdade (Asaas, split de pagamento) é uma
+// fase futura, ainda não decidida.
+model Contrato {
+  id          String        @id @default(cuid())
+  lead        Lead          @relation(fields: [leadId], references: [id])
+  leadId      String        @unique
+  motorista   Motorista     @relation(fields: [motoristaId], references: [id])
+  motoristaId String
+  pai         Pai           @relation(fields: [paiId], references: [id])
+  paiId       String
+
+  // Valor combinado entre motorista e família, por ciclo de cobrança
+  // (mensal/trimestral/anual) — não é o valor total do contrato.
+  valorCentavos Int
+  periodicidade Periodicidade
+
+  // Taxa congelada no momento do fechamento: mudar TAXA_MOVA_PERCENTUAL
+  // depois não altera contratos já fechados, só os próximos.
+  taxaPercentual Int
+  pagadorTaxa    PagadorTaxa
+  taxaCentavos   Int
+
   createdAt DateTime @default(now())
 }
