@@ -293,8 +293,14 @@ export default function LandingPage() {
             spotlightColor="rgba(17, 17, 17, 0.12)"
             className="rounded-[20px] bg-white text-ink shadow-2xl"
           >
-            <div className="relative h-44 bg-gradient-to-br from-navy to-amber">
-              <div className="absolute right-3.5 top-3.5 flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-sage">
+            <div className="relative h-44 bg-navy">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/marcos-andrade.jpg"
+                alt="Marcos Andrade, motorista verificado da Mova, em frente à van escolar"
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute right-3.5 top-3.5 flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-sage shadow">
                 <Check className="h-3.5 w-3.5" strokeWidth={3} /> Verificado
               </div>
             </div>
