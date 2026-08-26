@@ -53,21 +53,29 @@ export default function LandingPage() {
             className="h-full w-full"
           >
             <path
-              d="M 40 520 C 280 380, 480 560, 720 320 C 860 180, 1000 260, 1160 90"
+              d="M 40 480 C 280 380, 480 520, 720 300 C 860 200, 1000 260, 1160 150"
               fill="none"
               stroke="#111111"
-              strokeOpacity="0.08"
+              strokeOpacity="0.09"
               strokeWidth="3"
               strokeDasharray="2 14"
               strokeLinecap="round"
             />
+            {/* Pontos calculados sobre a curva de verdade (fórmula de Bézier em
+                t = 0, 0.5 e 1 de cada trecho) — antes eram aproximados a olho
+                e ficavam soltos da linha. Curva mantida no meio do hero, longe
+                do badge no topo e dos números embaixo. */}
             {[
-              [40, 520],
-              [430, 440],
-              [720, 320],
-              [1160, 90],
+              [40, 480],
+              [380, 435],
+              [720, 300],
+              [932.5, 228.75],
+              [1160, 150],
             ].map(([cx, cy]) => (
-              <circle key={cx} cx={cx} cy={cy} r="7" fill="#111111" fillOpacity="0.1" />
+              <g key={cx}>
+                <circle cx={cx} cy={cy} r="9" fill="none" stroke="#111111" strokeOpacity="0.14" strokeWidth="2" />
+                <circle cx={cx} cy={cy} r="3" fill="#111111" fillOpacity="0.16" />
+              </g>
             ))}
           </svg>
           <Bus
