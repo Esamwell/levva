@@ -73,9 +73,7 @@ function SidebarBody({
         <Logo on="dark" size="sm" />
         <span className="ml-9 font-mono text-[11px] uppercase tracking-widest text-white/50">{brandLabel}</span>
       </div>
-      {/* Só essa faixa rola, se um dia os itens não couberem — logo e
-          rodapé (plano/nome/sair) ficam sempre visíveis. */}
-      <div className="mt-8 flex-1 overflow-y-auto">
+      <div className="mt-8 flex-1">
         <NavLinks navItems={navItems} pathname={pathname} />
       </div>
       <div className="mt-6 space-y-3 border-t border-white/10 pt-5">
@@ -106,12 +104,14 @@ export function DashboardShell({
 
   return (
     <div className="min-h-screen bg-cream md:flex">
-      {/* Sidebar fixa — desktop. sticky + h-screen: fica parada na viewport
-          mesmo quando o conteúdo principal é mais alto que a tela. Sem
-          overflow-y-auto aqui: se ela rolasse por conta própria, logo e
-          rodapé saíam de vista e o scroll dela ficava fora de sincronia com
-          o da página. Só a faixa de links no meio rola, se precisar
-          (ver SidebarBody). */}
+      {/* Sidebar fixa — desktop. sticky + h-screen: sempre exatos 100vh,
+          presa no topo da viewport, preenchendo toda a lateral esquerda
+          enquanto a página rola ao lado. Sem overflow-y-auto em lugar
+          nenhum aqui dentro — qualquer scroll interno (mesmo isolado só
+          nos links) ficava fora de sincronia com o scroll da página e
+          escondia logo/itens. O conteúdo (logo + 6 itens + rodapé) cabe
+          numa tela normal; se um dia não couber, prefira cortar um item
+          do menu a reintroduzir scroll aqui. */}
       <aside className="hidden w-64 shrink-0 bg-navy px-5 py-7 md:sticky md:top-0 md:block md:h-screen">
         <SidebarBody
           brandLabel={brandLabel}
