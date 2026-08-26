@@ -53,22 +53,24 @@ export async function POST(req: Request) {
     include: { user: true, veiculos: true, avaliacoes: true },
   });
 
-  const mapeados = candidatos.map((m) => ({
-    id: m.id,
-    nome: m.user.nome,
-    destaque: m.destaqueAtivo,
-    anosExperiencia: m.anosExperiencia,
-    temMonitor: m.temMonitor,
-    precoMin: m.precoMin,
-    precoMax: m.precoMax,
-    notaMedia:
-      m.avaliacoes.length > 0
-        ? m.avaliacoes.reduce((s, a) => s + a.nota, 0) / m.avaliacoes.length
+  const mapeados = candidatos.map((m) => {
+    // Só avaliação aprovada pelo admin entra na média pública — sem isso,
+    // um depoimento ainda pendente de moderação já pesava no ranking.
+    const aprovadas = m.avaliacoes.filter((a) => a.moderado);
+    return {
+      id: m.id,
+      nome: m.user.nome,
+      destaque: m.destaqueAtivo,
+      anosExperiencia: m.anosExperiencia,
+      temMonitor: m.temMonitor,
+      precoMin: m.precoMin,
+      precoMax: m.precoMax,
+      notaMedia: aprovadas.length > 0 ? aprovadas.reduce((s, a) => s + a.nota, 0) / aprovadas.length : null,
+      distanciaKm: ponto
+        ? distanciaKm(ponto.lat, ponto.lng, escolaEncontrada.lat, escolaEncontrada.lng)
         : null,
-    distanciaKm: ponto
-      ? distanciaKm(ponto.lat, ponto.lng, escolaEncontrada.lat, escolaEncontrada.lng)
-      : null,
-  }));
+    };
+  });
 
   // Sem coordenadas do pai não há como aplicar o raio — mostramos todos os
   // que atendem a escola, que ainda é uma resposta útil.

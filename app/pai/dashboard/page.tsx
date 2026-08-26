@@ -10,6 +10,7 @@ import { exigirPapel } from "../../../lib/auth";
 import { db } from "../../../lib/db";
 import { StatusBadge } from "../../../components/status-badge";
 import { EmptyState } from "../../../components/empty-state";
+import AvaliarButton from "./avaliar-button";
 
 export default async function DashboardPaiPage() {
   const session = await exigirPapel("PAI");
@@ -20,7 +21,11 @@ export default async function DashboardPaiPage() {
   const leads = pai
     ? await db.lead.findMany({
         where: { paiId: pai.id },
-        include: { filho: { include: { escola: true } }, motorista: { include: { user: true } } },
+        include: {
+          filho: { include: { escola: true } },
+          motorista: { include: { user: true } },
+          avaliacao: { select: { id: true, nota: true } },
+        },
         orderBy: { createdAt: "desc" },
       })
     : [];
@@ -42,14 +47,23 @@ export default async function DashboardPaiPage() {
       ) : (
         <div className="mt-8 space-y-3">
           {leads.map((lead) => (
-            <div key={lead.id} className="flex items-center justify-between rounded-2xl border border-cream-line bg-white p-5">
+            <div key={lead.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cream-line bg-white p-5">
               <div>
                 <p className="font-semibold text-navy">{lead.motorista.user.nome}</p>
                 <p className="text-xs text-ink-soft">
                   {lead.filho.nome} · {lead.filho.escola.nome}
                 </p>
               </div>
-              <StatusBadge status={lead.status} />
+              <div className="flex items-center gap-2">
+                <StatusBadge status={lead.status} />
+                {lead.status === "FECHADO" && (
+                  <AvaliarButton
+                    leadId={lead.id}
+                    motoristaNome={lead.motorista.user.nome}
+                    avaliacaoExistente={lead.avaliacao}
+                  />
+                )}
+              </div>
             </div>
           ))}
         </div>

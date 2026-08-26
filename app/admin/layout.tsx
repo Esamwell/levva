@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShieldCheck, Car, Users } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, Car, Users, MessageSquare } from "lucide-react";
 import { db } from "../../lib/db";
 import { DashboardShell, type DashboardNavItem } from "../../components/dashboard-shell";
 
@@ -14,7 +14,10 @@ import { DashboardShell, type DashboardNavItem } from "../../components/dashboar
 export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const pendentes = await db.motorista.count({ where: { statusAprovacao: "PENDENTE" } });
+  const [pendentes, depoimentosPendentes] = await Promise.all([
+    db.motorista.count({ where: { statusAprovacao: "PENDENTE" } }),
+    db.avaliacao.count({ where: { moderado: false } }),
+  ]);
 
   const navItems: DashboardNavItem[] = [
     { href: "/admin", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" strokeWidth={1.75} /> },
@@ -26,6 +29,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     },
     { href: "/admin/motoristas", label: "Motoristas", icon: <Car className="h-4 w-4" strokeWidth={1.75} /> },
     { href: "/admin/usuarios", label: "Usuários", icon: <Users className="h-4 w-4" strokeWidth={1.75} /> },
+    {
+      href: "/admin/depoimentos",
+      label: "Depoimentos",
+      icon: <MessageSquare className="h-4 w-4" strokeWidth={1.75} />,
+      badge: depoimentosPendentes,
+    },
   ];
 
   return (

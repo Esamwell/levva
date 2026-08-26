@@ -129,8 +129,9 @@ model Pai {
   lng       Float?
   createdAt DateTime @default(now())
 
-  filhos Filho[]
-  leads  Lead[]
+  filhos     Filho[]
+  leads      Lead[]
+  avaliacoes Avaliacao[]
 }
 
 model Filho {
@@ -189,6 +190,9 @@ model Motorista {
   precoMin           Int? // em centavos
   precoMax           Int? // em centavos
   destaqueAtivo      Boolean           @default(false)
+  // Coletada no cadastro (ver bodySchema em app/api/motoristas/route.ts), mas
+  // até aqui era validada e descartada — o valor nunca chegava no banco.
+  cidade             String            @default("Salvador")
   createdAt          DateTime          @default(now())
 
   veiculos    Veiculo[]
@@ -247,14 +251,28 @@ model Lead {
   motivoNaoFechou String?
   createdAt   DateTime   @default(now())
   encaminhadoEm DateTime?
+
+  // Uma solicitação fechada (van contratada) pode gerar no máximo uma
+  // avaliação — é o que aponta que o pai realmente contratou aquele
+  // motorista, em vez de qualquer um poder avaliar qualquer um.
+  avaliacao Avaliacao?
 }
 
 model Avaliacao {
   id          String    @id @default(cuid())
   motorista   Motorista @relation(fields: [motoristaId], references: [id])
   motoristaId String
+  // Quem avaliou e a partir de qual solicitação — sem isso não dava pra
+  // saber se a avaliação veio de uma família de verdade nem impedir
+  // duplicata pro mesmo fechamento.
+  pai         Pai       @relation(fields: [paiId], references: [id])
+  paiId       String
+  lead        Lead      @relation(fields: [leadId], references: [id])
+  leadId      String    @unique
   nota        Int // 1-5
   comentario  String?
+  // Só entra na média pública (ver /api/busca) e aparece na página do
+  // motorista depois que um admin aprova em /admin/depoimentos.
   moderado    Boolean   @default(false)
   createdAt   DateTime  @default(now())
 }

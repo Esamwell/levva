@@ -168,15 +168,6 @@ async function main() {
     },
   });
 
-  if ((await db.avaliacao.count({ where: { motoristaId: motorista.id } })) === 0) {
-    await db.avaliacao.createMany({
-      data: [
-        { motoristaId: motorista.id, nota: 5, comentario: "Pontual e atencioso com as crianças.", moderado: true },
-        { motoristaId: motorista.id, nota: 4, comentario: "Muito bom, só atrasou uma vez.", moderado: true },
-      ],
-    });
-  }
-
   // ---------------- MOTORISTA PENDENTE (fila do admin) ----------------
   const mp = CONTAS.motoristaPendente;
   const userPend = await db.user.upsert({
@@ -213,9 +204,27 @@ async function main() {
   });
 
   // ---------------- LEAD ----------------
-  if ((await db.lead.count({ where: { paiId: pai.id } })) === 0) {
-    await db.lead.create({
-      data: { paiId: pai.id, filhoId: filho.id, motoristaId: motorista.id, status: "AGUARDANDO" },
+  // FECHADO de propósito: é o que libera o botão "Avaliar" em /pai/dashboard
+  // (só dá pra avaliar quem você realmente contratou — ver /api/pai/avaliacoes).
+  let lead = await db.lead.findFirst({ where: { paiId: pai.id, motoristaId: motorista.id } });
+  if (!lead) {
+    lead = await db.lead.create({
+      data: { paiId: pai.id, filhoId: filho.id, motoristaId: motorista.id, status: "FECHADO" },
+    });
+  } else if (lead.status !== "FECHADO") {
+    lead = await db.lead.update({ where: { id: lead.id }, data: { status: "FECHADO" } });
+  }
+
+  if ((await db.avaliacao.count({ where: { leadId: lead.id } })) === 0) {
+    await db.avaliacao.create({
+      data: {
+        motoristaId: motorista.id,
+        paiId: pai.id,
+        leadId: lead.id,
+        nota: 5,
+        comentario: "Pontual e atencioso com as crianças.",
+        moderado: true,
+      },
     });
   }
 

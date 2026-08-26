@@ -90,6 +90,7 @@ export async function POST(req: Request) {
     const motorista = await tx.motorista.create({
       data: {
         userId: user.id,
+        cidade: data.cidade,
         cnhNumero: data.cnhNumero,
         cnhCategoria: data.cnhCategoria,
         // Ambos só viram true quando o admin confere os documentos de fato.

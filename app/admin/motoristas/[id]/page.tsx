@@ -155,10 +155,22 @@ export default async function MotoristaDetailPage({ params }: { params: Promise<
               <ul className="mt-3 space-y-3">
                 {motorista.avaliacoes.map((a) => (
                   <li key={a.id} className="rounded-xl border border-cream-line px-4 py-3">
-                    <div className="flex items-center gap-1 text-amber">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className={cn("h-3.5 w-3.5", i < a.nota ? "fill-amber" : "text-cream-line")} />
-                      ))}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1 text-amber">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star key={i} className={cn("h-3.5 w-3.5", i < a.nota ? "fill-amber" : "text-cream-line")} />
+                        ))}
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className={
+                          a.moderado
+                            ? "border-transparent bg-sage-soft text-[10px] font-semibold text-sage"
+                            : "border-transparent bg-amber-soft text-[10px] font-semibold text-navy"
+                        }
+                      >
+                        {a.moderado ? "Publicado" : "Pendente"}
+                      </Badge>
                     </div>
                     {a.comentario && <p className="mt-1.5 text-sm text-ink-soft">{a.comentario}</p>}
                   </li>
