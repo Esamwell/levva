@@ -157,11 +157,21 @@ export async function POST(req: Request) {
     usuarioNovo = { id: criado.id };
   }
 
-  // ---- Cria filho e lead ----
+  // ---- Resolve o filho: reaproveita se já existe (mesmo pai, nome e
+  // escola), senão cria. Sem isso, cada solicitação nova pro mesmo filho
+  // gerava um registro duplicado — a lista de "filhos e escolas" no admin
+  // (e o painel do próprio pai) enchia de entradas repetidas.
   const lead = await db.$transaction(async (tx) => {
-    const filho = await tx.filho.create({
-      data: { paiId, nome: data.nomeFilho, escolaId: escola.id },
+    const filhoExistente = await tx.filho.findFirst({
+      where: { paiId, escolaId: escola.id, nome: { equals: data.nomeFilho.trim(), mode: "insensitive" } },
+      select: { id: true },
     });
+
+    const filho =
+      filhoExistente ??
+      (await tx.filho.create({
+        data: { paiId, nome: data.nomeFilho.trim(), escolaId: escola.id },
+      }));
 
     return tx.lead.create({
       data: { paiId, filhoId: filho.id, motoristaId: motorista.id, status: "AGUARDANDO" },

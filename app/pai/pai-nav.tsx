@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 const LINKS = [
   { href: "/pai", label: "Buscar" },
   { href: "/pai/dashboard", label: "Solicitações" },
+  { href: "/pai/perfil", label: "Meu perfil" },
 ];
 
 export function PaiNav() {
