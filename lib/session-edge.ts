@@ -18,7 +18,7 @@
 
 import { jwtVerify } from "jose";
 
-export const SESSION_COOKIE_NAME = "levva_sessao";
+export const SESSION_COOKIE_NAME = "mova_sessao";
 
 export type Papel = "PAI" | "MOTORISTA" | "ADMIN";
 

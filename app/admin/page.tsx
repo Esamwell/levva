@@ -80,7 +80,7 @@ export default async function AdminDashboardPage() {
   return (
     <div>
       <h1 className="font-serif text-3xl text-navy">Dashboard</h1>
-      <p className="mt-1 text-sm text-ink-soft">Visão geral da operação da Levva.</p>
+      <p className="mt-1 text-sm text-ink-soft">Visão geral da operação da Mova.</p>
 
       <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {metrics.map((m) => (
@@ -138,7 +138,7 @@ export default async function AdminDashboardPage() {
                   leadId={lead.id}
                   telefoneMotorista={lead.motorista.user.telefone}
                   mensagem={
-                    `Olá, ${lead.motorista.user.nome}! Você recebeu um lead na Levva: ` +
+                    `Olá, ${lead.motorista.user.nome}! Você recebeu um lead na Mova: ` +
                     `${lead.pai.user.nome}, responsável por ${lead.filho.nome} ` +
                     `(${lead.filho.escola.nome}). Contato: ${lead.pai.user.telefone ?? "ver painel"}.`
                   }

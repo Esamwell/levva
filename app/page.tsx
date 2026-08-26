@@ -7,9 +7,10 @@ import SpotlightCard from "../components/SpotlightCard";
 import Magnet from "../components/Magnet";
 import ShinyText from "../components/ShinyText";
 import GlassSurface from "../components/GlassSurface";
+import { Logo } from "../components/logo";
 
 /**
- * Landing page da Levva — porta da versão estática (levva-landing.html)
+ * Landing page da Mova — porta da versão estática (levva-landing.html)
  * pro Next.js/Tailwind, usando os tokens definidos em tailwind.config.ts.
  *
  * Pra alterações rápidas de copy/estrutura, edite aqui. Pra alterações de
@@ -22,9 +23,7 @@ export default function LandingPage() {
       {/* NAV — vidro fosco fixo: translúcido + blur, pra não "quebrar" em cima
           do conteúdo ao rolar a página (antes era transparente sem fundo). */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between border-b border-white/10 bg-navy/70 px-[6vw] py-4 shadow-[0_1px_24px_rgba(0,0,0,0.15)] backdrop-blur-xl backdrop-saturate-150">
-        <div className="font-serif text-2xl text-white">
-          levva<span className="text-amber">.</span>
-        </div>
+        <Logo on="dark" size="md" />
         <div className="hidden md:flex items-center gap-9">
           <a href="#rota" className="text-sm text-white/85 hover:text-white">Como funciona</a>
           <a href="#motoristas" className="text-sm text-white/85 hover:text-white">Para motoristas</a>
@@ -62,7 +61,7 @@ export default function LandingPage() {
               <ShinyText
                 text="boas mãos"
                 className="font-serif italic"
-                color="#E8A33D"
+                color="#FEDB1A"
                 shineColor="#FBEBD1"
                 spread={80}
                 speed={2.5}
@@ -70,7 +69,7 @@ export default function LandingPage() {
               .
             </h1>
             <p className="mt-6 max-w-md text-[17px] leading-relaxed text-white/75">
-              A Levva conecta famílias a transportadores escolares 100% verificados —
+              A Mova conecta famílias a transportadores escolares 100% verificados —
               CNH, curso e antecedentes checados antes de qualquer criança entrar na van.
             </p>
             <div className="mt-11 flex gap-8">
@@ -158,7 +157,7 @@ export default function LandingPage() {
             {[
               ["Parada 01", "Você busca", "Digite seu endereço e a escola do seu filho. Sem cadastro, sem complicação."],
               ["Parada 02", "Você compara transportadores verificados", "Veja quem atende sua região e sua escola — com foto do veículo, do motorista, avaliações e faixa de preço."],
-              ["Parada 03", "A Levva faz a ponte", "Solicite contato e a gente encaminha direto pro transportador escolhido — sem intermediário burocrático."],
+              ["Parada 03", "A Mova faz a ponte", "Solicite contato e a gente encaminha direto pro transportador escolhido — sem intermediário burocrático."],
               ["Parada 04", "Fechou, e agora é rotina", "Combine os detalhes direto com o transportador e avalie o serviço depois — pra ajudar outras famílias da sua região."],
             ].map(([tag, title, desc], i) => (
               <AnimatedContent key={tag} distance={24} duration={0.6} delay={i * 0.12} className="relative">
@@ -185,7 +184,7 @@ export default function LandingPage() {
               Um perfil que já responde a pergunta de todo pai: "posso confiar?"
             </h2>
             <p className="mt-4 max-w-md text-white/70">
-              Cada transportador aprovado na Levva mostra exatamente o que uma
+              Cada transportador aprovado na Mova mostra exatamente o que uma
               família precisa ver antes de decidir.
             </p>
             <ul className="mt-8 space-y-4">
@@ -208,7 +207,7 @@ export default function LandingPage() {
             spotlightColor="rgba(232, 163, 61, 0.25)"
             className="rounded-[20px] bg-white text-ink shadow-2xl"
           >
-            <div className="relative h-44 bg-gradient-to-br from-amber via-[#D97B3D] to-navy">
+            <div className="relative h-44 bg-gradient-to-br from-amber to-navy">
               <div className="absolute right-3.5 top-3.5 flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-sage">
                 <Check className="h-3.5 w-3.5" strokeWidth={3} /> Verificado
               </div>
@@ -277,7 +276,7 @@ export default function LandingPage() {
         <AnimatedContent distance={20} duration={0.6} className="mx-auto mb-10 max-w-xl border-b border-white/10 pb-16 text-center">
           <h2 className="font-serif text-4xl">Seja um dos primeiros em Salvador.</h2>
           <p className="mt-3.5 text-white/70">
-            Estamos abrindo por bairro. Deixe seu e-mail e avisamos assim que a Levva chegar na sua região.
+            Estamos abrindo por bairro. Deixe seu e-mail e avisamos assim que a Mova chegar na sua região.
           </p>
           <form className="mx-auto mt-7 flex max-w-md gap-2.5">
             <input
@@ -291,13 +290,14 @@ export default function LandingPage() {
           </form>
         </AnimatedContent>
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4">
-          <div className="font-serif text-xl">levva<span className="text-amber">.</span></div>
-          <div className="flex gap-6 text-sm text-white/60">
+          <Logo on="dark" size="sm" />
+          <div className="flex items-center gap-6 text-sm text-white/60">
             <a href="#rota">Como funciona</a>
             <a href="#motoristas">Para motoristas</a>
             <a href="#">Instagram</a>
+            <span className="font-mono text-xs text-amber-soft">#vaidemova</span>
           </div>
-          <div className="text-xs text-white/40">© 2026 Levva — Salvador, BA</div>
+          <div className="text-xs text-white/40">© 2026 Mova — Salvador, BA</div>
         </div>
       </footer>
     </main>

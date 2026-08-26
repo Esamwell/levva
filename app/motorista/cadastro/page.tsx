@@ -23,6 +23,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { Check, Paperclip } from "lucide-react";
+import { Logo } from "../../../components/logo";
 import {
   calcularPlanoSugerido,
   calcularMensalidade,
@@ -206,9 +207,7 @@ export default function CadastroMotoristaPage() {
     <div className="min-h-screen bg-cream">
       <header className="border-b border-cream-line bg-navy px-6 py-5 text-white">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <a href="/" className="font-serif text-xl">
-            levva<span className="text-amber">.</span>
-          </a>
+          <Logo on="dark" size="sm" />
           <span className="rounded-full border border-white/20 px-3 py-1 text-xs text-white/70">
             Cadastro de motorista
           </span>
@@ -593,7 +592,7 @@ export default function CadastroMotoristaPage() {
               {erro && <p className="text-sm text-red-600">{erro}</p>}
               <p className="text-xs text-ink-soft">
                 Ao enviar, criamos sua conta e subimos seus documentos. Você
-                concorda em passar pela verificação documental da Levva antes de
+                concorda em passar pela verificação documental da Mova antes de
                 receber leads.
               </p>
             </motion.div>

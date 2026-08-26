@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import LogoutButton from "@/components/logout-button";
+import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 
 export type DashboardNavItem = {
@@ -68,10 +69,10 @@ function SidebarBody({
 }) {
   return (
     <div className="flex h-full flex-col">
-      <Link href="/" className="font-serif text-xl text-white">
-        levva<span className="text-amber">.</span>{" "}
-        <span className="font-mono text-[11px] uppercase tracking-widest text-white/50">{brandLabel}</span>
-      </Link>
+      <div>
+        <Logo on="dark" size="sm" />
+        <span className="ml-9 font-mono text-[11px] uppercase tracking-widest text-white/50">{brandLabel}</span>
+      </div>
       <div className="mt-8 flex-1">
         <NavLinks navItems={navItems} pathname={pathname} />
       </div>
@@ -117,9 +118,7 @@ export function DashboardShell({
       <div className="flex-1">
         {/* Topo com hambúrguer — mobile */}
         <header className="flex items-center justify-between border-b border-cream-line bg-navy px-5 py-4 text-white md:hidden">
-          <Link href="/" className="font-serif text-lg">
-            levva<span className="text-amber">.</span>
-          </Link>
+          <Logo on="dark" size="sm" />
           <Sheet>
             <SheetTrigger asChild>
               <button aria-label="Abrir menu" className="rounded-full p-1.5 text-white/85 hover:bg-white/10">

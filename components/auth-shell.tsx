@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Check } from "lucide-react";
+import { Logo } from "@/components/logo";
 
 const BULLETS = [
   "Motoristas com CNH, curso e antecedentes verificados",
@@ -16,9 +16,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-cream md:flex">
       <aside className="hidden flex-col justify-between bg-navy px-12 py-14 text-white md:flex md:w-[42%]">
-        <Link href="/" className="font-serif text-2xl">
-          levva<span className="text-amber">.</span>
-        </Link>
+        <Logo on="dark" size="lg" />
         <div>
           <h2 className="max-w-xs font-serif text-3xl leading-tight">
             O trajeto mais importante do dia, em boas mãos.
@@ -32,14 +30,12 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
             ))}
           </ul>
         </div>
-        <p className="font-mono text-xs text-white/40">Salvador &amp; Lauro de Freitas</p>
+        <p className="font-mono text-xs text-white/40">#vaidemova · Salvador &amp; Lauro de Freitas</p>
       </aside>
 
       <div className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm">
-          <Link href="/" className="font-serif text-2xl text-navy md:hidden">
-            levva<span className="text-amber">.</span>
-          </Link>
+          <Logo on="light" size="md" className="md:hidden" />
           <div className="md:mt-0 mt-8">{children}</div>
         </div>
       </div>

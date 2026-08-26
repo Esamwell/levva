@@ -3,6 +3,7 @@ import { db } from "../../lib/db";
 import LogoutButton from "../../components/logout-button";
 import { PaiNav } from "./pai-nav";
 import { Avatar, AvatarFallback } from "../../components/ui/avatar";
+import { Logo } from "../../components/logo";
 
 function iniciais(nome: string): string {
   return nome
@@ -22,9 +23,7 @@ export default async function PaiLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen bg-cream">
       <header className="border-b border-cream-line bg-white px-6 py-4">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <span className="font-serif text-xl text-navy">
-            levva<span className="text-amber">.</span>
-          </span>
+          <Logo on="light" size="sm" />
           <nav className="flex items-center gap-6">
             <PaiNav />
             {user && (

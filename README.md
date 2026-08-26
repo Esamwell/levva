@@ -1,4 +1,4 @@
-# Levva
+# Mova
 
 Plataforma de intermediação de transporte escolar em Salvador/BA.
 App completo — landing, os 3 painéis (pai / motorista / admin), login

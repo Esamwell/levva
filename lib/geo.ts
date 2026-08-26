@@ -18,7 +18,7 @@ import { db } from "./db";
 
 const EARTH_RADIUS_KM = 6371;
 const TIMEOUT_MS = 6000;
-const USER_AGENT = "LevvaApp/1.0 (contato@levva.com.br)";
+const USER_AGENT = "MovaApp/1.0 (contato@mova.com.br)";
 
 /** Quanto tempo guardamos uma consulta que não achou nada, antes de tentar de novo. */
 const TTL_NEGATIVO_HORAS = 24;

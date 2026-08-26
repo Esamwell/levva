@@ -1,13 +1,20 @@
 import type { Config } from "tailwindcss";
 
-// Design tokens da Levva — mesma identidade da landing page.
+// Design tokens da Mova — mesma identidade da landing page.
 // Mantenha esse arquivo como fonte única de verdade pra cor/tipografia
 // em todo o app (pai, motorista, admin).
 //
+// Os NOMES dos tokens (navy, amber, cream, ink, sage) ficaram do rebrand
+// anterior — só os VALORES mudaram pra paleta da Mova (amarelo #FEDB1A +
+// preto). Renomear centenas de `bg-navy`/`text-amber` espalhados pelo app
+// seria puro risco sem ganho visível; "navy" hoje é o preto de marca e
+// "amber" é o amarelo — pense neles como slots semânticos, não cores
+// literais.
+//
 // Os tokens semânticos do shadcn/ui (primary, card, border, ring, etc.)
 // apontam pras variáveis CSS definidas em app/globals.css, que por sua
-// vez usam os MESMOS valores de navy/amber/cream/sage/ink — assim os
-// componentes de components/ui/ saem com a cara da Levva.
+// vez usam os MESMOS valores — assim os componentes de components/ui/
+// saem com a cara da Mova.
 const config: Config = {
   content: [
     "./app/**/*.{ts,tsx}",
@@ -17,24 +24,28 @@ const config: Config = {
     extend: {
       colors: {
         navy: {
-          DEFAULT: "#12203D",
-          soft: "#1B2E52",
+          DEFAULT: "#111111",
+          soft: "#262626",
         },
         amber: {
-          DEFAULT: "#E8A33D",
-          soft: "#F4C767",
+          DEFAULT: "#FEDB1A",
+          soft: "#FFEB80",
         },
         cream: {
-          DEFAULT: "#FBF8F1",
-          line: "#E6E0D2",
+          DEFAULT: "#FFFFFF",
+          line: "#E5E5E5",
         },
         ink: {
-          DEFAULT: "#161510",
-          soft: "#5B584C",
+          DEFAULT: "#111111",
+          soft: "#6B6B6B",
         },
+        // Não é cor de marca — é o acento semântico de "verificado/aprovado"
+        // (CNH conferida, assinatura ativa etc.). Fica à parte do par
+        // amarelo+preto de propósito: um check preto ou amarelo perderia o
+        // sinal visual de "confirmado".
         sage: {
-          DEFAULT: "#4F6D5C",
-          soft: "#E5EBE4",
+          DEFAULT: "#4A7A5E",
+          soft: "#E4EFE7",
         },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -88,7 +99,10 @@ const config: Config = {
         },
       },
       fontFamily: {
-        serif: ["'Instrument Serif'", "serif"],
+        // Token "serif" mantido pelo mesmo motivo das cores acima — hoje é
+        // a fonte de título/wordmark da marca, não literalmente uma serifa.
+        // Fredoka é a fonte redonda/geométrica que bate com o "mova" da logo.
+        serif: ["Fredoka", "sans-serif"],
         sans: ["Inter", "sans-serif"],
         mono: ["'Space Mono'", "monospace"],
       },

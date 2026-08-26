@@ -158,7 +158,7 @@ export default function PerfilForm({
         </section>
 
         <p className="text-xs text-ink-soft">
-          Documentação (CNH, curso, antecedentes) é verificada pela equipe Levva
+          Documentação (CNH, curso, antecedentes) é verificada pela equipe Mova
           separadamente — não pode ser editada aqui.
         </p>
 

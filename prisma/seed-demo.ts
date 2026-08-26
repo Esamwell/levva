@@ -29,10 +29,10 @@ const db = new PrismaClient();
 const ROUNDS = 12;
 
 const CONTAS = {
-  admin: { email: "admin@levva.local", senha: "LevvaAdmin2026", nome: "Administração Levva" },
+  admin: { email: "admin@mova.local", senha: "MovaAdmin2026", nome: "Administração Mova" },
   pai: {
-    email: "pai@levva.local",
-    senha: "LevvaPai2026",
+    email: "pai@mova.local",
+    senha: "MovaPai2026",
     nome: "Renata Correia",
     telefone: "5571988880001",
     endereco: "Rua Airosa Galvão, Federação, Salvador",
@@ -42,16 +42,16 @@ const CONTAS = {
     filho: "Bruno Correia",
   },
   motorista: {
-    email: "motorista@levva.local",
-    senha: "LevvaMotorista2026",
+    email: "motorista@mova.local",
+    senha: "MovaMotorista2026",
     nome: "Marcos Andrade",
     telefone: "5571988880002",
     cnhNumero: "04512378900",
     cnhCategoria: "D",
   },
   motoristaPendente: {
-    email: "pendente@levva.local",
-    senha: "LevvaPendente2026",
+    email: "pendente@mova.local",
+    senha: "MovaPendente2026",
     nome: "Cláudia Ribeiro",
     telefone: "5571988880003",
     cnhNumero: "07733215600",

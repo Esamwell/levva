@@ -65,7 +65,7 @@ export async function enviarEmail(msg: Mensagem): Promise<void> {
   }
 
   await transporter().sendMail({
-    from: process.env.SMTP_FROM ?? `Levva <${process.env.SMTP_USER}>`,
+    from: process.env.SMTP_FROM ?? `Mova <${process.env.SMTP_USER}>`,
     to: msg.para,
     subject: msg.assunto,
     text: msg.texto,
@@ -84,20 +84,20 @@ export function urlBase(): string {
 
 function moldura(titulo: string, corpo: string): string {
   return `<!doctype html>
-<html lang="pt-BR"><body style="margin:0;padding:32px 16px;background:#FBF8F1;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#161510">
-  <div style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #E6E0D2;border-radius:20px;padding:32px">
-    <div style="font-size:22px;color:#12203D">levva<span style="color:#E8A33D">.</span></div>
-    <h1 style="font-size:20px;color:#12203D;margin:24px 0 0">${titulo}</h1>
+<html lang="pt-BR"><body style="margin:0;padding:32px 16px;background:#F5F5F5;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#111111">
+  <div style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #E5E5E5;border-radius:20px;padding:32px">
+    <div style="font-size:22px;font-weight:700;color:#111111">mova</div>
+    <h1 style="font-size:20px;color:#111111;margin:24px 0 0">${titulo}</h1>
     ${corpo}
   </div>
-  <p style="max-width:520px;margin:16px auto 0;font-size:12px;color:#8B8677;text-align:center">
-    Levva · transporte escolar
+  <p style="max-width:520px;margin:16px auto 0;font-size:12px;color:#8A8A8A;text-align:center">
+    Mova · transporte escolar · #vaidemova
   </p>
 </body></html>`;
 }
 
 function botao(href: string, texto: string): string {
-  return `<a href="${href}" style="display:inline-block;margin:24px 0 0;background:#E8A33D;color:#12203D;font-weight:700;font-size:14px;text-decoration:none;padding:12px 24px;border-radius:999px">${texto}</a>`;
+  return `<a href="${href}" style="display:inline-block;margin:24px 0 0;background:#FEDB1A;color:#111111;font-weight:700;font-size:14px;text-decoration:none;padding:12px 24px;border-radius:999px">${texto}</a>`;
 }
 
 export function emailRecuperacaoSenha(params: {
@@ -108,21 +108,21 @@ export function emailRecuperacaoSenha(params: {
   const { nome, link, minutos } = params;
 
   return {
-    assunto: "Redefinir sua senha na Levva",
+    assunto: "Redefinir sua senha na Mova",
     texto:
       `Olá, ${nome}.\n\n` +
-      `Você pediu para redefinir sua senha na Levva. Abra o link abaixo para escolher uma nova:\n\n` +
+      `Você pediu para redefinir sua senha na Mova. Abra o link abaixo para escolher uma nova:\n\n` +
       `${link}\n\n` +
       `O link vale por ${minutos} minutos e só pode ser usado uma vez.\n\n` +
       `Se não foi você que pediu, ignore este e-mail — sua senha continua a mesma.`,
     html: moldura(
       "Redefinir sua senha",
-      `<p style="font-size:15px;line-height:1.6;color:#5B584C;margin:16px 0 0">
-         Olá, ${nome}. Você pediu para redefinir sua senha na Levva.
+      `<p style="font-size:15px;line-height:1.6;color:#6B6B6B;margin:16px 0 0">
+         Olá, ${nome}. Você pediu para redefinir sua senha na Mova.
          Clique no botão abaixo para escolher uma nova.
        </p>
        ${botao(link, "Escolher nova senha")}
-       <p style="font-size:13px;line-height:1.6;color:#8B8677;margin:24px 0 0">
+       <p style="font-size:13px;line-height:1.6;color:#8A8A8A;margin:24px 0 0">
          O link vale por ${minutos} minutos e só funciona uma vez.
          Se não foi você que pediu, ignore este e-mail — sua senha continua a mesma.
        </p>`
@@ -135,7 +135,7 @@ export function emailMotoristaAprovado(params: {
   link: string;
 }): Omit<Mensagem, "para"> {
   return {
-    assunto: "Seu cadastro na Levva foi aprovado",
+    assunto: "Seu cadastro na Mova foi aprovado",
     texto:
       `Olá, ${params.nome}.\n\n` +
       `Seus documentos foram conferidos e seu cadastro está aprovado. ` +
@@ -143,7 +143,7 @@ export function emailMotoristaAprovado(params: {
       `${params.link}`,
     html: moldura(
       "Cadastro aprovado",
-      `<p style="font-size:15px;line-height:1.6;color:#5B584C;margin:16px 0 0">
+      `<p style="font-size:15px;line-height:1.6;color:#6B6B6B;margin:16px 0 0">
          Olá, ${params.nome}. Seus documentos foram conferidos e seu cadastro está aprovado.
          A partir de agora você aparece nas buscas dos pais e recebe leads direto no painel.
        </p>
@@ -157,7 +157,7 @@ export function emailMotoristaReprovado(params: {
   motivo: string;
 }): Omit<Mensagem, "para"> {
   return {
-    assunto: "Sobre seu cadastro na Levva",
+    assunto: "Sobre seu cadastro na Mova",
     texto:
       `Olá, ${params.nome}.\n\n` +
       `Revisamos seu cadastro e ele não pôde ser aprovado agora. Motivo:\n\n` +
@@ -165,13 +165,13 @@ export function emailMotoristaReprovado(params: {
       `Você pode corrigir o que foi apontado e responder este e-mail para uma nova análise.`,
     html: moldura(
       "Sobre seu cadastro",
-      `<p style="font-size:15px;line-height:1.6;color:#5B584C;margin:16px 0 0">
+      `<p style="font-size:15px;line-height:1.6;color:#6B6B6B;margin:16px 0 0">
          Olá, ${params.nome}. Revisamos seu cadastro e ele não pôde ser aprovado agora.
        </p>
-       <p style="font-size:15px;line-height:1.6;color:#161510;background:#F5F1E7;border-left:3px solid #E8A33D;border-radius:0 10px 10px 0;padding:14px 16px;margin:16px 0 0">
+       <p style="font-size:15px;line-height:1.6;color:#111111;background:#FFF6D6;border-left:3px solid #FEDB1A;border-radius:0 10px 10px 0;padding:14px 16px;margin:16px 0 0">
          ${params.motivo}
        </p>
-       <p style="font-size:13px;line-height:1.6;color:#8B8677;margin:20px 0 0">
+       <p style="font-size:13px;line-height:1.6;color:#8A8A8A;margin:20px 0 0">
          Corrija o que foi apontado e responda este e-mail para uma nova análise.
        </p>`
     ),
@@ -195,11 +195,11 @@ export function emailNovoLeadAdmin(params: {
       `Abrir o painel: ${params.link}`,
     html: moldura(
       "Novo lead aguardando repasse",
-      `<table style="width:100%;font-size:14px;color:#5B584C;margin:16px 0 0;border-collapse:collapse">
-         <tr><td style="padding:6px 0;color:#8B8677">Pai</td><td style="padding:6px 0;color:#161510;font-weight:600">${params.paiNome}</td></tr>
-         <tr><td style="padding:6px 0;color:#8B8677">Motorista</td><td style="padding:6px 0;color:#161510;font-weight:600">${params.motoristaNome}</td></tr>
-         <tr><td style="padding:6px 0;color:#8B8677">Criança</td><td style="padding:6px 0;color:#161510;font-weight:600">${params.filhoNome}</td></tr>
-         <tr><td style="padding:6px 0;color:#8B8677">Escola</td><td style="padding:6px 0;color:#161510;font-weight:600">${params.escolaNome}</td></tr>
+      `<table style="width:100%;font-size:14px;color:#6B6B6B;margin:16px 0 0;border-collapse:collapse">
+         <tr><td style="padding:6px 0;color:#8A8A8A">Pai</td><td style="padding:6px 0;color:#111111;font-weight:600">${params.paiNome}</td></tr>
+         <tr><td style="padding:6px 0;color:#8A8A8A">Motorista</td><td style="padding:6px 0;color:#111111;font-weight:600">${params.motoristaNome}</td></tr>
+         <tr><td style="padding:6px 0;color:#8A8A8A">Criança</td><td style="padding:6px 0;color:#111111;font-weight:600">${params.filhoNome}</td></tr>
+         <tr><td style="padding:6px 0;color:#8A8A8A">Escola</td><td style="padding:6px 0;color:#111111;font-weight:600">${params.escolaNome}</td></tr>
        </table>
        ${botao(params.link, "Abrir o painel")}`
     ),

@@ -28,7 +28,7 @@ function erro(mensagem: string): never {
 async function main() {
   const email = (process.env.ADMIN_EMAIL ?? "").trim().toLowerCase();
   const senha = process.env.ADMIN_SENHA ?? "";
-  const nome = (process.env.ADMIN_NOME ?? "Administração Levva").trim();
+  const nome = (process.env.ADMIN_NOME ?? "Administração Mova").trim();
 
   if (!email) erro("Defina ADMIN_EMAIL. Ex.: ADMIN_EMAIL=voce@exemplo.com");
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) erro(`E-mail inválido: ${email}`);
