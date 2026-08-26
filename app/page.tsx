@@ -389,9 +389,9 @@ export default function LandingPage() {
             </button>
           </form>
         </AnimatedContent>
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 text-center sm:flex-row sm:flex-wrap sm:justify-between sm:text-left">
           <Logo on="dark" size="sm" />
-          <div className="flex items-center gap-6 text-sm text-white/60">
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-white/60">
             <a href="#rota">Como funciona</a>
             <a href="#quem-somos">Quem somos</a>
             <a href="#motoristas">Para motoristas</a>
