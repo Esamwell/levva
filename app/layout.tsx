@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ServiceWorker } from "./service-worker";
+import { InstallPrompt } from "./install-prompt";
 
 export const metadata: Metadata = {
   title: "Mova · Transporte escolar verificado em Salvador",
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body className="bg-cream text-ink font-sans antialiased">
         {children}
         <ServiceWorker />
+        <InstallPrompt />
       </body>
     </html>
   );
