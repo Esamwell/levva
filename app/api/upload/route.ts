@@ -18,13 +18,19 @@ import { db } from "../../../lib/db";
  * um motorista para o cadastro de outro.
  */
 
-/** Campo do Motorista que cada categoria preenche. */
+/** Campo do Motorista que cada categoria preenche (exceto crlv e galeria, tratadas à parte). */
 const CAMPO_POR_CATEGORIA: Record<string, string> = {
   cnh: "cnhDocUrl",
   "curso-transporte": "cursoDocUrl",
   antecedentes: "antecedentesDocUrl",
   rosto: "fotoRosto",
+  video: "videoUrl",
 };
+
+// Atualizar um desses três depois de já aprovado (ou reprovado) manda o
+// cadastro de volta pra fila do admin — documento novo precisa ser
+// conferido de novo antes de continuar valendo como aprovação.
+const CATEGORIAS_DOC_OFICIAL = new Set(["cnh", "curso-transporte", "antecedentes"]);
 
 export async function POST(req: Request) {
   const session = await getSession();
@@ -34,7 +40,7 @@ export async function POST(req: Request) {
 
   const motorista = await db.motorista.findUnique({
     where: { userId: session.userId },
-    select: { id: true },
+    select: { id: true, statusAprovacao: true },
   });
   if (!motorista) {
     return NextResponse.json({ error: "Perfil de motorista não encontrado." }, { status: 404 });
@@ -65,17 +71,27 @@ export async function POST(req: Request) {
     );
   }
 
-  // O CRLV vale pelos veículos; as demais categorias são campos do motorista.
+  // CRLV vale pelos veículos; galeria acumula (não substitui); as demais
+  // categorias são um campo só, sobrescrito.
   if (categoria === "crlv") {
     await db.veiculo.updateMany({
       where: { motoristaId: motorista.id },
       data: { fotoUrl: url },
     });
-  } else {
-    const campo = CAMPO_POR_CATEGORIA[categoria];
+  } else if (categoria === "galeria") {
     await db.motorista.update({
       where: { id: motorista.id },
-      data: { [campo]: url },
+      data: { fotos: { push: url } },
+    });
+  } else {
+    const campo = CAMPO_POR_CATEGORIA[categoria];
+    const dadosExtra =
+      CATEGORIAS_DOC_OFICIAL.has(categoria) && motorista.statusAprovacao !== "PENDENTE"
+        ? { statusAprovacao: "PENDENTE" as const, cursoTransporte: false, antecedentesOk: false }
+        : {};
+    await db.motorista.update({
+      where: { id: motorista.id },
+      data: { [campo]: url, ...dadosExtra },
     });
   }
 

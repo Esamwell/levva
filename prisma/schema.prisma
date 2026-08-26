@@ -206,6 +206,15 @@ model Motorista {
   // Coletada no cadastro (ver bodySchema em app/api/motoristas/route.ts), mas
   // até aqui era validada e descartada — o valor nunca chegava no banco.
   cidade             String            @default("Salvador")
+  // Preferência do motorista pra quem paga a taxa da Mova — pré-preenche o
+  // diálogo de fechar contrato (ele ainda pode trocar por contrato), em vez
+  // de sempre começar em MOTORISTA. Ver app/motorista/(painel)/perfil.
+  pagadorTaxaPadrao  PagadorTaxa       @default(MOTORISTA)
+  // Fotos/vídeo do próprio motorista pro perfil público — diferente dos
+  // documentos (CNH etc.), que são privados. Servidos por /api/midia, sem
+  // exigir sessão (ver lib/storage.ts).
+  fotos              String[]          @default([])
+  videoUrl           String?
   createdAt          DateTime          @default(now())
 
   veiculos    Veiculo[]

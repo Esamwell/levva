@@ -10,6 +10,7 @@ const schema = z.object({
   precoMax: z.number().int().positive().nullable(),
   fotoRosto: z.string().nullable().optional(),
   escolaIds: z.array(z.string()),
+  pagadorTaxaPadrao: z.enum(["MOTORISTA", "PAI"]),
 });
 
 export async function PUT(req: Request) {
@@ -37,6 +38,7 @@ export async function PUT(req: Request) {
         temMonitor: data.temMonitor,
         precoMin: data.precoMin,
         precoMax: data.precoMax,
+        pagadorTaxaPadrao: data.pagadorTaxaPadrao,
         ...(data.fotoRosto ? { fotoRosto: data.fotoRosto } : {}),
       },
     });

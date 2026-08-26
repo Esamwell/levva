@@ -20,17 +20,19 @@ function formatarReais(centavos: number): string {
 export function FecharContratoDialog({
   lead,
   taxaPercentual,
+  pagadorTaxaPadrao,
   onClose,
   onFechado,
 }: {
   lead: Lead | null;
   taxaPercentual: number;
+  pagadorTaxaPadrao: "MOTORISTA" | "PAI";
   onClose: () => void;
   onFechado: () => void;
 }) {
   const [valor, setValor] = useState("");
   const [periodicidade, setPeriodicidade] = useState<(typeof PERIODOS)[number]["value"]>("MENSAL");
-  const [pagadorTaxa, setPagadorTaxa] = useState<"MOTORISTA" | "PAI">("MOTORISTA");
+  const [pagadorTaxa, setPagadorTaxa] = useState<"MOTORISTA" | "PAI">(pagadorTaxaPadrao);
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
@@ -42,7 +44,7 @@ export function FecharContratoDialog({
   function resetar() {
     setValor("");
     setPeriodicidade("MENSAL");
-    setPagadorTaxa("MOTORISTA");
+    setPagadorTaxa(pagadorTaxaPadrao);
     setErro(null);
   }
 

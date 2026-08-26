@@ -31,7 +31,15 @@ function iniciais(nome: string): string {
     .join("");
 }
 
-export default function LeadsList({ leads, taxaPercentual }: { leads: Lead[]; taxaPercentual: number }) {
+export default function LeadsList({
+  leads,
+  taxaPercentual,
+  pagadorTaxaPadrao,
+}: {
+  leads: Lead[];
+  taxaPercentual: number;
+  pagadorTaxaPadrao: "MOTORISTA" | "PAI";
+}) {
   const router = useRouter();
   const [atualizando, setAtualizando] = useState<string | null>(null);
   const [fecharAlvo, setFecharAlvo] = useState<Lead | null>(null);
@@ -101,6 +109,7 @@ export default function LeadsList({ leads, taxaPercentual }: { leads: Lead[]; ta
       <FecharContratoDialog
         lead={fecharAlvo}
         taxaPercentual={taxaPercentual}
+        pagadorTaxaPadrao={pagadorTaxaPadrao}
         onClose={() => setFecharAlvo(null)}
         onFechado={() => {
           setFecharAlvo(null);

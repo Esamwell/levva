@@ -44,6 +44,7 @@ export default async function LeadsMotoristaPage() {
               escolaNome: l.filho.escola.nome,
             }))}
             taxaPercentual={TAXA_MOVA_PERCENTUAL}
+            pagadorTaxaPadrao={motorista.pagadorTaxaPadrao}
           />
         </div>
       )}

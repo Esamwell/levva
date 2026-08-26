@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { Users, School, Phone } from "lucide-react";
+import Link from "next/link";
+import { Users, School, Phone, ArrowRight } from "lucide-react";
 import { exigirPapel } from "../../../../lib/auth";
 import { db } from "../../../../lib/db";
 import { EmptyState } from "../../../../components/empty-state";
@@ -74,6 +75,13 @@ export default async function AlunosMotoristaPage() {
                     </a>
                   )}
                 </div>
+
+                <Link
+                  href={`/motorista/alunos/${c.id}`}
+                  className="mt-3 flex items-center gap-1 text-xs font-semibold text-navy hover:underline"
+                >
+                  Ver perfil <ArrowRight className="h-3 w-3" />
+                </Link>
               </div>
             );
           })}

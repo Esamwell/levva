@@ -20,7 +20,11 @@ import { randomUUID } from "crypto";
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads");
 
-const TAMANHO_MAX_BYTES = 10 * 1024 * 1024; // 10MB
+const TAMANHO_MAX_PADRAO_BYTES = 10 * 1024 * 1024; // 10MB
+/** Vídeo do perfil pode ser maior que documento/foto — ver client_max_body_size no nginx. */
+const TAMANHO_MAX_POR_CATEGORIA: Record<string, number> = {
+  video: 40 * 1024 * 1024, // 40MB
+};
 
 /** Extensão -> tipos MIME aceitos pra ela. */
 const TIPOS_PERMITIDOS: Record<string, string[]> = {
@@ -29,9 +33,19 @@ const TIPOS_PERMITIDOS: Record<string, string[]> = {
   ".jpeg": ["image/jpeg"],
   ".png": ["image/png"],
   ".webp": ["image/webp"],
+  ".mp4": ["video/mp4"],
 };
 
-export const CATEGORIAS_VALIDAS = ["cnh", "curso-transporte", "antecedentes", "crlv", "rosto"];
+export const CATEGORIAS_VALIDAS = ["cnh", "curso-transporte", "antecedentes", "crlv", "rosto", "galeria", "video"];
+
+// Documento pessoal (CNH, antecedentes...) é dado sensível — servido só pra
+// dono/admin via /api/documentos. Foto/vídeo de perfil é material que o
+// motorista quer que a família veja: público, servido por /api/midia, sem
+// checar sessão. Ver salvarArquivo() e as duas rotas de leitura.
+const CATEGORIAS_PUBLICAS = new Set(["galeria", "video"]);
+export function categoriaEhPublica(categoria: string): boolean {
+  return CATEGORIAS_PUBLICAS.has(categoria);
+}
 
 /** Assinatura binária de cada formato, conferida no início do arquivo. */
 const ASSINATURAS: Array<{ tipo: string; bytes: number[]; offset?: number }> = [
@@ -39,6 +53,7 @@ const ASSINATURAS: Array<{ tipo: string; bytes: number[]; offset?: number }> = [
   { tipo: "image/jpeg", bytes: [0xff, 0xd8, 0xff] },
   { tipo: "image/png", bytes: [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a] },
   { tipo: "image/webp", bytes: [0x57, 0x45, 0x42, 0x50], offset: 8 }, // "WEBP" no offset 8
+  { tipo: "video/mp4", bytes: [0x66, 0x74, 0x79, 0x70], offset: 4 }, // "ftyp" no offset 4
 ];
 
 function conferirAssinatura(buffer: Buffer, tipoEsperado: string): boolean {
@@ -66,8 +81,9 @@ export async function salvarArquivo(file: File, categoria: string): Promise<Arqu
   if (!tiposDaExtensao) {
     throw new Error(`Tipo de arquivo não permitido: ${ext || "sem extensão"}`);
   }
-  if (file.size > TAMANHO_MAX_BYTES) {
-    throw new Error("Arquivo maior que 10MB.");
+  const limiteBytes = TAMANHO_MAX_POR_CATEGORIA[categoria] ?? TAMANHO_MAX_PADRAO_BYTES;
+  if (file.size > limiteBytes) {
+    throw new Error(`Arquivo maior que ${Math.round(limiteBytes / (1024 * 1024))}MB.`);
   }
   if (file.size === 0) {
     throw new Error("Arquivo vazio.");
@@ -87,7 +103,8 @@ export async function salvarArquivo(file: File, categoria: string): Promise<Arqu
   await writeFile(path.join(dir, nomeArquivo), buffer);
 
   const caminhoRelativo = `${categoria}/${nomeArquivo}`;
-  return { url: `/api/documentos/${caminhoRelativo}`, caminhoRelativo };
+  const rota = categoriaEhPublica(categoria) ? "/api/midia" : "/api/documentos";
+  return { url: `${rota}/${caminhoRelativo}`, caminhoRelativo };
 }
 
 export type ArquivoLido = { buffer: Buffer; tipo: string };

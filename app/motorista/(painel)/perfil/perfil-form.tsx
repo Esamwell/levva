@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { School } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../../components/ui/card";
+import { Card, CardContent, CardTitle } from "../../../../components/ui/card";
 import { Button } from "../../../../components/ui/button";
 import { Separator } from "../../../../components/ui/separator";
+import { cn } from "../../../../lib/utils";
 
 type Escola = { id: string; nome: string };
 
@@ -17,6 +18,7 @@ export default function PerfilForm({
     precoMin: number | null;
     precoMax: number | null;
     escolas: Escola[];
+    pagadorTaxaPadrao: "MOTORISTA" | "PAI";
   };
 }) {
   const [anosExperiencia, setAnosExperiencia] = useState(motorista.anosExperiencia);
@@ -26,6 +28,7 @@ export default function PerfilForm({
   const [escolas, setEscolas] = useState<Escola[]>(motorista.escolas);
   const [buscaEscola, setBuscaEscola] = useState("");
   const [sugestoes, setSugestoes] = useState<Escola[]>([]);
+  const [pagadorTaxaPadrao, setPagadorTaxaPadrao] = useState(motorista.pagadorTaxaPadrao);
 
   const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState<string | null>(null);
@@ -63,6 +66,7 @@ export default function PerfilForm({
           precoMin: precoMin ? Math.round(parseFloat(precoMin) * 100) : null,
           precoMax: precoMax ? Math.round(parseFloat(precoMax) * 100) : null,
           escolaIds: escolas.map((e) => e.id),
+          pagadorTaxaPadrao,
         }),
       });
       if (!res.ok) throw new Error();
@@ -157,9 +161,42 @@ export default function PerfilForm({
           </div>
         </section>
 
+        <Separator className="bg-cream-line" />
+
+        <section className="space-y-2">
+          <CardTitle className="text-sm uppercase tracking-wide text-ink-soft">Taxa da Mova nos seus contratos</CardTitle>
+          <p className="text-xs text-ink-soft">
+            Quando você fecha um contrato, essa é a opção que já vem marcada — dá pra trocar contrato a contrato se precisar.
+          </p>
+          <div className="space-y-1.5">
+            <button
+              type="button"
+              onClick={() => setPagadorTaxaPadrao("MOTORISTA")}
+              className={cn(
+                "w-full rounded-xl border px-3.5 py-2.5 text-left text-sm transition",
+                pagadorTaxaPadrao === "MOTORISTA" ? "border-navy bg-cream" : "border-cream-line hover:border-amber"
+              )}
+            >
+              <span className="font-semibold text-navy">Eu absorvo</span>
+              <span className="block text-xs text-ink-soft">A taxa desconta da minha parte</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPagadorTaxaPadrao("PAI")}
+              className={cn(
+                "w-full rounded-xl border px-3.5 py-2.5 text-left text-sm transition",
+                pagadorTaxaPadrao === "PAI" ? "border-navy bg-cream" : "border-cream-line hover:border-amber"
+              )}
+            >
+              <span className="font-semibold text-navy">Repasso pro responsável</span>
+              <span className="block text-xs text-ink-soft">A taxa soma no valor cobrado da família</span>
+            </button>
+          </div>
+        </section>
+
         <p className="text-xs text-ink-soft">
           Documentação (CNH, curso, antecedentes) é verificada pela equipe Mova
-          separadamente. Não pode ser editada aqui.
+          separadamente. Atualize em "Documentos", no menu.
         </p>
 
         {mensagem && <p className="text-sm text-sage">{mensagem}</p>}

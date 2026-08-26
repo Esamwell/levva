@@ -2,6 +2,7 @@ import { exigirPapel } from "../../../../lib/auth";
 import { db } from "../../../../lib/db";
 import { redirect } from "next/navigation";
 import PerfilForm from "./perfil-form";
+import MidiaForm from "./midia-form";
 
 export default async function PerfilMotoristaPage() {
   const session = await exigirPapel("MOTORISTA");
@@ -32,8 +33,10 @@ export default async function PerfilMotoristaPage() {
           precoMin: motorista.precoMin,
           precoMax: motorista.precoMax,
           escolas: motorista.escolas.map((e) => ({ id: e.escola.id, nome: e.escola.nome })),
+          pagadorTaxaPadrao: motorista.pagadorTaxaPadrao,
         }}
       />
+      <MidiaForm fotos={motorista.fotos} videoUrl={motorista.videoUrl} />
     </div>
   );
 }
