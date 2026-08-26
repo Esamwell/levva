@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { Check, Paperclip, ShieldCheck } from "lucide-react";
 import { Logo } from "../../../components/logo";
+import { TermosModal } from "../../../components/termos-modal";
 import { TAXA_MOVA_PERCENTUAL, DESTAQUE_PRECO_CENTAVOS } from "../../../lib/financeiro";
 
 function formatarReais(centavos: number): string {
@@ -70,6 +71,7 @@ export default function CadastroMotoristaPage() {
 
   const [docs, setDocs] = useState<DocState>({});
   const [termosAceitos, setTermosAceitos] = useState(false);
+  const [termosAbertos, setTermosAbertos] = useState(false);
 
   const numVeiculos = veiculos.length;
 
@@ -509,21 +511,25 @@ export default function CadastroMotoristaPage() {
                   </dd>
                 </div>
               </dl>
-              <label className="flex items-start gap-3 rounded-lg border border-cream-line px-4 py-3">
-                <input
-                  type="checkbox"
-                  checked={termosAceitos}
-                  onChange={(e) => setTermosAceitos(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 accent-amber"
-                />
-                <span className="text-sm text-ink-soft">
-                  Li e concordo com os{" "}
-                  <a href="/termos#motoristas" target="_blank" rel="noreferrer" className="font-semibold text-sage hover:underline">
-                    Termos de Uso da Mova
-                  </a>
-                  , incluindo a comissão sobre contrato fechado e a verificação documental.
+              <div className="flex items-center justify-between gap-3 rounded-lg border border-cream-line px-4 py-3">
+                <span className="flex items-center gap-2 text-sm text-ink-soft">
+                  {termosAceitos ? (
+                    <>
+                      <Check className="h-4 w-4 shrink-0 text-sage" strokeWidth={3} />
+                      <span className="text-navy">Termos de Uso aceitos</span>
+                    </>
+                  ) : (
+                    "Você precisa ler e aceitar os Termos de Uso pra continuar."
+                  )}
                 </span>
-              </label>
+                <button
+                  type="button"
+                  onClick={() => setTermosAbertos(true)}
+                  className="shrink-0 rounded-full border border-cream-line px-3.5 py-1.5 text-xs font-semibold text-navy hover:border-amber"
+                >
+                  {termosAceitos ? "Rever" : "Ler termos"}
+                </button>
+              </div>
               {erro && <p className="text-sm text-red-600">{erro}</p>}
               <p className="text-xs text-ink-soft">
                 Ao enviar, criamos sua conta e subimos seus documentos. Você
@@ -596,6 +602,16 @@ export default function CadastroMotoristaPage() {
           </div>
         </section>
       </main>
+
+      <TermosModal
+        open={termosAbertos}
+        onOpenChange={setTermosAbertos}
+        publico="motorista"
+        onAceitar={() => {
+          setTermosAceitos(true);
+          setTermosAbertos(false);
+        }}
+      />
     </div>
   );
 }

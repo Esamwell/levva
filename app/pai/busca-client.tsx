@@ -16,6 +16,7 @@ import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import { Avatar, AvatarFallback } from "../../components/ui/avatar";
 import SpotlightCard from "../../components/SpotlightCard";
+import { TermosModal } from "../../components/termos-modal";
 import {
   Dialog,
   DialogContent,
@@ -248,6 +249,7 @@ function ModalContato({
   const [enderecoPai, setEnderecoPai] = useState(enderecoInicial);
   const [nomeFilho, setNomeFilho] = useState("");
   const [termosAceitos, setTermosAceitos] = useState(false);
+  const [termosAbertos, setTermosAbertos] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -417,21 +419,25 @@ function ModalContato({
             />
 
             {!jaLogado && (
-              <label className="flex items-start gap-2.5">
-                <input
-                  type="checkbox"
-                  checked={termosAceitos}
-                  onChange={(e) => setTermosAceitos(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 accent-amber"
-                />
-                <span className="text-xs text-ink-soft">
-                  Li e concordo com os{" "}
-                  <a href="/termos#familias" target="_blank" rel="noreferrer" className="font-semibold text-sage hover:underline">
-                    Termos de Uso da Mova
-                  </a>
-                  .
+              <div className="flex items-center justify-between gap-2 rounded-lg border border-cream-line px-3 py-2.5">
+                <span className="flex items-center gap-1.5 text-xs text-ink-soft">
+                  {termosAceitos ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 shrink-0 text-sage" strokeWidth={3} />
+                      <span className="text-navy">Termos aceitos</span>
+                    </>
+                  ) : (
+                    "Precisa aceitar os Termos de Uso"
+                  )}
                 </span>
-              </label>
+                <button
+                  type="button"
+                  onClick={() => setTermosAbertos(true)}
+                  className="shrink-0 rounded-full border border-cream-line px-3 py-1 text-xs font-semibold text-navy hover:border-amber"
+                >
+                  {termosAceitos ? "Rever" : "Ler termos"}
+                </button>
+              </div>
             )}
 
             {erro && (
@@ -458,6 +464,16 @@ function ModalContato({
           </form>
         )}
       </DialogContent>
+
+      <TermosModal
+        open={termosAbertos}
+        onOpenChange={setTermosAbertos}
+        publico="familias"
+        onAceitar={() => {
+          setTermosAceitos(true);
+          setTermosAbertos(false);
+        }}
+      />
     </Dialog>
   );
 }
