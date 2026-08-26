@@ -44,6 +44,12 @@ enum StatusLead {
   NAO_FECHOU
 }
 
+enum StatusTicket {
+  ABERTO     // aguardando resposta do admin
+  RESPONDIDO // admin respondeu, bola com o pai/motorista
+  FECHADO
+}
+
 model User {
   id        String   @id @default(cuid())
   role      Role
@@ -69,6 +75,12 @@ model User {
 
   sessoes   Sessao[]
   tokensRecuperacao TokenRecuperacao[]
+
+  // Chamados de suporte: pai e motorista abrem (ticketsAbertos), qualquer um
+  // dos três papéis pode escrever mensagem numa thread (mensagensTicket) —
+  // é o admin respondendo ou o próprio autor completando o chamado.
+  ticketsAbertos  Ticket[]         @relation("TicketAutor")
+  mensagensTicket TicketMensagem[]
 }
 
 model Admin {
@@ -275,4 +287,29 @@ model Avaliacao {
   // motorista depois que um admin aprova em /admin/depoimentos.
   moderado    Boolean   @default(false)
   createdAt   DateTime  @default(now())
+}
+
+// Chamado simples (tipo ticket), não chat ao vivo. Pai e motorista abrem;
+// qualquer mensagem nova reabre o chamado se estava FECHADO (ver
+// POST /api/tickets/[id]/mensagens) — reflete que a dúvida voltou.
+model Ticket {
+  id        String       @id @default(cuid())
+  autor     User         @relation("TicketAutor", fields: [autorId], references: [id])
+  autorId   String
+  assunto   String
+  status    StatusTicket @default(ABERTO)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  mensagens TicketMensagem[]
+}
+
+model TicketMensagem {
+  id        String   @id @default(cuid())
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  ticketId  String
+  autor     User     @relation(fields: [autorId], references: [id])
+  autorId   String
+  corpo     String
+  createdAt DateTime @default(now())
 }

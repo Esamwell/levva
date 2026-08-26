@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/pai", label: "Buscar" },
   { href: "/pai/dashboard", label: "Solicitações" },
   { href: "/pai/perfil", label: "Meu perfil" },
+  { href: "/pai/suporte", label: "Suporte" },
 ];
 
 export function PaiNav() {

@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShieldCheck, Car, Users, MessageSquare } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, Car, Users, MessageSquare, LifeBuoy } from "lucide-react";
 import { db } from "../../lib/db";
 import { DashboardShell, type DashboardNavItem } from "../../components/dashboard-shell";
 
@@ -14,9 +14,10 @@ import { DashboardShell, type DashboardNavItem } from "../../components/dashboar
 export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const [pendentes, depoimentosPendentes] = await Promise.all([
+  const [pendentes, depoimentosPendentes, ticketsAbertos] = await Promise.all([
     db.motorista.count({ where: { statusAprovacao: "PENDENTE" } }),
     db.avaliacao.count({ where: { moderado: false } }),
+    db.ticket.count({ where: { status: "ABERTO" } }),
   ]);
 
   const navItems: DashboardNavItem[] = [
@@ -34,6 +35,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       label: "Depoimentos",
       icon: <MessageSquare className="h-4 w-4" strokeWidth={1.75} />,
       badge: depoimentosPendentes,
+    },
+    {
+      href: "/admin/suporte",
+      label: "Suporte",
+      icon: <LifeBuoy className="h-4 w-4" strokeWidth={1.75} />,
+      badge: ticketsAbertos,
     },
   ];
 
