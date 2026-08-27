@@ -338,6 +338,18 @@ export async function processarPagamentoCriadoAsaas(payment: {
     },
   });
 
+  // Além do e-mail, a cobrança aparece como um cartão de pagamento dentro
+  // do próprio chat do lead (ver components/lead-thread.tsx) — o pai não
+  // precisa sair do app pra achar o link.
+  await db.leadMensagem.create({
+    data: {
+      leadId: contrato.leadId,
+      autorId: null,
+      cobrancaId: novaCobranca.id,
+      corpo: `Cobrança gerada: ${formatarReais(novaCobranca.valorCentavos)}, vencimento em ${novaCobranca.competencia.toLocaleDateString("pt-BR")}.`,
+    },
+  });
+
   try {
     await enviarEmail({
       para: contrato.pai.user.email,

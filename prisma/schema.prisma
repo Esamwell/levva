@@ -334,10 +334,19 @@ model LeadMensagem {
   id        String   @id @default(cuid())
   lead      Lead     @relation(fields: [leadId], references: [id])
   leadId    String
-  autor     User     @relation(fields: [autorId], references: [id])
-  autorId   String
+  // Nulo pra mensagem automática do sistema (cobrança gerada) — só
+  // mensagem de pai/motorista tem autor de verdade.
+  autor     User?    @relation(fields: [autorId], references: [id])
+  autorId   String?
   corpo     String
-  createdAt DateTime @default(now())
+  // Preenchido só na mensagem automática de cobrança — o front usa isso
+  // pra renderizar o cartão com valor/vencimento/botão de pagar em vez de
+  // texto simples, sempre consultando o status atual (paga ou não) da
+  // Cobranca em vez de guardar isso na mensagem (senão desatualiza assim
+  // que o pai paga).
+  cobranca   Cobranca? @relation(fields: [cobrancaId], references: [id])
+  cobrancaId String?   @unique
+  createdAt  DateTime  @default(now())
 
   @@index([leadId, createdAt])
 }
@@ -495,6 +504,8 @@ model Cobranca {
   // vezes, porque a cobrança já não conta mais como "livre".
   solicitacaoSaque   SolicitacaoSaque? @relation(fields: [solicitacaoSaqueId], references: [id])
   solicitacaoSaqueId String?
+
+  mensagem LeadMensagem?
 }
 
 enum StatusSaque {

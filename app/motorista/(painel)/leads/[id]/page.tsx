@@ -6,6 +6,10 @@ import { db } from "../../../../../lib/db";
 import { StatusBadge } from "../../../../../components/status-badge";
 import { LeadThread } from "../../../../../components/lead-thread";
 
+function formatarReais(centavos: number): string {
+  return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
 export default async function LeadMotoristaPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await exigirPapel("MOTORISTA");
   if (!session) redirect("/entrar");
@@ -20,7 +24,10 @@ export default async function LeadMotoristaPage({ params }: { params: Promise<{ 
     include: {
       pai: { include: { user: { select: { nome: true, telefone: true } } } },
       filho: { include: { escola: true } },
-      mensagens: { orderBy: { createdAt: "asc" }, include: { autor: { select: { nome: true } } } },
+      mensagens: {
+        orderBy: { createdAt: "asc" },
+        include: { autor: { select: { nome: true } }, cobranca: { select: { id: true, valorCentavos: true, competencia: true, paga: true } } },
+      },
     },
   });
 
@@ -68,6 +75,14 @@ export default async function LeadMotoristaPage({ params }: { params: Promise<{ 
               createdAt: m.createdAt.toISOString(),
               mine: m.autorId === session.userId,
               label: m.autorId === session.userId ? "Você" : lead.pai.user.nome,
+              cobranca: m.cobranca
+                ? {
+                    id: m.cobranca.id,
+                    valorFormatado: formatarReais(m.cobranca.valorCentavos),
+                    vencimentoFormatado: m.cobranca.competencia.toLocaleDateString("pt-BR"),
+                    paga: m.cobranca.paga,
+                  }
+                : null,
             }))}
           />
         </div>
