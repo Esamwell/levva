@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "../../../../lib/db";
 import { exigirPapel } from "../../../../lib/auth";
+import { contemContato } from "../../../../lib/texto";
 
 const schema = z.object({
   anosExperiencia: z.number().int().min(0),
@@ -11,6 +12,13 @@ const schema = z.object({
   fotoRosto: z.string().nullable().optional(),
   escolaIds: z.array(z.string()),
   pagadorTaxaPadrao: z.enum(["MOTORISTA", "PAI"]),
+  bio: z
+    .string()
+    .trim()
+    .max(500, "Máximo de 500 caracteres.")
+    .refine((v) => !contemContato(v), "Nada de telefone, e-mail, link ou @ na descrição — só um textinho sobre você.")
+    .nullable()
+    .optional(),
 });
 
 export async function PUT(req: Request) {
@@ -40,6 +48,7 @@ export async function PUT(req: Request) {
         precoMax: data.precoMax,
         pagadorTaxaPadrao: data.pagadorTaxaPadrao,
         ...(data.fotoRosto ? { fotoRosto: data.fotoRosto } : {}),
+        ...(data.bio !== undefined ? { bio: data.bio?.trim() || null } : {}),
       },
     });
 

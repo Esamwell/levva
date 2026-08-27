@@ -232,6 +232,11 @@ model Motorista {
   reprovadoEm        DateTime?
   anosExperiencia    Int               @default(0)
   temMonitor         Boolean           @default(false)
+  // Texto livre curto pro perfil público ("sobre você") — validado (lib/texto.ts
+  // contemContato) pra não virar um jeito de driblar o chat e combinar contato
+  // direto antes do pagamento.
+  bio                String?
+
   precoMin           Int? // em centavos
   precoMax           Int? // em centavos
   destaqueAtivo      Boolean           @default(false)

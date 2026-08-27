@@ -6,6 +6,7 @@ import { Card, CardContent, CardTitle } from "../../../../components/ui/card";
 import { Button } from "../../../../components/ui/button";
 import { Separator } from "../../../../components/ui/separator";
 import { cn } from "../../../../lib/utils";
+import { contemContato } from "../../../../lib/texto";
 
 type Escola = { id: string; nome: string };
 
@@ -19,10 +20,12 @@ export default function PerfilForm({
     precoMax: number | null;
     escolas: Escola[];
     pagadorTaxaPadrao: "MOTORISTA" | "PAI";
+    bio: string | null;
   };
 }) {
   const [anosExperiencia, setAnosExperiencia] = useState(motorista.anosExperiencia);
   const [temMonitor, setTemMonitor] = useState(motorista.temMonitor);
+  const [bio, setBio] = useState(motorista.bio ?? "");
   const [precoMin, setPrecoMin] = useState(motorista.precoMin ? String(motorista.precoMin / 100) : "");
   const [precoMax, setPrecoMax] = useState(motorista.precoMax ? String(motorista.precoMax / 100) : "");
   const [escolas, setEscolas] = useState<Escola[]>(motorista.escolas);
@@ -55,6 +58,10 @@ export default function PerfilForm({
 
   async function salvar() {
     setMensagem(null);
+    if (contemContato(bio)) {
+      setMensagem("Tira telefone, e-mail, link ou @ da descrição — só um textinho sobre você.");
+      return;
+    }
     setSalvando(true);
     try {
       const res = await fetch("/api/motorista/perfil", {
@@ -67,12 +74,14 @@ export default function PerfilForm({
           precoMax: precoMax ? Math.round(parseFloat(precoMax) * 100) : null,
           escolaIds: escolas.map((e) => e.id),
           pagadorTaxaPadrao,
+          bio: bio.trim() || null,
         }),
       });
-      if (!res.ok) throw new Error();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(typeof data.error === "string" ? data.error : undefined);
       setMensagem("Perfil salvo!");
-    } catch {
-      setMensagem("Não deu pra salvar. Tenta de novo.");
+    } catch (e) {
+      setMensagem(e instanceof Error && e.message ? e.message : "Não deu pra salvar. Tenta de novo.");
     } finally {
       setSalvando(false);
     }
@@ -104,6 +113,23 @@ export default function PerfilForm({
             />
             <span className="text-sm text-ink-soft">Tenho monitor a bordo</span>
           </label>
+          <div>
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-soft">
+              Descrição (opcional)
+            </label>
+            <textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              maxLength={500}
+              rows={4}
+              placeholder="Um textinho curto contando um pouco sobre você e como trabalha."
+              className="w-full resize-none rounded-xl border border-cream-line px-4 py-2.5 text-sm outline-none focus:border-amber"
+            />
+            <p className="mt-1 text-xs text-ink-soft">
+              Aparece no seu perfil público. Nada de telefone, e-mail, link ou @ — o contato só libera depois que a
+              família paga, pelo chat da Mova.
+            </p>
+          </div>
         </section>
 
         <Separator className="bg-cream-line" />

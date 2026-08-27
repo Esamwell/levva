@@ -2,9 +2,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Star, ShieldCheck, Car, School, Users } from "lucide-react";
 import { db } from "../../../lib/db";
+import { getSession } from "../../../lib/auth";
 import { Logo } from "../../../components/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar";
 import { Badge } from "../../../components/ui/badge";
+import { WhatsappButton } from "../../../components/whatsapp-button";
 
 function iniciais(nome: string): string {
   return nome.trim().split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
@@ -32,7 +34,7 @@ export default async function PerfilMotoristaPage({ params }: { params: Promise<
   const motorista = await db.motorista.findUnique({
     where: { id },
     include: {
-      user: { select: { nome: true, ativo: true } },
+      user: { select: { nome: true, ativo: true, telefone: true } },
       veiculos: true,
       escolas: { include: { escola: true } },
       avaliacoes: {
@@ -51,6 +53,23 @@ export default async function PerfilMotoristaPage({ params }: { params: Promise<
       : null;
 
   const galeria = [motorista.fotoRosto, ...motorista.fotos].filter((f): f is string => !!f);
+
+  // WhatsApp só aparece aqui se o pai logado já tiver um lead de verdade
+  // com esse motorista (não faz sentido mostrar cadeado pra quem é
+  // estranho ainda) — e só libera de fato depois da primeira fatura paga,
+  // mesma regra do chat (ver components/whatsapp-button.tsx).
+  const session = await getSession();
+  let leadComEssePai: { contrato: { cobrancas: { paga: boolean }[] } | null } | null = null;
+  if (session?.role === "PAI") {
+    const pai = await db.pai.findUnique({ where: { userId: session.userId }, select: { id: true } });
+    if (pai) {
+      leadComEssePai = await db.lead.findFirst({
+        where: { paiId: pai.id, motoristaId: motorista.id },
+        include: { contrato: { include: { cobrancas: { select: { paga: true } } } } },
+      });
+    }
+  }
+  const whatsappLiberado = leadComEssePai?.contrato?.cobrancas.some((c) => c.paga) ?? false;
 
   return (
     <div className="min-h-screen bg-cream">
@@ -92,7 +111,15 @@ export default async function PerfilMotoristaPage({ params }: { params: Promise<
               </p>
             )}
           </div>
+          {leadComEssePai && <WhatsappButton telefone={motorista.user.telefone} liberado={whatsappLiberado} />}
         </div>
+
+        {motorista.bio && (
+          <div className="mt-6 rounded-2xl border border-cream-line bg-white p-5">
+            <h2 className="font-serif text-lg text-navy">Sobre</h2>
+            <p className="mt-2 whitespace-pre-wrap text-sm text-ink-soft">{motorista.bio}</p>
+          </div>
+        )}
 
         {galeria.length > 0 && (
           <div className="mt-6 grid grid-cols-3 gap-2 sm:grid-cols-4">

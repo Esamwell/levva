@@ -34,6 +34,7 @@ export default async function PerfilMotoristaPage() {
           precoMax: motorista.precoMax,
           escolas: motorista.escolas.map((e) => ({ id: e.escola.id, nome: e.escola.nome })),
           pagadorTaxaPadrao: motorista.pagadorTaxaPadrao,
+          bio: motorista.bio,
         }}
       />
       <MidiaForm fotos={motorista.fotos} videoUrl={motorista.videoUrl} />
