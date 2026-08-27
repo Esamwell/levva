@@ -6,7 +6,7 @@
 
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Car, MessageCircle } from "lucide-react";
+import { Car, MessageCircle, UserRound } from "lucide-react";
 import { exigirPapel } from "../../../lib/auth";
 import { db } from "../../../lib/db";
 import { StatusBadge } from "../../../components/status-badge";
@@ -57,6 +57,13 @@ export default async function DashboardPaiPage() {
               </div>
               <div className="flex items-center gap-2">
                 <StatusBadge status={lead.status} />
+                <Link
+                  href={`/motoristas/${lead.motoristaId}`}
+                  target="_blank"
+                  className="flex items-center gap-1 rounded-full border border-cream-line px-2.5 py-1 text-xs font-semibold text-ink-soft hover:border-amber hover:text-navy"
+                >
+                  <UserRound className="h-3.5 w-3.5" /> Ver perfil
+                </Link>
                 <Link
                   href={`/pai/dashboard/${lead.id}`}
                   className="flex items-center gap-1 rounded-full border border-cream-line px-2.5 py-1 text-xs font-semibold text-ink-soft hover:border-amber hover:text-navy"
