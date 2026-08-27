@@ -99,7 +99,7 @@ export default function LandingPage() {
               </div>
               <div>
                 <div className="font-serif text-3xl">0</div>
-                <div className="text-xs text-navy/60">custo pra família</div>
+                <div className="text-xs text-navy/60">mensalidade da Mova</div>
               </div>
               <div>
                 <div className="font-serif text-3xl">SSA</div>
@@ -134,8 +134,10 @@ export default function LandingPage() {
                 Ver transportadores da minha região →
               </button>
               <div className="mt-3 text-center text-xs text-ink-soft">
-                Gratuito para famílias ·{" "}
-                <strong className="text-sage">lançamento no seu bairro em breve</strong>
+                Buscar e comparar é 100% gratuito ·{" "}
+                <a href="#waitlist" className="font-semibold text-sage hover:underline">
+                  seu bairro ainda não tem cobertura? avise a gente
+                </a>
               </div>
             </div>
           </form>
