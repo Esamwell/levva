@@ -96,7 +96,7 @@ export default function MidiaForm({
   }
 
   return (
-    <Card className="mt-6 max-w-lg border-cream-line shadow-none">
+    <Card className="max-w-lg border-cream-line shadow-none">
       <CardContent className="space-y-6 p-6">
         <section className="space-y-3">
           <CardTitle className="text-sm uppercase tracking-wide text-ink-soft">Fotos do seu perfil</CardTitle>

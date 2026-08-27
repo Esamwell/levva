@@ -112,7 +112,7 @@ export default function AreasAtendimentoForm({ areas: areasIniciais }: { areas: 
   }
 
   return (
-    <Card className="mt-6 max-w-lg border-cream-line shadow-none">
+    <Card className="max-w-lg border-cream-line shadow-none">
       <CardContent className="space-y-3 p-6">
         <CardTitle className="text-sm uppercase tracking-wide text-ink-soft">Área de atendimento</CardTitle>
         <p className="text-xs text-ink-soft">
