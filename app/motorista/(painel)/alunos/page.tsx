@@ -36,7 +36,7 @@ export default async function AlunosMotoristaPage() {
           <EmptyState
             icon={Users}
             title="Nenhum aluno ainda"
-            description="Assim que você fechar um lead, o aluno aparece aqui."
+            description="Assim que você fechar uma solicitação, o aluno aparece aqui."
           />
         </div>
       ) : (

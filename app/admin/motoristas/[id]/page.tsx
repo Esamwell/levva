@@ -210,9 +210,9 @@ export default async function MotoristaDetailPage({ params }: { params: Promise<
           </section>
 
           <section className="rounded-2xl border border-cream-line bg-white p-5">
-            <h2 className="font-serif text-lg text-navy">Últimos leads</h2>
+            <h2 className="font-serif text-lg text-navy">Últimas solicitações</h2>
             {motorista.leads.length === 0 ? (
-              <p className="mt-2 text-sm text-ink-soft">Nenhum lead recebido ainda.</p>
+              <p className="mt-2 text-sm text-ink-soft">Nenhuma solicitação recebida ainda.</p>
             ) : (
               <ul className="mt-3 space-y-2.5">
                 {motorista.leads.map((lead) => (

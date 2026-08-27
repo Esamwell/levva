@@ -154,13 +154,13 @@ export function emailMotoristaAprovado(params: {
     texto:
       `Olá, ${params.nome}.\n\n` +
       `Seus documentos foram conferidos e seu cadastro está aprovado. ` +
-      `A partir de agora você aparece nas buscas dos pais e recebe leads pelo painel:\n\n` +
+      `A partir de agora você aparece nas buscas dos pais e recebe solicitações pelo painel:\n\n` +
       `${params.link}`,
     html: moldura(
       "Cadastro aprovado",
       `<p style="font-size:15px;line-height:1.6;color:#6B6B6B;margin:16px 0 0">
          Olá, ${escaparHtml(params.nome)}. Seus documentos foram conferidos e seu cadastro está aprovado.
-         A partir de agora você aparece nas buscas dos pais e recebe leads direto no painel.
+         A partir de agora você aparece nas buscas dos pais e recebe solicitações direto no painel.
        </p>
        ${botao(params.link, "Abrir meu painel")}`
     ),

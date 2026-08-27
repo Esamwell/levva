@@ -288,7 +288,7 @@ export default function CadastroMotoristaPage() {
                   className="w-full rounded-lg border border-cream-line px-4 py-2.5 outline-none focus:border-amber"
                 />
                 <p className="mt-1 text-xs text-ink-soft">
-                  É por aqui que os leads de famílias interessadas chegam até você.
+                  É por aqui que as solicitações de famílias interessadas chegam até você.
                 </p>
               </div>
               <div>

@@ -58,7 +58,7 @@ export default async function AdminDashboardPage() {
       value: String(transportadoresAtivos),
       countTo: transportadoresAtivos,
     },
-    { icon: Users, label: "Leads este mês", value: String(leadsEsteMes), countTo: leadsEsteMes },
+    { icon: Users, label: "Solicitações este mês", value: String(leadsEsteMes), countTo: leadsEsteMes },
     {
       icon: TrendingUp,
       label: "Taxa de conversão",
@@ -101,7 +101,7 @@ export default async function AdminDashboardPage() {
 
       <div className="mt-10">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-serif text-xl text-navy">Leads aguardando repasse manual</h2>
+          <h2 className="font-serif text-xl text-navy">Solicitações aguardando repasse manual</h2>
           <a href="/admin/aprovacoes" className="flex items-center gap-1 text-xs font-semibold text-sage hover:underline">
             Ver aprovações pendentes <ArrowRight className="h-3.5 w-3.5" />
           </a>
@@ -110,7 +110,7 @@ export default async function AdminDashboardPage() {
         {leadsPendentes.length === 0 ? (
           <EmptyState
             icon={Users}
-            title="Nenhum lead aguardando"
+            title="Nenhuma solicitação aguardando"
             description="Assim que uma família solicitar contato com um transportador, ele aparece aqui pra repasse."
           />
         ) : (
@@ -140,7 +140,7 @@ export default async function AdminDashboardPage() {
                   leadId={lead.id}
                   telefoneMotorista={lead.motorista.user.telefone}
                   mensagem={
-                    `Olá, ${lead.motorista.user.nome}! Você recebeu um lead na Mova: ` +
+                    `Olá, ${lead.motorista.user.nome}! Você recebeu uma solicitação na Mova: ` +
                     `${lead.pai.user.nome}, responsável por ${lead.filho.nome} ` +
                     `(${lead.filho.escola.nome}). Contato: ${lead.pai.user.telefone ?? "ver painel"}.`
                   }

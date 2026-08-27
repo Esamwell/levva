@@ -97,7 +97,7 @@ export default async function FinanceiroMotoristaPage() {
           <EmptyState
             icon={Wallet}
             title="Nenhum contrato fechado ainda"
-            description="Assim que você marcar um lead como fechado, ele aparece aqui."
+            description="Assim que você fechar uma solicitação, ela aparece aqui."
           />
         </div>
       ) : (

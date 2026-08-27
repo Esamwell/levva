@@ -25,14 +25,14 @@ export default async function LeadsMotoristaPage() {
 
   return (
     <div>
-      <h1 className="font-serif text-3xl text-navy">Leads recebidos</h1>
+      <h1 className="font-serif text-3xl text-navy">Solicitações recebidas</h1>
       <p className="mt-1 text-sm text-ink-soft">Acompanhe as famílias que solicitaram seu transporte e responda o quanto antes.</p>
 
       {leads.length === 0 ? (
         <div className="mt-8">
           <EmptyState
             icon={Inbox}
-            title="Nenhum lead recebido ainda"
+            title="Nenhuma solicitação recebida ainda"
             description="Assim que um pai solicitar contato, ele aparece aqui."
           />
         </div>

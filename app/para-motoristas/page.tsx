@@ -56,7 +56,7 @@ const FAQ = [
   {
     pergunta: "Por que não combinar direto com a família e pular a taxa?",
     resposta:
-      "Pode, ninguém te prende. Mas o perfil que trouxe aquela família até você continua ativo, atraindo leads novos toda semana, com verificação, avaliações, cobrança organizada e um painel cuidando de tudo isso. A taxa é o custo de ter esse sistema trabalhando pra você o tempo todo, não só na hora do primeiro contato.",
+      "Pode, ninguém te prende. Mas o perfil que trouxe aquela família até você continua ativo, atraindo novas solicitações toda semana, com verificação, avaliações, cobrança organizada e um painel cuidando de tudo isso. A taxa é o custo de ter esse sistema trabalhando pra você o tempo todo, não só na hora do primeiro contato.",
   },
   {
     pergunta: "Quem escolhe se eu absorvo a taxa ou repasso pro responsável?",
