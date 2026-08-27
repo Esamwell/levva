@@ -248,8 +248,8 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
                       <span className="font-semibold">{escolaNome}</span> ainda
                     </p>
                     <p className="mt-1 max-w-sm text-sm text-ink-soft">
-                      Novos motoristas entram toda semana — tenta de novo em alguns dias, ou fala
-                      com o Suporte que a gente ajuda a achar uma opção.
+                      Novos motoristas entram toda semana, então tenta de novo em alguns dias, ou
+                      fala com o Suporte que a gente ajuda a achar uma opção.
                     </p>
                   </div>
                 </div>

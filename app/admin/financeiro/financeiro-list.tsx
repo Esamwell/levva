@@ -21,7 +21,7 @@ type Cobranca = {
 type Contrato = {
   id: string;
   valorCentavos: number;
-  periodicidade: "MENSAL" | "TRIMESTRAL" | "ANUAL";
+  periodicidade: "MENSAL" | "TRIMESTRAL" | "SEMESTRAL" | "ANUAL";
   pagadorTaxa: "MOTORISTA" | "PAI";
   taxaCentavos: number;
   taxaPercentual: number;
@@ -37,6 +37,7 @@ type Contrato = {
 const PERIODO_LABEL: Record<Contrato["periodicidade"], string> = {
   MENSAL: "Mensal",
   TRIMESTRAL: "Trimestral",
+  SEMESTRAL: "Semestral",
   ANUAL: "Anual",
 };
 
@@ -44,6 +45,7 @@ const FILTROS = [
   { value: "TODOS", label: "Todos" },
   { value: "MENSAL", label: "Mensal" },
   { value: "TRIMESTRAL", label: "Trimestral" },
+  { value: "SEMESTRAL", label: "Semestral" },
   { value: "ANUAL", label: "Anual" },
 ] as const;
 

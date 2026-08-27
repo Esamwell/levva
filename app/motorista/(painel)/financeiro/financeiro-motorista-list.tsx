@@ -13,7 +13,7 @@ type Contrato = {
   paiNome: string;
   valorCentavos: number;
   liquidoCentavos: number;
-  periodicidade: "MENSAL" | "TRIMESTRAL" | "ANUAL";
+  periodicidade: "MENSAL" | "TRIMESTRAL" | "SEMESTRAL" | "ANUAL";
   pagadorTaxa: "MOTORISTA" | "PAI";
   taxaCentavos: number;
   vencimento: string;
@@ -21,7 +21,12 @@ type Contrato = {
   ultimoRecebimento: string | null;
 };
 
-const PERIODO_LABEL: Record<Contrato["periodicidade"], string> = { MENSAL: "mês", TRIMESTRAL: "trimestre", ANUAL: "ano" };
+const PERIODO_LABEL: Record<Contrato["periodicidade"], string> = {
+  MENSAL: "mês",
+  TRIMESTRAL: "trimestre",
+  SEMESTRAL: "semestre",
+  ANUAL: "ano",
+};
 
 function formatarReais(centavos: number): string {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });

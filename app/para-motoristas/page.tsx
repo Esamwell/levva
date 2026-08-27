@@ -12,17 +12,22 @@ const BENEFICIOS = [
   {
     icon: UserCheck,
     titulo: "Perfil verificado",
-    texto: "Selo de documentação conferida — é isso que faz uma família nova confiar em você antes de conhecer pessoalmente.",
+    texto: "Selo de documentação conferida. É isso que faz uma família nova confiar em você antes de conhecer pessoalmente.",
   },
   {
     icon: Inbox,
     titulo: "Novas famílias, organizadas",
-    texto: "Pedidos de orçamento chegam direto no seu painel, com escola, endereço e status de cada conversa — sem depender só do WhatsApp.",
+    texto: "Pedidos de orçamento chegam direto no seu painel, com escola, endereço e status de cada conversa, sem depender só do WhatsApp.",
   },
   {
     icon: Wallet,
     titulo: "Controle financeiro",
     texto: "Chega de caderno ou anotação perdida. Veja quem já pagou, quem vai vencer e a receita da sua van, tudo num painel só.",
+  },
+  {
+    icon: CreditCard,
+    titulo: "Cobrança automática pra família",
+    texto: "A Mova cobra o responsável direto (Pix, boleto ou cartão), sem você precisar cobrar atrasado no WhatsApp. Você só pede o saque quando quiser.",
   },
   {
     icon: Users,
@@ -32,23 +37,17 @@ const BENEFICIOS = [
   {
     icon: LifeBuoy,
     titulo: "Suporte direto",
-    texto: "Chamado pela plataforma quando precisar — sem depender de achar o contato certo.",
+    texto: "Chamado pela plataforma quando precisar, sem depender de achar o contato certo.",
   },
   {
     icon: Sparkles,
     titulo: "Destaque opcional",
-    texto: `Por ${formatarReais(DESTAQUE_PRECO_CENTAVOS)}/mês, apareça no topo da busca com um selo — só quem quiser.`,
+    texto: `Por ${formatarReais(DESTAQUE_PRECO_CENTAVOS)}/mês, apareça no topo da busca com um selo, só quem quiser.`,
   },
   {
     icon: MapPin,
     titulo: "Rastreamento ao vivo",
-    texto: "Os pais acompanham a van no horário da rota, com total transparência — sem invadir seu tempo livre fora do trajeto.",
-    emBreve: true,
-  },
-  {
-    icon: CreditCard,
-    titulo: "Cobrança automática",
-    texto: "Receba no cartão ou Pix sem precisar cobrar atrasado no WhatsApp — a plataforma cuida da régua pra você.",
+    texto: "Os pais acompanham a van no horário da rota, com total transparência, sem invadir seu tempo livre fora do trajeto.",
     emBreve: true,
   },
 ];
@@ -57,20 +56,24 @@ const FAQ = [
   {
     pergunta: "Por que não combinar direto com a família e pular a taxa?",
     resposta:
-      "Pode — ninguém te prende. Mas o perfil que trouxe aquela família até você continua ativo, atraindo leads novos toda semana, com verificação, avaliações e um painel organizando tudo. A taxa é o custo de ter esse sistema trabalhando pra você o tempo todo, não só na hora do primeiro contato.",
+      "Pode, ninguém te prende. Mas o perfil que trouxe aquela família até você continua ativo, atraindo leads novos toda semana, com verificação, avaliações, cobrança organizada e um painel cuidando de tudo isso. A taxa é o custo de ter esse sistema trabalhando pra você o tempo todo, não só na hora do primeiro contato.",
   },
   {
     pergunta: "Quem escolhe se eu absorvo a taxa ou repasso pro responsável?",
     resposta: "Você, contrato a contrato, na hora de fechar. Dá pra trocar de ideia a cada família.",
   },
   {
+    pergunta: "Como funciona a cobrança recorrente?",
+    resposta:
+      "Você escolhe a periodicidade com a família: mensal, trimestral, semestral ou anual. A Mova gera a cobrança recorrente direto pro responsável (Pix, boleto ou cartão) a cada ciclo, e você acompanha tudo no painel Financeiro.",
+  },
+  {
     pergunta: "Tem fidelidade ou multa pra sair?",
-    resposta: "Não. Sem mensalidade, sem contrato de permanência — você usa enquanto fizer sentido pra você.",
+    resposta: "Não. Sem mensalidade, sem contrato de permanência. Você usa enquanto fizer sentido pra você.",
   },
   {
     pergunta: "O que ainda está por vir?",
-    resposta:
-      "Rastreamento ao vivo e cobrança automática (veja acima) ainda não estão no ar — avisamos por aqui assim que estiverem.",
+    resposta: "Rastreamento ao vivo (veja acima) ainda não está no ar. Avisamos por aqui assim que estiver.",
   },
 ];
 
@@ -93,8 +96,9 @@ export default function ParaMotoristasPage() {
             Sem mensalidade. Você só paga quando fecha.
           </h1>
           <p className="mt-4 max-w-xl text-ink-soft">
-            Cadastro e listagem grátis. A Mova só ganha uma taxa de {TAXA_MOVA_PERCENTUAL}% em cima do valor
-            combinado, e só quando um contrato fecha de verdade — sem cobrar nada de quem ainda está começando.
+            Cadastro e listagem grátis. A Mova cobra {TAXA_MOVA_PERCENTUAL}% sobre o valor recorrente do contrato
+            (mensal, trimestral, semestral ou anual) pra garantir todos os benefícios da plataforma, e só quando um
+            contrato fecha de verdade. Nada de cobrar de quem ainda está começando.
           </p>
           <Link
             href="/motorista/cadastro"
@@ -117,7 +121,7 @@ export default function ParaMotoristasPage() {
               {
                 n: "3",
                 t: `Só ${TAXA_MOVA_PERCENTUAL}% quando fecha`,
-                d: "Ao fechar, você cadastra o aluno e o valor combinado no painel — a taxa só é gerada nesse momento, e você escolhe se absorve ou repassa pro responsável.",
+                d: "Ao fechar, você cadastra o aluno, o valor e a periodicidade recorrente no painel. A taxa é gerada nesse momento, e você escolhe se absorve ou repassa pro responsável.",
               },
             ].map((s) => (
               <div key={s.n} className="rounded-2xl border border-cream-line bg-white p-5">

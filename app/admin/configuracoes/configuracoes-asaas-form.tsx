@@ -140,7 +140,7 @@ function CartaoAmbiente({
         />
         {prefixoDiverge && (
           <p className="text-xs text-amber-700">
-            Essa chave não começa com {PREFIXO_ESPERADO[ambiente]} — confere se é mesmo uma chave de{" "}
+            Essa chave não começa com {PREFIXO_ESPERADO[ambiente]}. Confere se é mesmo uma chave de{" "}
             {ambiente === "PRODUCAO" ? "produção" : "sandbox"}.
           </p>
         )}
@@ -213,8 +213,8 @@ export default function ConfiguracoesAsaasForm() {
         <h1 className="font-serif text-lg text-navy">Asaas</h1>
       </div>
       <p className="-mt-3 text-sm text-ink-soft">
-        Cadastre as duas chaves (produção e sandbox) e escolha qual fica ativa — trocar não pede a
-        chave de novo. Toda cobrança gerada usa a chave do ambiente ativo agora.
+        Cadastre as duas chaves (produção e sandbox) e escolha qual fica ativa. Trocar não pede a
+        chave de novo, e toda cobrança gerada usa a chave do ambiente ativo agora.
       </p>
 
       <div className="grid gap-4 sm:grid-cols-2">

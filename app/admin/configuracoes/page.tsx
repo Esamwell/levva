@@ -10,7 +10,7 @@ export default async function ConfiguracoesPage() {
     <div>
       <h1 className="font-serif text-3xl text-navy">Configurações</h1>
       <p className="mt-1 text-sm text-ink-soft">
-        Integrações da Mova com serviços externos. Hoje só o Asaas (cobrança) — trocar de conta
+        Integrações da Mova com serviços externos. Hoje só o Asaas (cobrança), e trocar de conta
         aqui não precisa de deploy nem de mexer em código.
       </p>
 

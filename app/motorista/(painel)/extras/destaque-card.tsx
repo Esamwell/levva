@@ -128,8 +128,8 @@ export default function DestaqueCard({
           <DialogHeader>
             <DialogTitle className="font-serif text-lg font-normal text-navy">Contratar destaque</DialogTitle>
             <DialogDescription className="text-xs text-ink-soft">
-              Sem Asaas integrado ainda, o pagamento é combinado direto com a equipe Mova — assim que confirmado,
-              o destaque liga automaticamente no seu perfil.
+              Sem Asaas integrado ainda pra esse pagamento: combine direto com a equipe Mova, e assim que
+              confirmado o destaque liga automaticamente no seu perfil.
             </DialogDescription>
           </DialogHeader>
 

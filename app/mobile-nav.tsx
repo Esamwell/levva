@@ -21,6 +21,9 @@ export function MobileNav() {
             <a href="#quem-somos" className="text-base text-white/85">Quem somos</a>
           </SheetClose>
           <SheetClose asChild>
+            <Link href="/para-familias" className="text-base text-white/85">Para famílias</Link>
+          </SheetClose>
+          <SheetClose asChild>
             <a href="#motoristas" className="text-base text-white/85">Para motoristas</a>
           </SheetClose>
           <SheetClose asChild>

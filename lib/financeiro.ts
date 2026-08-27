@@ -25,9 +25,12 @@ export function calcularTaxa(valorCentavos: number, percentual: number = TAXA_MO
   return Math.round((valorCentavos * percentual) / 100);
 }
 
-const MESES_POR_CICLO: Record<"MENSAL" | "TRIMESTRAL" | "ANUAL", number> = {
+export type Periodicidade = "MENSAL" | "TRIMESTRAL" | "SEMESTRAL" | "ANUAL";
+
+const MESES_POR_CICLO: Record<Periodicidade, number> = {
   MENSAL: 1,
   TRIMESTRAL: 3,
+  SEMESTRAL: 6,
   ANUAL: 12,
 };
 
@@ -35,10 +38,7 @@ const MESES_POR_CICLO: Record<"MENSAL" | "TRIMESTRAL" | "ANUAL", number> = {
  * Calcula o próximo vencimento a partir da última cobrança paga (ou da
  * data do fechamento do contrato, se ainda não teve nenhuma).
  */
-export function proximoVencimento(
-  periodicidade: "MENSAL" | "TRIMESTRAL" | "ANUAL",
-  baseDate: Date
-): Date {
+export function proximoVencimento(periodicidade: Periodicidade, baseDate: Date): Date {
   const proximo = new Date(baseDate);
   proximo.setMonth(proximo.getMonth() + MESES_POR_CICLO[periodicidade]);
   return proximo;

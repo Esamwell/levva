@@ -166,7 +166,7 @@ export default function PerfilForm({
         <section className="space-y-2">
           <CardTitle className="text-sm uppercase tracking-wide text-ink-soft">Taxa da Mova nos seus contratos</CardTitle>
           <p className="text-xs text-ink-soft">
-            Quando você fecha um contrato, essa é a opção que já vem marcada — dá pra trocar contrato a contrato se precisar.
+            Quando você fecha um contrato, essa é a opção que já vem marcada. Dá pra trocar contrato a contrato se precisar.
           </p>
           <div className="space-y-1.5">
             <button

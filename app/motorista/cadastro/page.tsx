@@ -388,7 +388,7 @@ export default function CadastroMotoristaPage() {
                   <p className="font-serif text-lg">Cadastro sem custo</p>
                   <p className="mt-1 text-sm text-white/70">
                     Sem mensalidade pra ficar listado. Você só paga uma taxa quando fecha um
-                    contrato de verdade com uma família — e escolhe se absorve ou repassa pro
+                    contrato de verdade com uma família, e escolhe se absorve ou repassa pro
                     responsável. Destaque na busca é opcional, contrata depois pelo painel.
                   </p>
                 </div>

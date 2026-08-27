@@ -167,7 +167,7 @@ export default function PagamentoClient({
         {aba === "CARTAO" && (
           <div className="flex flex-col items-center gap-3 py-2 text-center">
             <p className="text-xs text-ink-soft">
-              Pagamento com cartão abre a página segura do Asaas — a Mova não guarda dado de cartão.
+              Pagamento com cartão abre a página segura do Asaas. A Mova não guarda dado de cartão.
             </p>
             {linkPagamento && (
               <a

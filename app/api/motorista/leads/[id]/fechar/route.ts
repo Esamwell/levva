@@ -6,7 +6,7 @@ import { TAXA_MOVA_PERCENTUAL, calcularTaxa } from "../../../../../../lib/financ
 
 const schema = z.object({
   valorCentavos: z.number().int().positive(),
-  periodicidade: z.enum(["MENSAL", "TRIMESTRAL", "ANUAL"]),
+  periodicidade: z.enum(["MENSAL", "TRIMESTRAL", "SEMESTRAL", "ANUAL"]),
   pagadorTaxa: z.enum(["MOTORISTA", "PAI"]),
 });
 

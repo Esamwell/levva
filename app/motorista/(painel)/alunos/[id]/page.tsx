@@ -14,7 +14,7 @@ function formatarReais(centavos: number): string {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-const PERIODO_LABEL: Record<string, string> = { MENSAL: "mês", TRIMESTRAL: "trimestre", ANUAL: "ano" };
+const PERIODO_LABEL: Record<string, string> = { MENSAL: "mês", TRIMESTRAL: "trimestre", SEMESTRAL: "semestre", ANUAL: "ano" };
 
 export default async function AlunoDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await exigirPapel("MOTORISTA");

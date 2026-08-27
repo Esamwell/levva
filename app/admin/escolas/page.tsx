@@ -20,7 +20,7 @@ export default async function EscolasPage() {
     <div>
       <h1 className="font-serif text-3xl text-navy">Escolas</h1>
       <p className="mt-1 text-sm text-ink-soft">
-        Toda escola que aparece na busca do pai precisa estar aqui — antes só dava pra adicionar rodando um script na VPS.
+        Toda escola que aparece na busca do pai precisa estar aqui. Antes só dava pra adicionar rodando um script na VPS.
       </p>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">

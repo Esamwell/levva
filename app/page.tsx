@@ -28,6 +28,7 @@ export default function LandingPage() {
         <div className="hidden md:flex items-center gap-9">
           <a href="#rota" className="text-sm text-navy/80 hover:text-navy">Como funciona</a>
           <a href="#quem-somos" className="text-sm text-navy/80 hover:text-navy">Quem somos</a>
+          <Link href="/para-familias" className="text-sm text-navy/80 hover:text-navy">Para famílias</Link>
           <a href="#motoristas" className="text-sm text-navy/80 hover:text-navy">Para motoristas</a>
           <Link href="/entrar" className="text-sm text-navy/80 hover:text-navy">Entrar</Link>
           <Magnet padding={40} magnetStrength={4}>
@@ -318,16 +319,21 @@ export default function LandingPage() {
               Busque por endereço e escola, compare transportadores da sua
               região e feche direto, sem taxa, sem letrinha miúda.
             </p>
-            <Link href="/pai" className="inline-flex items-center justify-center gap-2 rounded-full bg-navy px-5.5 py-3.5 text-sm font-bold leading-none text-white">
-              Buscar transporte →
-            </Link>
+            <div className="flex flex-wrap items-center gap-4">
+              <Link href="/pai" className="inline-flex items-center justify-center gap-2 rounded-full bg-navy px-5.5 py-3.5 text-sm font-bold leading-none text-white">
+                Buscar transporte →
+              </Link>
+              <Link href="/para-familias" className="text-sm font-semibold text-navy/80 hover:text-navy hover:underline">
+                Como funciona pra famílias
+              </Link>
+            </div>
           </div>
           <div className="rounded-[20px] bg-navy p-11 text-white">
             <span className="mb-4 block font-mono text-xs uppercase tracking-wide text-sage-soft">Para transportadores</span>
             <h3 className="max-w-xs font-serif text-3xl">Seja encontrado pelas famílias certas.</h3>
             <p className="my-4 max-w-xs text-sm text-white/70">
               Crie seu perfil verificado e receba pedidos de famílias da sua região.
-              Sem mensalidade — você só paga quando fecha um contrato de verdade.
+              Sem mensalidade: você só paga quando fecha um contrato de verdade.
             </p>
             <Link href="/para-motoristas" className="inline-flex items-center justify-center gap-2 rounded-full bg-amber px-5.5 py-3.5 text-sm font-bold leading-none text-navy">
               Como funciona pra motoristas →
@@ -367,12 +373,16 @@ export default function LandingPage() {
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-white/60">
             <a href="#rota">Como funciona</a>
             <a href="#quem-somos">Quem somos</a>
+            <Link href="/para-familias">Para famílias</Link>
             <a href="#motoristas">Para motoristas</a>
             <Link href="/termos">Termos de uso</Link>
             <a href="#">Instagram</a>
             <span className="font-mono text-xs text-amber-soft">#vaidemova</span>
           </div>
           <div className="text-xs text-white/40">© 2026 Mova · Salvador, BA</div>
+        </div>
+        <div className="mx-auto mt-6 max-w-6xl text-center text-[11px] text-white/30 sm:text-left">
+          Mova é um produto da SA2 Marketing, agência de marketing e soluções digitais. CNPJ 58.648.834/0001-98.
         </div>
       </footer>
     </main>

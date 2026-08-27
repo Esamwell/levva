@@ -135,7 +135,7 @@ function EscolaForm({
             )}
           </div>
           <p className="text-xs text-ink-soft">
-            Escolhendo uma sugestão preenche os campos abaixo e posiciona o pino — arraste ou clique no mapa pra ajustar.
+            Escolhendo uma sugestão preenche os campos abaixo e posiciona o pino. Arraste ou clique no mapa pra ajustar.
           </p>
 
           <input required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome da escola" className={campo} />

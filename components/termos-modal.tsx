@@ -48,7 +48,7 @@ export function TermosModal({
       <DialogContent className="flex h-[85vh] w-[calc(100%-2rem)] max-w-xl flex-col rounded-2xl p-0 sm:h-[600px]">
         <DialogHeader className="border-b border-cream-line px-6 pb-4 pt-6">
           <DialogTitle className="font-serif text-lg font-normal text-navy">
-            Termos de Uso {publico === "motorista" ? "— motoristas" : "— famílias"}
+            Termos de Uso · {publico === "motorista" ? "motoristas" : "famílias"}
           </DialogTitle>
         </DialogHeader>
 

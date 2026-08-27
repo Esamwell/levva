@@ -38,7 +38,7 @@ export default async function ExtrasMotoristaPage() {
           </div>
           <p className="mt-3 font-serif text-lg text-navy">Rastreador</p>
           <p className="mt-1 text-sm text-ink-soft">
-            Pra família acompanhar o trajeto do filho em tempo real. Em análise — em breve por aqui.
+            Pra família acompanhar o trajeto do filho em tempo real. Em análise, chega em breve.
           </p>
         </div>
       </div>

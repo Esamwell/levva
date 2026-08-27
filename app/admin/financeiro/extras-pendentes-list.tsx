@@ -10,14 +10,19 @@ type Extra = {
   id: string;
   tipo: string;
   valorCentavos: number;
-  periodicidade: "MENSAL" | "TRIMESTRAL" | "ANUAL";
+  periodicidade: "MENSAL" | "TRIMESTRAL" | "SEMESTRAL" | "ANUAL";
   createdAt: string;
   motoristaId: string;
   motoristaNome: string;
 };
 
 const TIPO_LABEL: Record<string, string> = { DESTAQUE: "Destaque" };
-const PERIODO_LABEL: Record<Extra["periodicidade"], string> = { MENSAL: "mês", TRIMESTRAL: "trimestre", ANUAL: "ano" };
+const PERIODO_LABEL: Record<Extra["periodicidade"], string> = {
+  MENSAL: "mês",
+  TRIMESTRAL: "trimestre",
+  SEMESTRAL: "semestre",
+  ANUAL: "ano",
+};
 
 function formatarReais(centavos: number): string {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });

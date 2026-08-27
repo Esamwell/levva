@@ -26,7 +26,7 @@ export default async function SaquesPage() {
       <h1 className="font-serif text-3xl text-navy">Saques</h1>
       <p className="mt-1 text-sm text-ink-soft">
         O motorista pede quando quiser sacar o que já foi pago pelo pai via Asaas. O Pix é manual,
-        fora do Asaas — marca como pago depois de transferir.
+        fora do Asaas: marca como pago depois de transferir.
       </p>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">

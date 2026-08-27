@@ -61,7 +61,7 @@ export default function SaqueSection({ saldoCentavos, saques }: { saldoCentavos:
       {erro && <p className="mt-2 text-xs text-red-600">{erro}</p>}
       <p className="mt-2 text-xs text-ink-soft">
         Vira saldo assim que um pai paga pelo Asaas. O Pix é feito manualmente pela Mova depois do
-        pedido — sem valor automático, sem prazo fixo ainda.
+        pedido, sem valor automático nem prazo fixo ainda.
       </p>
 
       {saques.length > 0 && (

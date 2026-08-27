@@ -395,6 +395,7 @@ model MotoristaExtra {
 enum Periodicidade {
   MENSAL
   TRIMESTRAL
+  SEMESTRAL
   ANUAL
 }
 

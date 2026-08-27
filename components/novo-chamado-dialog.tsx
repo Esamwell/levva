@@ -47,7 +47,7 @@ export function NovoChamadoDialog({ voltarPara }: { voltarPara: string }) {
           <DialogHeader>
             <DialogTitle className="font-serif text-lg font-normal text-navy">Abrir chamado</DialogTitle>
             <DialogDescription className="text-xs text-ink-soft">
-              A equipe Mova responde por aqui — sem precisar de WhatsApp ou telefone.
+              A equipe Mova responde por aqui, sem precisar de WhatsApp ou telefone.
             </DialogDescription>
           </DialogHeader>
 

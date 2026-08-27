@@ -10,6 +10,7 @@ type Lead = { id: string; paiNome: string; filhoNome: string };
 const PERIODOS = [
   { value: "MENSAL", label: "Mensal" },
   { value: "TRIMESTRAL", label: "Trimestral" },
+  { value: "SEMESTRAL", label: "Semestral" },
   { value: "ANUAL", label: "Anual" },
 ] as const;
 
@@ -91,7 +92,7 @@ export function FecharContratoDialog({
                 Fechar com {lead.paiNome}
               </DialogTitle>
               <DialogDescription className="text-xs text-ink-soft">
-                Sem mensalidade pra ficar na Mova — só uma taxa de {taxaPercentual}% em cima do que você combinar.
+                Sem mensalidade pra ficar na Mova: só uma taxa de {taxaPercentual}% em cima do valor recorrente combinado.
               </DialogDescription>
             </DialogHeader>
 

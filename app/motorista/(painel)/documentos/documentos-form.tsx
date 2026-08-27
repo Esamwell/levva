@@ -108,7 +108,7 @@ export default function DocumentosForm({
       <CardContent className="space-y-3 p-6">
         {avisoReanalise && (
           <div className="rounded-xl border border-amber bg-amber-soft/30 px-4 py-3 text-sm text-navy">
-            Documento atualizado — seu cadastro volta pra fila de análise da equipe Mova antes de continuar
+            Documento atualizado. Seu cadastro volta pra fila de análise da equipe Mova antes de continuar
             aparecendo nas buscas.
           </div>
         )}
