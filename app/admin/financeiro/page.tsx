@@ -87,6 +87,7 @@ export default async function FinanceiroPage() {
           paiId: c.pai.id,
           paiNome: c.pai.user.nome,
           paiTemCpfCnpj: !!c.pai.cpfCnpj,
+          temAssinatura: !!c.asaasSubscriptionId,
           cobrancas: c.cobrancas.map((cb) => ({
             id: cb.id,
             competencia: cb.competencia.toISOString(),

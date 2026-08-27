@@ -1,9 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Check } from "lucide-react";
-import { Button } from "../../../../components/ui/button";
+import { CheckCircle2, AlertTriangle } from "lucide-react";
 import { Badge } from "../../../../components/ui/badge";
 
 type Contrato = {
@@ -19,6 +16,7 @@ type Contrato = {
   vencimento: string;
   emDia: boolean;
   ultimoRecebimento: string | null;
+  temAssinatura: boolean;
 };
 
 const PERIODO_LABEL: Record<Contrato["periodicidade"], string> = {
@@ -33,20 +31,6 @@ function formatarReais(centavos: number): string {
 }
 
 export default function FinanceiroMotoristaList({ contratos }: { contratos: Contrato[] }) {
-  const router = useRouter();
-  const [processando, setProcessando] = useState<string | null>(null);
-
-  async function marcarRecebido(id: string) {
-    setProcessando(id);
-    try {
-      const res = await fetch(`/api/motorista/contratos/${id}/cobrancas`, { method: "POST" });
-      if (!res.ok) throw new Error();
-      router.refresh();
-    } finally {
-      setProcessando(null);
-    }
-  }
-
   return (
     <div className="mt-8 space-y-3">
       {contratos.map((c) => (
@@ -94,15 +78,17 @@ export default function FinanceiroMotoristaList({ contratos }: { contratos: Cont
           </div>
 
           <div className="mt-3 border-t border-cream-line pt-3">
-            <Button
-              size="sm"
-              disabled={processando === c.id}
-              onClick={() => marcarRecebido(c.id)}
-              className="bg-navy text-white hover:bg-navy/90"
-            >
-              <Check className="h-3.5 w-3.5" />
-              {processando === c.id ? "Marcando..." : "Marcar ciclo como recebido"}
-            </Button>
+            {c.temAssinatura ? (
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-sage">
+                <CheckCircle2 className="h-3.5 w-3.5" /> Cobrança automática ativa. A Mova cobra {c.paiNome} a cada
+                ciclo, sem você precisar fazer nada.
+              </p>
+            ) : (
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-amber-700">
+                <AlertTriangle className="h-3.5 w-3.5" /> Cobrança automática ainda não configurada. Avise o suporte
+                da Mova.
+              </p>
+            )}
           </div>
         </div>
       ))}

@@ -65,6 +65,12 @@ export function FecharContratoDialog({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Não deu pra fechar.");
+      if (data.cobrancaAutomatica === false) {
+        window.alert(
+          `Contrato fechado, mas a cobrança automática não pôde ser configurada agora: ${data.avisoCobranca}\n\n` +
+            "Avise o admin pra configurar manualmente — sem isso a família não recebe o link de pagamento."
+        );
+      }
       resetar();
       onFechado();
     } catch (e) {

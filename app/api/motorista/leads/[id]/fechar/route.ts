@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "../../../../../../lib/db";
 import { exigirPapel } from "../../../../../../lib/auth";
 import { TAXA_MOVA_PERCENTUAL, calcularTaxa } from "../../../../../../lib/financeiro";
+import { criarAssinaturaAsaas } from "../../../../../../lib/asaas";
 
 const schema = z.object({
   valorCentavos: z.number().int().positive(),
@@ -46,7 +47,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
   const taxaCentavos = calcularTaxa(parsed.data.valorCentavos);
 
-  await db.$transaction([
+  const [, contrato] = await db.$transaction([
     db.lead.update({ where: { id }, data: { status: "FECHADO" } }),
     db.contrato.create({
       data: {
@@ -59,8 +60,22 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         taxaPercentual: TAXA_MOVA_PERCENTUAL,
         taxaCentavos,
       },
+      include: {
+        pai: { include: { user: { select: { nome: true, email: true } } } },
+        motorista: { include: { user: { select: { nome: true } } } },
+      },
     }),
   ]);
 
-  return NextResponse.json({ ok: true, taxaCentavos });
+  // O contrato já está fechado e vale independente disso — se a cobrança
+  // automática falhar (Asaas fora do ar, pai sem CPF ainda), o motorista
+  // fica sabendo agora pra resolver, mas o fechamento não é desfeito.
+  const assinatura = await criarAssinaturaAsaas(contrato);
+
+  return NextResponse.json({
+    ok: true,
+    taxaCentavos,
+    cobrancaAutomatica: assinatura.ok,
+    ...(assinatura.ok ? {} : { avisoCobranca: assinatura.erro }),
+  });
 }

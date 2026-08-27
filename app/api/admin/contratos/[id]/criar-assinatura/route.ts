@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { db } from "../../../../../../lib/db";
 import { exigirPapel } from "../../../../../../lib/auth";
-import { gerarCobrancaAsaas } from "../../../../../../lib/asaas";
+import { criarAssinaturaAsaas } from "../../../../../../lib/asaas";
 
-/** POST /api/admin/contratos/[id]/gerar-cobranca — gera (ou reaproveita) a cobrança Asaas do ciclo atual. */
+/**
+ * POST /api/admin/contratos/[id]/criar-assinatura — retry manual pra quando
+ * a assinatura automática (criada ao fechar o contrato) falhou (ex.: pai
+ * sem CPF/CNPJ na hora). Idempotente: se já tiver assinatura, só devolve ela.
+ */
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await exigirPapel("ADMIN");
   if (!session) {
@@ -23,7 +27,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ error: "Contrato não encontrado." }, { status: 404 });
   }
 
-  const resultado = await gerarCobrancaAsaas(contrato);
+  const resultado = await criarAssinaturaAsaas(contrato);
   if (!resultado.ok) {
     return NextResponse.json({ error: resultado.erro }, { status: 400 });
   }

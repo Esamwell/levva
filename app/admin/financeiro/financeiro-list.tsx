@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, FileText, ExternalLink, CircleDollarSign } from "lucide-react";
+import { Search, FileText, ExternalLink, RefreshCw, CheckCircle2 } from "lucide-react";
 import { EmptyState } from "../../../components/empty-state";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
@@ -31,6 +31,7 @@ type Contrato = {
   paiId: string;
   paiNome: string;
   paiTemCpfCnpj: boolean;
+  temAssinatura: boolean;
   cobrancas: Cobranca[];
 };
 
@@ -55,28 +56,51 @@ function formatarReais(centavos: number): string {
 
 function CobrancasContrato({ contrato }: { contrato: Contrato }) {
   const router = useRouter();
-  const [gerando, setGerando] = useState(false);
+  const [configurando, setConfigurando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
-  const pendente = contrato.cobrancas.find((cb) => !cb.paga && cb.asaasPaymentId);
-
-  async function gerarCobranca() {
+  async function configurarAssinatura() {
     setErro(null);
-    setGerando(true);
+    setConfigurando(true);
     try {
-      const res = await fetch(`/api/admin/contratos/${contrato.id}/gerar-cobranca`, { method: "POST" });
+      const res = await fetch(`/api/admin/contratos/${contrato.id}/criar-assinatura`, { method: "POST" });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "Não deu pra gerar a cobrança.");
+      if (!res.ok) throw new Error(data.error || "Não deu pra configurar a cobrança automática.");
       router.refresh();
     } catch (e) {
-      setErro(e instanceof Error ? e.message : "Não deu pra gerar a cobrança.");
+      setErro(e instanceof Error ? e.message : "Não deu pra configurar a cobrança automática.");
     } finally {
-      setGerando(false);
+      setConfigurando(false);
     }
   }
 
   return (
     <div className="mt-3 border-t border-cream-line pt-3">
+      <div className="flex flex-wrap items-center gap-2">
+        {contrato.temAssinatura ? (
+          <span className="flex items-center gap-1.5 text-xs font-semibold text-sage">
+            <CheckCircle2 className="h-3.5 w-3.5" /> Cobrança automática ativa
+          </span>
+        ) : (
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={configurando}
+            onClick={configurarAssinatura}
+            className="h-7 gap-1.5 rounded-full border-amber text-xs text-navy hover:bg-amber-soft/30"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            {configurando ? "Configurando..." : "Configurar cobrança automática"}
+          </Button>
+        )}
+        {!contrato.paiTemCpfCnpj && (
+          <Link href={`/admin/pais/${contrato.paiId}`} className="text-xs text-ink-soft hover:text-navy hover:underline">
+            Falta o CPF/CNPJ do responsável →
+          </Link>
+        )}
+      </div>
+      {erro && <p className="mt-1.5 text-xs text-red-600">{erro}</p>}
+
       {contrato.cobrancas.length > 0 && (
         <ul className="space-y-1.5">
           {contrato.cobrancas.map((cb) => (
@@ -113,29 +137,6 @@ function CobrancasContrato({ contrato }: { contrato: Contrato }) {
           ))}
         </ul>
       )}
-
-      <div className="mt-2.5 flex flex-wrap items-center gap-2">
-        {pendente ? (
-          <p className="text-xs text-ink-soft">Já tem uma cobrança aguardando pagamento pra esse ciclo.</p>
-        ) : (
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={gerando}
-            onClick={gerarCobranca}
-            className="h-7 gap-1.5 rounded-full border-cream-line text-xs text-navy hover:bg-cream"
-          >
-            <CircleDollarSign className="h-3.5 w-3.5" />
-            {gerando ? "Gerando..." : "Gerar cobrança Asaas"}
-          </Button>
-        )}
-        {!contrato.paiTemCpfCnpj && (
-          <Link href={`/admin/pais/${contrato.paiId}`} className="text-xs text-ink-soft hover:text-navy hover:underline">
-            Falta o CPF/CNPJ do responsável →
-          </Link>
-        )}
-      </div>
-      {erro && <p className="mt-1.5 text-xs text-red-600">{erro}</p>}
     </div>
   );
 }

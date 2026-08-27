@@ -433,6 +433,13 @@ model Contrato {
   pagadorTaxa    PagadorTaxa
   taxaCentavos   Int
 
+  // Assinatura recorrente no Asaas — criada automaticamente ao fechar o
+  // contrato (ver lib/asaas.ts criarAssinaturaAsaas). O Asaas gera uma
+  // cobrança nova sozinho a cada ciclo e avisa via webhook
+  // (PAYMENT_CREATED); nula quando a criação falhou (ex.: pai sem
+  // CPF/CNPJ ainda) ou pro contrato antigo, de antes dessa automação.
+  asaasSubscriptionId String? @unique
+
   createdAt DateTime @default(now())
   cobrancas Cobranca[]
 }

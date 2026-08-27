@@ -53,6 +53,7 @@ export default async function FinanceiroMotoristaPage() {
       vencimento: vencimento.toISOString(),
       emDia,
       ultimoRecebimento: c.cobrancas[0]?.competencia.toISOString() ?? null,
+      temAssinatura: !!c.asaasSubscriptionId,
     };
   });
 

@@ -2,8 +2,7 @@ import { randomBytes } from "crypto";
 import { db } from "./db";
 import { cifrar, decifrar } from "./cripto";
 import { enviarEmail, emailCobrancaGerada, urlBase } from "./email";
-import { proximoVencimento } from "./financeiro";
-import type { Contrato, Pai } from "@prisma/client";
+import type { Contrato, Pai, Periodicidade } from "@prisma/client";
 
 /**
  * Cliente pra API do Asaas (https://docs.asaas.com/). A conta usada é
@@ -136,36 +135,48 @@ function formatarReais(centavos: number): string {
 }
 
 /**
- * Registra (ou substitui) o webhook no Asaas via API, em vez de pedir pro
- * admin configurar na mão no painel deles — gera um token aleatório,
- * cifra e guarda em ConfiguracaoAsaas, e manda pro Asaas junto no cadastro
- * do webhook. Chamado de novo (ex: depois de trocar de conta) simplesmente
- * cria outro webhook com token novo — o Asaas permite mais de um.
+ * Registra (ou atualiza) o webhook no Asaas via API, em vez de pedir pro
+ * admin configurar na mão no painel deles — gera um token aleatório, cifra
+ * e guarda em ConfiguracaoAsaas, e manda pro Asaas junto no cadastro do
+ * webhook.
+ *
+ * O Asaas rejeita criar um segundo webhook pra mesma URL ("Já existe uma
+ * configuração para os eventos com os mesmos atributos") — por isso essa
+ * função primeiro lista os webhooks existentes e faz PUT no que já aponta
+ * pra cá (ex: quando os eventos monitorados mudam, como quando
+ * PAYMENT_CREATED foi adicionado), só criando um novo (POST) se não achar
+ * nenhum.
  */
 export async function configurarWebhookAsaas(emailNotificacao: string): Promise<{ ok: true } | { ok: false; erro: string }> {
   const config = await obterConfigAsaas();
   if (!config) return { ok: false, erro: "Configura a chave de API primeiro." };
 
   const token = randomBytes(32).toString("hex"); // 64 caracteres, dentro do range 32-255 exigido pelo Asaas
+  const url = `${urlBase()}/api/webhooks/asaas`;
+  const corpo = {
+    name: "Mova - pagamentos",
+    url,
+    email: emailNotificacao,
+    enabled: true,
+    interrupted: false,
+    apiVersion: 3,
+    authToken: token,
+    sendType: "SEQUENTIALLY",
+    events: ["PAYMENT_CREATED", "PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"],
+  };
 
   try {
-    const res = await asaasFetch("/webhooks", {
-      method: "POST",
-      body: JSON.stringify({
-        name: "Mova - pagamentos",
-        url: `${urlBase()}/api/webhooks/asaas`,
-        email: emailNotificacao,
-        enabled: true,
-        interrupted: false,
-        apiVersion: 3,
-        authToken: token,
-        sendType: "SEQUENTIALLY",
-        events: ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"],
-      }),
+    const existentes = await asaasFetch("/webhooks");
+    const listaExistente = existentes.ok ? (await existentes.json()).data ?? [] : [];
+    const jaExiste = listaExistente.find((w: { url: string }) => w.url === url);
+
+    const res = await asaasFetch(jaExiste ? `/webhooks/${jaExiste.id}` : "/webhooks", {
+      method: jaExiste ? "PUT" : "POST",
+      body: JSON.stringify(corpo),
     });
     if (!res.ok) {
-      const corpo = await res.json().catch(() => null);
-      const erro = corpo?.errors?.[0]?.description || `Asaas respondeu ${res.status}.`;
+      const corpoErro = await res.json().catch(() => null);
+      const erro = corpoErro?.errors?.[0]?.description || `Asaas respondeu ${res.status}.`;
       return { ok: false, erro };
     }
 
@@ -218,90 +229,131 @@ async function garantirClienteAsaas(pai: Pai & { user: { nome: string; email: st
   return cliente.id as string;
 }
 
+const CICLO_ASAAS: Record<Periodicidade, string> = {
+  MENSAL: "MONTHLY",
+  TRIMESTRAL: "QUARTERLY",
+  SEMESTRAL: "SEMIANNUALLY",
+  ANUAL: "YEARLY",
+};
+
 /**
- * Gera (ou reaproveita) a cobrança Asaas do ciclo atual de um contrato, e
- * avisa o pai por e-mail com o link de pagamento.
+ * Cria a assinatura recorrente no Asaas pro contrato — chamado automaticamente
+ * assim que o motorista fecha o contrato (ver POST /api/motorista/leads/[id]/fechar),
+ * não depende de nenhuma ação manual depois.
+ *
+ * Uma assinatura (não uma cobrança avulsa) porque o Asaas mesmo gera a
+ * próxima cobrança sozinho a cada ciclo (mensal/trimestral/semestral/anual)
+ * e avisa via webhook (PAYMENT_CREATED, ver processarPagamentoCriadoAsaas) —
+ * ninguém da Mova precisa lembrar de gerar a cobrança do mês seguinte.
+ *
+ * Idempotente: se o contrato já tem assinatura, não cria outra.
  *
  * Quem paga o valor cheio é sempre o pai — a taxa da Mova já está embutida
  * quando pagadorTaxa é PAI (soma no valor cobrado); quando é MOTORISTA, o
- * repasse manual depois é que sai menor (ver marcarRepasseFeito).
+ * repasse pro motorista (via saque) é que sai menor.
  */
-export async function gerarCobrancaAsaas(
+export async function criarAssinaturaAsaas(
   contrato: Contrato & { pai: Pai & { user: { nome: string; email: string } }; motorista: { user: { nome: string } } }
-): Promise<{ ok: true; linkPagamento: string } | { ok: false; erro: string }> {
+): Promise<{ ok: true; subscriptionId: string } | { ok: false; erro: string }> {
+  if (contrato.asaasSubscriptionId) {
+    return { ok: true, subscriptionId: contrato.asaasSubscriptionId };
+  }
+
   try {
-    const ultimaPaga = await db.cobranca.findFirst({
-      where: { contratoId: contrato.id, paga: true },
-      orderBy: { competencia: "desc" },
-    });
-    const competencia = ultimaPaga
-      ? proximoVencimento(contrato.periodicidade, ultimaPaga.competencia)
-      : contrato.createdAt;
-
-    const pendente = await db.cobranca.findFirst({
-      where: { contratoId: contrato.id, paga: false, asaasPaymentId: { not: null } },
-      orderBy: { createdAt: "desc" },
-    });
-    if (pendente?.linkPagamento) {
-      return { ok: true, linkPagamento: pendente.linkPagamento };
-    }
-
     const clienteId = await garantirClienteAsaas(contrato.pai);
 
     const valorCobradoCentavos =
       contrato.pagadorTaxa === "PAI" ? contrato.valorCentavos + contrato.taxaCentavos : contrato.valorCentavos;
 
-    const res = await asaasFetch("/payments", {
+    const hoje = new Date().toISOString().slice(0, 10);
+
+    const res = await asaasFetch("/subscriptions", {
       method: "POST",
       body: JSON.stringify({
         customer: clienteId,
         billingType: "UNDEFINED",
         value: valorCobradoCentavos / 100,
-        dueDate: competencia.toISOString().slice(0, 10),
+        nextDueDate: hoje,
+        cycle: CICLO_ASAAS[contrato.periodicidade],
         description: `Transporte escolar — ${contrato.motorista.user.nome} (Mova)`,
         externalReference: contrato.id,
       }),
     });
     if (!res.ok) {
       const corpo = await res.json().catch(() => null);
-      const erro = corpo?.errors?.[0]?.description || `Asaas respondeu ${res.status} ao criar a cobrança.`;
+      const erro = corpo?.errors?.[0]?.description || `Asaas respondeu ${res.status} ao criar a assinatura.`;
       return { ok: false, erro };
     }
-    const cobrancaAsaas = await res.json();
+    const assinatura = await res.json();
 
-    const novaCobranca = await db.cobranca.create({
-      data: {
-        contratoId: contrato.id,
-        competencia,
-        valorCentavos: valorCobradoCentavos,
-        paga: false,
-        asaasPaymentId: cobrancaAsaas.id,
-        linkPagamento: cobrancaAsaas.invoiceUrl,
-      },
-    });
+    await db.contrato.update({ where: { id: contrato.id }, data: { asaasSubscriptionId: assinatura.id } });
 
-    try {
-      await enviarEmail({
-        para: contrato.pai.user.email,
-        ...emailCobrancaGerada({
-          paiNome: contrato.pai.user.nome,
-          motoristaNome: contrato.motorista.user.nome,
-          valorFormatado: formatarReais(valorCobradoCentavos),
-          vencimentoFormatado: competencia.toLocaleDateString("pt-BR"),
-          // Página própria da Mova (Pix/boleto embutidos) em vez do checkout
-          // hospedado do Asaas direto — ver app/pagar/[id]. O link cru do
-          // Asaas ainda fica salvo em linkPagamento pra quem quiser cartão.
-          link: `${urlBase()}/pagar/${novaCobranca.id}`,
-        }),
-      });
-    } catch (err) {
-      console.error("Cobrança gerada, mas falha ao avisar o pai por e-mail:", err);
-    }
-
-    return { ok: true, linkPagamento: cobrancaAsaas.invoiceUrl };
+    return { ok: true, subscriptionId: assinatura.id };
   } catch (err) {
-    console.error("Falha ao gerar cobrança Asaas:", err);
-    return { ok: false, erro: err instanceof Error ? err.message : "Não deu pra gerar a cobrança agora." };
+    console.error("Falha ao criar assinatura Asaas:", err);
+    return { ok: false, erro: err instanceof Error ? err.message : "Não deu pra configurar a cobrança automática agora." };
+  }
+}
+
+/**
+ * Chamado pelo webhook quando o Asaas gera sozinho a cobrança de um novo
+ * ciclo de uma assinatura (evento PAYMENT_CREATED, `payment.subscription`
+ * preenchido). Cria a Cobranca local (idempotente via asaasPaymentId
+ * único) e avisa o pai por e-mail com o link de pagamento — é aqui que a
+ * "cobrança de verdade" nasce pro pai, sem ninguém do time precisar clicar
+ * em nada.
+ */
+export async function processarPagamentoCriadoAsaas(payment: {
+  id: string;
+  subscription?: string | null;
+  value: number;
+  dueDate: string;
+  invoiceUrl: string;
+}): Promise<void> {
+  if (!payment.subscription) return; // cobrança avulsa, sem assinatura — nada a fazer aqui
+
+  const jaExiste = await db.cobranca.findUnique({ where: { asaasPaymentId: payment.id } });
+  if (jaExiste) return; // idempotência: Asaas pode reenviar o mesmo evento
+
+  const contrato = await db.contrato.findUnique({
+    where: { asaasSubscriptionId: payment.subscription },
+    include: {
+      pai: { include: { user: { select: { nome: true, email: true } } } },
+      motorista: { include: { user: { select: { nome: true } } } },
+    },
+  });
+  if (!contrato) {
+    console.error("Webhook PAYMENT_CREATED de assinatura sem contrato correspondente:", payment.subscription);
+    return;
+  }
+
+  const novaCobranca = await db.cobranca.create({
+    data: {
+      contratoId: contrato.id,
+      competencia: new Date(payment.dueDate),
+      valorCentavos: Math.round(payment.value * 100),
+      paga: false,
+      asaasPaymentId: payment.id,
+      linkPagamento: payment.invoiceUrl,
+    },
+  });
+
+  try {
+    await enviarEmail({
+      para: contrato.pai.user.email,
+      ...emailCobrancaGerada({
+        paiNome: contrato.pai.user.nome,
+        motoristaNome: contrato.motorista.user.nome,
+        valorFormatado: formatarReais(novaCobranca.valorCentavos),
+        vencimentoFormatado: novaCobranca.competencia.toLocaleDateString("pt-BR"),
+        // Página própria da Mova (Pix/boleto embutidos) em vez do checkout
+        // hospedado do Asaas direto — ver app/pagar/[id]. O link cru do
+        // Asaas ainda fica salvo em linkPagamento pra quem quiser cartão.
+        link: `${urlBase()}/pagar/${novaCobranca.id}`,
+      }),
+    });
+  } catch (err) {
+    console.error("Cobrança do ciclo criada, mas falha ao avisar o pai por e-mail:", err);
   }
 }
 
