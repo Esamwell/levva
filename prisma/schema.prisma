@@ -262,6 +262,7 @@ model Motorista {
   contratos   Contrato[]
   extras      MotoristaExtra[]
   saques      SolicitacaoSaque[]
+  areasAtendimento AreaAtendimento[]
 
   // Regra de enquadramento no plano Frota (ver /lib/plano.ts):
   // múltiplos veículos OU 3+ escolas atendidas -> Frota
@@ -291,6 +292,24 @@ model MotoristaEscola {
   escolaId    String
 
   @@unique([motoristaId, escolaId])
+}
+
+// Onde o motorista pega passageiro de verdade — diferente de MotoristaEscola
+// (que escola ele atende). Um motorista pode atender o Colégio X mas só
+// pegar criança do bairro Y, não da cidade inteira; a busca do pai (ver
+// /api/busca) cruza o endereço geocodificado do pai contra essas áreas,
+// não só a distância até a escola. Círculo (ponto + raio), igual segmentação
+// de público do Meta Ads — o motorista escolhe o centro numa busca de
+// endereço e ajusta o raio num mapa (ver components/mapa-picker.tsx).
+model AreaAtendimento {
+  id          String    @id @default(cuid())
+  motorista   Motorista @relation(fields: [motoristaId], references: [id])
+  motoristaId String
+  nome        String
+  lat         Float
+  lng         Float
+  raioKm      Float     @default(5)
+  createdAt   DateTime  @default(now())
 }
 
 model Assinatura {

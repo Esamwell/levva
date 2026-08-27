@@ -6,7 +6,9 @@ import "leaflet/dist/leaflet.css";
 /**
  * Mapa com um pino arrastável — usado em /admin/escolas pra escolher a
  * localização exata em vez de confiar só no geocoding automático (que já
- * falhou pra uma escola real em produção, ver commit da auditoria).
+ * falhou pra uma escola real em produção, ver commit da auditoria), e em
+ * /motorista/perfil pra desenhar a área de atendimento (pino + círculo de
+ * raio, igual segmentação de público do Meta Ads — ver AreaAtendimento).
  *
  * Leaflet mexe com `window`/`document` assim que importado, então o import
  * de verdade só acontece dentro do useEffect (client-only) — importar no
@@ -16,14 +18,18 @@ export function MapaPicker({
   lat,
   lng,
   onMudar,
+  raioKm,
 }: {
   lat: number;
   lng: number;
   onMudar: (lat: number, lng: number) => void;
+  /** Quando informado, desenha um círculo de raio (em km) em volta do pino. */
+  raioKm?: number;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
   const markerRef = useRef<import("leaflet").Marker | null>(null);
+  const circuloRef = useRef<import("leaflet").Circle | null>(null);
 
   useEffect(() => {
     let cancelado = false;
@@ -57,6 +63,18 @@ export function MapaPicker({
 
       mapRef.current = map;
       markerRef.current = marker;
+
+      if (raioKm) {
+        const circulo = L.circle([lat, lng], {
+          radius: raioKm * 1000,
+          color: "#4A7A5E",
+          fillColor: "#4A7A5E",
+          fillOpacity: 0.12,
+          weight: 2,
+        }).addTo(map);
+        circuloRef.current = circulo;
+        map.fitBounds(circulo.getBounds(), { maxZoom: 14 });
+      }
     })();
 
     return () => {
@@ -64,6 +82,7 @@ export function MapaPicker({
       mapRef.current?.remove();
       mapRef.current = null;
       markerRef.current = null;
+      circuloRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -74,9 +93,22 @@ export function MapaPicker({
   useEffect(() => {
     if (mapRef.current && markerRef.current) {
       markerRef.current.setLatLng([lat, lng]);
-      mapRef.current.setView([lat, lng], mapRef.current.getZoom());
+      circuloRef.current?.setLatLng([lat, lng]);
+      if (circuloRef.current) {
+        mapRef.current.fitBounds(circuloRef.current.getBounds(), { maxZoom: 14 });
+      } else {
+        mapRef.current.setView([lat, lng], mapRef.current.getZoom());
+      }
     }
   }, [lat, lng]);
+
+  // Raio mudando (slider) só redesenha o círculo, sem recentrar o mapa —
+  // arrastar o slider não deveria ficar saltando o zoom a cada pixel.
+  useEffect(() => {
+    if (circuloRef.current && raioKm) {
+      circuloRef.current.setRadius(raioKm * 1000);
+    }
+  }, [raioKm]);
 
   return <div ref={containerRef} className="h-56 w-full rounded-xl border border-cream-line" />;
 }

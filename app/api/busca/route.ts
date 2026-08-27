@@ -78,10 +78,22 @@ export async function POST(req: Request) {
       user: { ativo: true },
       escolas: { some: { escolaId: escolaEncontrada.id } },
     },
-    include: { user: true, veiculos: true, avaliacoes: true },
+    include: { user: true, veiculos: true, avaliacoes: true, areasAtendimento: true },
   });
 
-  const mapeados = candidatos.map((m) => {
+  // Atende a escola não é o mesmo que pega passageiro em qualquer lugar da
+  // cidade — quem cadastrou área de atendimento (ver AreaAtendimento) só
+  // aparece pro pai cujo endereço cai dentro de alguma delas. Sem área
+  // cadastrada, cai no critério antigo: distância até a própria escola.
+  const dentroDaAreaOuRaioPadrao = (m: (typeof candidatos)[number]): boolean => {
+    if (!ponto) return true; // sem coordenada do pai não dá pra verificar nada
+    if (m.areasAtendimento.length > 0) {
+      return m.areasAtendimento.some((a) => distanciaKm(ponto.lat, ponto.lng, a.lat, a.lng) <= a.raioKm);
+    }
+    return distanciaKm(ponto.lat, ponto.lng, escolaEncontrada.lat, escolaEncontrada.lng) <= RAIO_BUSCA_PADRAO_KM;
+  };
+
+  const mapeados = candidatos.filter(dentroDaAreaOuRaioPadrao).map((m) => {
     // Só avaliação aprovada pelo admin entra na média pública — sem isso,
     // um depoimento ainda pendente de moderação já pesava no ranking.
     const aprovadas = m.avaliacoes.filter((a) => a.moderado);
@@ -101,12 +113,9 @@ export async function POST(req: Request) {
     };
   });
 
-  // Sem coordenadas do pai não há como aplicar o raio — mostramos todos os
-  // que atendem a escola, que ainda é uma resposta útil.
-  const resultados = (ponto
-    ? mapeados.filter((m) => (m.distanciaKm ?? Infinity) <= RAIO_BUSCA_PADRAO_KM)
-    : mapeados
-  ).sort(
+  // O filtro por área/raio já aconteceu acima (dentroDaAreaOuRaioPadrao) —
+  // aqui só ordena: destaque primeiro, depois nota, depois mais perto.
+  const resultados = mapeados.sort(
     (a, b) =>
       Number(b.destaque) - Number(a.destaque) ||
       (b.notaMedia ?? 0) - (a.notaMedia ?? 0) ||

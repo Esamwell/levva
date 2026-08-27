@@ -3,6 +3,7 @@ import { db } from "../../../../lib/db";
 import { redirect } from "next/navigation";
 import PerfilForm from "./perfil-form";
 import MidiaForm from "./midia-form";
+import AreasAtendimentoForm from "./areas-form";
 
 export default async function PerfilMotoristaPage() {
   const session = await exigirPapel("MOTORISTA");
@@ -10,7 +11,10 @@ export default async function PerfilMotoristaPage() {
 
   const motorista = await db.motorista.findUnique({
     where: { userId: session.userId },
-    include: { escolas: { include: { escola: true } } },
+    include: {
+      escolas: { include: { escola: true } },
+      areasAtendimento: { orderBy: { createdAt: "asc" } },
+    },
   });
   if (!motorista) redirect("/entrar");
 
@@ -38,6 +42,9 @@ export default async function PerfilMotoristaPage() {
         }}
       />
       <MidiaForm fotos={motorista.fotos} videoUrl={motorista.videoUrl} />
+      <AreasAtendimentoForm
+        areas={motorista.areasAtendimento.map((a) => ({ id: a.id, nome: a.nome, lat: a.lat, lng: a.lng, raioKm: a.raioKm }))}
+      />
     </div>
   );
 }
