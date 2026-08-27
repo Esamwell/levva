@@ -18,7 +18,7 @@ export default async function AprovacoesPage() {
     <div>
       <h1 className="font-serif text-3xl text-navy">Aprovações pendentes</h1>
       <p className="mt-2 text-ink-soft">
-        Confira CNH, curso de transporte escolar e antecedentes antes de aprovar.
+        Revise CNH, curso de transporte escolar e antecedentes antes de aprovar o cadastro.
       </p>
 
       {pendentes.length === 0 ? (

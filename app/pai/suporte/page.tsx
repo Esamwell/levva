@@ -21,7 +21,7 @@ export default async function SuportePaiPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-serif text-3xl text-navy">Suporte</h1>
-          <p className="mt-1 text-ink-soft">Alguma dúvida ou problema? Abra um chamado, a equipe Mova responde por aqui.</p>
+          <p className="mt-1 text-ink-soft">Abra um chamado e a equipe Mova responde por aqui.</p>
         </div>
         <NovoChamadoDialog voltarPara="/pai/suporte" />
       </div>

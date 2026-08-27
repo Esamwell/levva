@@ -17,7 +17,7 @@ export default async function DocumentosMotoristaPage() {
     <div>
       <h1 className="font-serif text-3xl text-navy">Documentos</h1>
       <p className="mt-1 text-sm text-ink-soft">
-        CNH, curso de transporte escolar e antecedentes criminais. Atualize aqui quando vencer.
+        Mantenha CNH, curso de transporte escolar e antecedentes criminais sempre em dia.
       </p>
 
       <DocumentosForm

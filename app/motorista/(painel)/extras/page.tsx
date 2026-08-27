@@ -21,8 +21,7 @@ export default async function ExtrasMotoristaPage() {
     <div>
       <h1 className="font-serif text-3xl text-navy">Impulsione seu perfil</h1>
       <p className="mt-1 text-sm text-ink-soft">
-        Sem mensalidade obrigatória pra estar na Mova. Estes são serviços opcionais pra quem quer se destacar e
-        atender mais famílias.
+        Serviços opcionais para aumentar sua visibilidade e atender mais famílias.
       </p>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">

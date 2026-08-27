@@ -69,8 +69,8 @@ export default async function FinanceiroMotoristaPage() {
     <div>
       <h1 className="font-serif text-3xl text-navy">Financeiro</h1>
       <p className="mt-1 text-sm text-ink-soft">
-        Seus contratos ativos e o que você recebe em cada um, com a taxa Mova de {TAXA_MOVA_PERCENTUAL}% já descontada
-        quando é você quem absorve.
+        Contratos ativos e valores a receber em cada ciclo, já com a taxa Mova de {TAXA_MOVA_PERCENTUAL}%
+        descontada quando você opta por absorvê-la.
       </p>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">

@@ -160,7 +160,7 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
         <div className="lg:sticky lg:top-6 lg:self-start">
           <h1 className="font-serif text-3xl text-navy">Encontre o transporte do seu filho</h1>
           <p className="mt-2 text-ink-soft">
-            Digite seu endereço e a escola, sem custo, sem cadastro obrigatório.
+            Informe o endereço e a escola para encontrar transportadores verificados perto de você.
           </p>
 
           <form onSubmit={buscar} className="mt-8 max-w-md space-y-3 rounded-2xl border border-cream-line bg-white p-6">

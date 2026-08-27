@@ -22,7 +22,7 @@ export default async function DepoimentosPage() {
   return (
     <div>
       <h1 className="font-serif text-3xl text-navy">Depoimentos</h1>
-      <p className="mt-1 text-sm text-ink-soft">Avaliações que os pais deixam pros motoristas, depois que a van é contratada.</p>
+      <p className="mt-1 text-sm text-ink-soft">Avaliações enviadas pelas famílias após a contratação do transporte.</p>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard icon={MessageSquare} label="Total" value={String(avaliacoes.length)} />

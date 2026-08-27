@@ -34,7 +34,7 @@ export default async function DashboardPaiPage() {
   return (
     <div>
       <h1 className="font-serif text-3xl text-navy">Minhas solicitações</h1>
-      <p className="mt-2 text-ink-soft">Acompanhe o status dos transportadores que você contatou.</p>
+      <p className="mt-2 text-ink-soft">Acompanhe o andamento das suas solicitações de transporte.</p>
 
       {leads.length === 0 ? (
         <div className="mt-8">

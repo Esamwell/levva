@@ -27,7 +27,7 @@ export default async function PerfilPaiPage() {
   return (
     <div>
       <h1 className="font-serif text-3xl text-navy">Meu perfil</h1>
-      <p className="mt-2 text-ink-soft">Seus dados de contato e os filhos cadastrados na Mova.</p>
+      <p className="mt-2 text-ink-soft">Seus dados de contato e os filhos cadastrados na plataforma.</p>
 
       <PerfilForm
         conta={{ nome: user.nome, email: user.email, telefone: user.telefone ?? "" }}

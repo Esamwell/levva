@@ -34,7 +34,7 @@ export default async function UsuariosPage() {
   return (
     <div>
       <h1 className="font-serif text-3xl text-navy">Usuários</h1>
-      <p className="mt-1 text-sm text-ink-soft">Todas as contas cadastradas na Mova, dos três papéis.</p>
+      <p className="mt-1 text-sm text-ink-soft">Todas as contas cadastradas na plataforma: famílias, motoristas e administradores.</p>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={Users} label="Total de contas" value={String(totais.total)} />

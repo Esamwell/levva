@@ -26,7 +26,7 @@ export default async function LeadsMotoristaPage() {
   return (
     <div>
       <h1 className="font-serif text-3xl text-navy">Leads recebidos</h1>
-      <p className="mt-1 text-sm text-ink-soft">Famílias que solicitaram contato com você.</p>
+      <p className="mt-1 text-sm text-ink-soft">Acompanhe as famílias que solicitaram seu transporte e responda o quanto antes.</p>
 
       {leads.length === 0 ? (
         <div className="mt-8">

@@ -17,7 +17,7 @@ export default async function MotoristasPage() {
     <div>
       <h1 className="font-serif text-3xl text-navy">Motoristas</h1>
       <p className="mt-1 text-sm text-ink-soft">
-        Todos os transportadores cadastrados, aprovados ou não.
+        Todos os transportadores cadastrados na plataforma, aprovados ou pendentes.
       </p>
 
       {motoristas.length === 0 ? (

@@ -29,7 +29,7 @@ export default async function AlunosMotoristaPage() {
   return (
     <div>
       <h1 className="font-serif text-3xl text-navy">Meus alunos</h1>
-      <p className="mt-1 text-sm text-ink-soft">As crianças que você transporta hoje, com o contato do responsável.</p>
+      <p className="mt-1 text-sm text-ink-soft">As crianças que você transporta hoje e os contatos dos responsáveis.</p>
 
       {contratos.length === 0 ? (
         <div className="mt-8">

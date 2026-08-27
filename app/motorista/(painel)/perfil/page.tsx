@@ -25,7 +25,7 @@ export default async function PerfilMotoristaPage() {
   return (
     <div>
       <h1 className="font-serif text-3xl text-navy">Meu perfil público</h1>
-      <p className="mt-2 text-ink-soft">É isso que as famílias veem antes de decidir.</p>
+      <p className="mt-2 text-ink-soft">As informações que as famílias veem ao avaliar o seu perfil.</p>
 
       {motorista.statusAprovacao !== "APROVADO" && (
         <div className="mt-6 rounded-xl border border-amber bg-amber-soft/30 px-4 py-3 text-sm text-navy">

@@ -28,7 +28,7 @@ export default async function SuporteAdminPage() {
   return (
     <div>
       <h1 className="font-serif text-3xl text-navy">Suporte</h1>
-      <p className="mt-1 text-sm text-ink-soft">Chamados abertos por pais e motoristas.</p>
+      <p className="mt-1 text-sm text-ink-soft">Chamados abertos por famílias e motoristas para atendimento da equipe Mova.</p>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard icon={LifeBuoy} label="Total de chamados" value={String(tickets.length)} />
