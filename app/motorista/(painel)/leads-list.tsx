@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { MessageCircle } from "lucide-react";
 import { Avatar, AvatarFallback } from "../../../components/ui/avatar";
 import { Button } from "../../../components/ui/button";
 import { StatusBadge } from "../../../components/status-badge";
@@ -77,7 +79,15 @@ export default function LeadsList({
                 </p>
               </div>
             </div>
-            <StatusBadge status={lead.status} />
+            <div className="flex items-center gap-2">
+              <StatusBadge status={lead.status} />
+              <Link
+                href={`/motorista/leads/${lead.id}`}
+                className="flex items-center gap-1 rounded-full border border-cream-line px-2.5 py-1 text-xs font-semibold text-ink-soft hover:border-amber hover:text-navy"
+              >
+                <MessageCircle className="h-3.5 w-3.5" /> Conversar
+              </Link>
+            </div>
           </div>
           {lead.status !== "FECHADO" && (
             <div className="mt-3.5 flex flex-wrap gap-2 border-t border-cream-line pt-3.5">

@@ -337,7 +337,7 @@ export function emailCobrancaGerada(params: {
        </table>
        ${botao(params.link, "Pagar agora")}
        <p style="font-size:13px;line-height:1.6;color:#8A8A8A;margin:20px 0 0">
-         Pix, boleto ou cartão — escolha na própria página de pagamento.
+         Pix, boleto ou cartão: escolha na própria página de pagamento.
        </p>`
     ),
   };
@@ -375,8 +375,31 @@ export function emailSaquePago(params: { nome: string; valorFormatado: string })
       "Saque confirmado",
       `<p style="font-size:15px;line-height:1.6;color:#6B6B6B;margin:16px 0 0">
          Olá, ${escaparHtml(params.nome)}. Seu saque de <strong>${escaparHtml(params.valorFormatado)}</strong> foi
-         pago via Pix — confere na sua conta.
+         pago via Pix. Confere na sua conta.
        </p>`
+    ),
+  };
+}
+
+export function emailNovaMensagemLead(params: {
+  destinatarioNome: string;
+  remetenteNome: string;
+  filhoNome: string;
+  link: string;
+}): Omit<Mensagem, "para"> {
+  return {
+    assunto: `Nova mensagem de ${params.remetenteNome}`,
+    texto:
+      `Olá, ${params.destinatarioNome}.\n\n` +
+      `${params.remetenteNome} te mandou uma mensagem sobre o transporte de ${params.filhoNome}.\n\n` +
+      `Ver e responder: ${params.link}`,
+    html: moldura(
+      "Nova mensagem",
+      `<p style="font-size:15px;line-height:1.6;color:#6B6B6B;margin:16px 0 0">
+         Olá, ${escaparHtml(params.destinatarioNome)}. <strong>${escaparHtml(params.remetenteNome)}</strong> te
+         mandou uma mensagem sobre o transporte de ${escaparHtml(params.filhoNome)}.
+       </p>
+       ${botao(params.link, "Ver e responder")}`
     ),
   };
 }

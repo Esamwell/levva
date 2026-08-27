@@ -88,6 +88,7 @@ model User {
   // é o admin respondendo ou o próprio autor completando o chamado.
   ticketsAbertos  Ticket[]         @relation("TicketAutor")
   mensagensTicket TicketMensagem[]
+  mensagensLead   LeadMensagem[]
 }
 
 model Admin {
@@ -320,6 +321,25 @@ model Lead {
   // Idem pro contrato: só existe quando o motorista marca FECHADO
   // informando valor/periodicidade (ver POST /api/motorista/leads/[id]/fechar).
   contrato  Contrato?
+
+  mensagens LeadMensagem[]
+}
+
+// Chat entre pai e motorista pra negociar depois que o lead cai — antes não
+// existia nenhum jeito de conversar pela plataforma, só por fora (WhatsApp).
+// Aberto em qualquer status do lead (inclusive depois de FECHADO, pra
+// combinar detalhes de rotina); sem conceito de "encerrar", ao contrário do
+// Ticket de suporte.
+model LeadMensagem {
+  id        String   @id @default(cuid())
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  leadId    String
+  autor     User     @relation(fields: [autorId], references: [id])
+  autorId   String
+  corpo     String
+  createdAt DateTime @default(now())
+
+  @@index([leadId, createdAt])
 }
 
 model Avaliacao {

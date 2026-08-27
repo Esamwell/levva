@@ -120,7 +120,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     await db.escola.delete({ where: { id } });
   } catch {
     return NextResponse.json(
-      { error: "Essa escola tem aluno ou motorista vinculado — não dá pra excluir." },
+      { error: "Essa escola tem aluno ou motorista vinculado, não dá pra excluir." },
       { status: 409 }
     );
   }

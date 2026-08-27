@@ -206,7 +206,7 @@ async function garantirClienteAsaas(pai: Pai & { user: { nome: string; email: st
   if (pai.asaasCustomerId) return pai.asaasCustomerId;
 
   if (!pai.cpfCnpj) {
-    throw new Error("Esse responsável ainda não tem CPF/CNPJ cadastrado — preenche em /admin/pais antes de gerar a cobrança.");
+    throw new Error("Esse responsável ainda não tem CPF/CNPJ cadastrado. Preenche em /admin/pais antes de gerar a cobrança.");
   }
 
   const res = await asaasFetch("/customers", {
@@ -275,7 +275,7 @@ export async function criarAssinaturaAsaas(
         value: valorCobradoCentavos / 100,
         nextDueDate: hoje,
         cycle: CICLO_ASAAS[contrato.periodicidade],
-        description: `Transporte escolar — ${contrato.motorista.user.nome} (Mova)`,
+        description: `Transporte escolar com ${contrato.motorista.user.nome} (Mova)`,
         externalReference: contrato.id,
       }),
     });

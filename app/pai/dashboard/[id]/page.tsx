@@ -1,0 +1,77 @@
+import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft, School, Phone } from "lucide-react";
+import { exigirPapel } from "../../../../lib/auth";
+import { db } from "../../../../lib/db";
+import { StatusBadge } from "../../../../components/status-badge";
+import { LeadThread } from "../../../../components/lead-thread";
+
+export default async function LeadPaiPage({ params }: { params: Promise<{ id: string }> }) {
+  const session = await exigirPapel("PAI");
+  if (!session) redirect("/entrar");
+
+  const { id } = await params;
+
+  const pai = await db.pai.findUnique({ where: { userId: session.userId }, select: { id: true } });
+  if (!pai) redirect("/entrar");
+
+  const lead = await db.lead.findUnique({
+    where: { id },
+    include: {
+      motorista: { include: { user: { select: { nome: true, telefone: true } } } },
+      filho: { include: { escola: true } },
+      mensagens: { orderBy: { createdAt: "asc" } },
+    },
+  });
+
+  if (!lead || lead.paiId !== pai.id) notFound();
+
+  const telefoneLimpo = lead.motorista.user.telefone?.replace(/\D/g, "");
+
+  return (
+    <div>
+      <Link href="/pai/dashboard" className="flex items-center gap-1.5 text-sm font-medium text-ink-soft hover:text-navy">
+        <ArrowLeft className="h-4 w-4" />
+        Minhas solicitações
+      </Link>
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cream-line bg-white p-5">
+        <div>
+          <h1 className="font-serif text-2xl text-navy">{lead.motorista.user.nome}</h1>
+          <p className="flex items-center gap-1.5 text-sm text-ink-soft">
+            <School className="h-3.5 w-3.5" /> {lead.filho.nome} · {lead.filho.escola.nome}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <StatusBadge status={lead.status} />
+          {telefoneLimpo && (
+            <a
+              href={`https://wa.me/${telefoneLimpo}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1.5 rounded-full border border-sage-soft px-3 py-1.5 text-xs font-semibold text-sage hover:bg-sage-soft/40"
+            >
+              <Phone className="h-3.5 w-3.5" /> WhatsApp
+            </a>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-cream-line bg-white p-5">
+        <h2 className="font-serif text-lg text-navy">Conversa</h2>
+        <div className="mt-4">
+          <LeadThread
+            leadId={lead.id}
+            mensagens={lead.mensagens.map((m) => ({
+              id: m.id,
+              corpo: m.corpo,
+              createdAt: m.createdAt.toISOString(),
+              mine: m.autorId === session.userId,
+              label: m.autorId === session.userId ? "Você" : lead.motorista.user.nome,
+            }))}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
