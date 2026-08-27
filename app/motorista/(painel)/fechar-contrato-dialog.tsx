@@ -14,8 +14,19 @@ const PERIODOS = [
   { value: "ANUAL", label: "Anual" },
 ] as const;
 
+const MESES_POR_CICLO: Record<(typeof PERIODOS)[number]["value"], number> = {
+  MENSAL: 1,
+  TRIMESTRAL: 3,
+  SEMESTRAL: 6,
+  ANUAL: 12,
+};
+
 function formatarReais(centavos: number): string {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function paraCentavos(texto: string): number {
+  return Math.round((parseFloat(texto.replace(",", ".")) || 0) * 100);
 }
 
 export function FecharContratoDialog({
@@ -31,19 +42,28 @@ export function FecharContratoDialog({
   onClose: () => void;
   onFechado: () => void;
 }) {
-  const [valor, setValor] = useState("");
+  const [valorMensal, setValorMensal] = useState("");
+  const [desconto, setDesconto] = useState("");
   const [periodicidade, setPeriodicidade] = useState<(typeof PERIODOS)[number]["value"]>("MENSAL");
   const [pagadorTaxa, setPagadorTaxa] = useState<"MOTORISTA" | "PAI">(pagadorTaxaPadrao);
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
-  const valorCentavos = Math.round((parseFloat(valor.replace(",", ".")) || 0) * 100);
+  const valorMensalCentavos = paraCentavos(valorMensal);
+  const descontoCentavos = paraCentavos(desconto);
+  const meses = MESES_POR_CICLO[periodicidade];
+  // Valor cobrado no ciclo = valor mensal × meses do ciclo, menos o desconto
+  // que o motorista quiser dar por fechar num ciclo maior (trimestral,
+  // semestral, anual). É esse valor, já calculado, que vira o Contrato —
+  // o "valor mensal" digitado é só a referência pra chegar nele.
+  const valorCentavos = Math.max(0, valorMensalCentavos * meses - descontoCentavos);
   const taxaCentavos = Math.round((valorCentavos * taxaPercentual) / 100);
   const valorLiquidoMotorista = pagadorTaxa === "MOTORISTA" ? valorCentavos - taxaCentavos : valorCentavos;
   const valorCobradoPai = pagadorTaxa === "PAI" ? valorCentavos + taxaCentavos : valorCentavos;
 
   function resetar() {
-    setValor("");
+    setValorMensal("");
+    setDesconto("");
     setPeriodicidade("MENSAL");
     setPagadorTaxa(pagadorTaxaPadrao);
     setErro(null);
@@ -104,15 +124,15 @@ export function FecharContratoDialog({
 
             <div>
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-soft">
-                Valor combinado
+                Valor mensal combinado
               </label>
               <div className="relative">
                 <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-ink-soft">R$</span>
                 <input
                   required
                   inputMode="decimal"
-                  value={valor}
-                  onChange={(e) => setValor(e.target.value)}
+                  value={valorMensal}
+                  onChange={(e) => setValorMensal(e.target.value)}
                   placeholder="450,00"
                   className="w-full rounded-xl border border-cream-line py-2.5 pl-9 pr-4 text-sm outline-none focus:border-amber"
                 />
@@ -140,6 +160,31 @@ export function FecharContratoDialog({
                   </button>
                 ))}
               </div>
+              {meses > 1 && (
+                <p className="mt-1.5 text-xs text-ink-soft">
+                  Cobrança a cada {meses} meses: {formatarReais(valorMensalCentavos * meses)}
+                  {descontoCentavos > 0 && <> − {formatarReais(descontoCentavos)} de desconto</>}
+                  {" = "}
+                  <strong className="text-navy">{formatarReais(valorCentavos)}</strong>
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-ink-soft">
+                Desconto no ciclo (opcional)
+              </label>
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-ink-soft">R$</span>
+                <input
+                  inputMode="decimal"
+                  value={desconto}
+                  onChange={(e) => setDesconto(e.target.value)}
+                  placeholder="0,00"
+                  className="w-full rounded-xl border border-cream-line py-2.5 pl-9 pr-4 text-sm outline-none focus:border-amber"
+                />
+              </div>
+              <p className="mt-1 text-xs text-ink-soft">Ex.: um desconto pra quem fecha trimestral, semestral ou anual.</p>
             </div>
 
             <div>
@@ -174,7 +219,11 @@ export function FecharContratoDialog({
 
             {valorCentavos > 0 && (
               <div className="rounded-xl bg-cream px-3.5 py-3 text-xs text-ink-soft">
-                <p className="flex justify-between">
+                <p className="flex justify-between border-b border-cream-line pb-1.5">
+                  <span>Valor cobrado a cada ciclo</span>
+                  <span className="font-semibold text-navy">{formatarReais(valorCentavos)}</span>
+                </p>
+                <p className="mt-1.5 flex justify-between">
                   <span>Taxa Mova ({taxaPercentual}%)</span>
                   <span className="font-semibold text-navy">{formatarReais(taxaCentavos)}</span>
                 </p>

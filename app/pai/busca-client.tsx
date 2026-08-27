@@ -14,7 +14,8 @@ import { useRef, useState } from "react";
 import { Star, Sparkles, School, Search, Check, ShieldCheck, SearchX } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
-import { Avatar, AvatarFallback } from "../../components/ui/avatar";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar";
 import SpotlightCard from "../../components/SpotlightCard";
 import { TermosModal } from "../../components/termos-modal";
 import { EnderecoAutocomplete, type PontoEndereco } from "../../components/endereco-autocomplete";
@@ -90,6 +91,7 @@ function EscolaAutocomplete({
 type Resultado = {
   id: string;
   nome: string;
+  fotoRosto: string | null;
   destaque: boolean;
   anosExperiencia: number;
   temMonitor: boolean;
@@ -261,7 +263,8 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
                     spotlightColor="rgba(254, 219, 26, 0.25)"
                     className="flex items-start gap-4 rounded-2xl border border-cream-line bg-white p-5"
                   >
-                    <Avatar className="h-11 w-11 shrink-0">
+                    <Avatar className="h-14 w-14 shrink-0">
+                      {m.fotoRosto && <AvatarImage src={m.fotoRosto} alt={m.nome} />}
                       <AvatarFallback className="bg-navy text-sm font-bold text-white">
                         {iniciais(m.nome)}
                       </AvatarFallback>
@@ -288,13 +291,22 @@ export default function BuscaClient({ jaLogado }: { jaLogado: boolean }) {
                             </p>
                           )}
                         </div>
-                        <Button
-                          size="sm"
-                          onClick={() => setModalMotorista(m)}
-                          className="shrink-0 bg-navy text-xs font-bold text-white hover:bg-navy/90"
-                        >
-                          Solicitar contato
-                        </Button>
+                        <div className="flex shrink-0 flex-col items-stretch gap-1.5">
+                          <Button
+                            size="sm"
+                            onClick={() => setModalMotorista(m)}
+                            className="bg-navy text-xs font-bold text-white hover:bg-navy/90"
+                          >
+                            Solicitar contato
+                          </Button>
+                          <Link
+                            href={`/motoristas/${m.id}`}
+                            target="_blank"
+                            className="text-center text-xs font-semibold text-sage hover:underline"
+                          >
+                            Ver perfil completo
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </SpotlightCard>

@@ -1,10 +1,11 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, School, Phone } from "lucide-react";
+import { ArrowLeft, School, UserRound } from "lucide-react";
 import { exigirPapel } from "../../../../lib/auth";
 import { db } from "../../../../lib/db";
 import { StatusBadge } from "../../../../components/status-badge";
 import { LeadThread } from "../../../../components/lead-thread";
+import { WhatsappButton } from "../../../../components/whatsapp-button";
 
 function formatarReais(centavos: number): string {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -24,6 +25,7 @@ export default async function LeadPaiPage({ params }: { params: Promise<{ id: st
     include: {
       motorista: { include: { user: { select: { nome: true, telefone: true } } } },
       filho: { include: { escola: true } },
+      contrato: { include: { cobrancas: { select: { paga: true } } } },
       mensagens: {
         orderBy: { createdAt: "asc" },
         include: { cobranca: { select: { id: true, valorCentavos: true, competencia: true, paga: true } } },
@@ -33,7 +35,7 @@ export default async function LeadPaiPage({ params }: { params: Promise<{ id: st
 
   if (!lead || lead.paiId !== pai.id) notFound();
 
-  const telefoneLimpo = lead.motorista.user.telefone?.replace(/\D/g, "");
+  const whatsappLiberado = lead.contrato?.cobrancas.some((c) => c.paga) ?? false;
 
   return (
     <div>
@@ -51,16 +53,14 @@ export default async function LeadPaiPage({ params }: { params: Promise<{ id: st
         </div>
         <div className="flex items-center gap-2">
           <StatusBadge status={lead.status} />
-          {telefoneLimpo && (
-            <a
-              href={`https://wa.me/${telefoneLimpo}`}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-1.5 rounded-full border border-sage-soft px-3 py-1.5 text-xs font-semibold text-sage hover:bg-sage-soft/40"
-            >
-              <Phone className="h-3.5 w-3.5" /> WhatsApp
-            </a>
-          )}
+          <Link
+            href={`/motoristas/${lead.motoristaId}`}
+            target="_blank"
+            className="flex items-center gap-1.5 rounded-full border border-cream-line px-3 py-1.5 text-xs font-semibold text-ink-soft hover:border-amber hover:text-navy"
+          >
+            <UserRound className="h-3.5 w-3.5" /> Ver perfil
+          </Link>
+          <WhatsappButton telefone={lead.motorista.user.telefone} liberado={whatsappLiberado} />
         </div>
       </div>
 

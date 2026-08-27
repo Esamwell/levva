@@ -3,17 +3,19 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Lock } from "lucide-react";
 import { Avatar, AvatarFallback } from "../../../components/ui/avatar";
 import { Button } from "../../../components/ui/button";
 import { StatusBadge } from "../../../components/status-badge";
 import { FecharContratoDialog } from "./fechar-contrato-dialog";
+import { mascararTelefone } from "../../../lib/texto";
 
 type Lead = {
   id: string;
   status: string;
   paiNome: string;
   paiTelefone: string | null;
+  whatsappLiberado: boolean;
   filhoNome: string;
   escolaNome: string;
 };
@@ -75,8 +77,14 @@ export default function LeadsList({
                 <p className="font-semibold text-navy">{lead.paiNome}</p>
                 <p className="text-xs text-ink-soft">
                   {lead.filhoNome} · {lead.escolaNome}
-                  {lead.paiTelefone ? ` · ${lead.paiTelefone}` : ""}
+                  {lead.paiTelefone &&
+                    ` · ${lead.whatsappLiberado ? lead.paiTelefone : mascararTelefone(lead.paiTelefone)}`}
                 </p>
+                {lead.paiTelefone && !lead.whatsappLiberado && (
+                  <p className="mt-0.5 flex items-center gap-1 text-[11px] text-ink-soft/70">
+                    <Lock className="h-3 w-3" /> WhatsApp libera após o pagamento da primeira fatura
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-2">

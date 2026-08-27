@@ -1,10 +1,11 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, School, Phone, MapPin, Check } from "lucide-react";
+import { ArrowLeft, School, MapPin, Check } from "lucide-react";
 import { exigirPapel } from "../../../../../lib/auth";
 import { db } from "../../../../../lib/db";
 import { proximoVencimento } from "../../../../../lib/financeiro";
 import { Avatar, AvatarFallback } from "../../../../../components/ui/avatar";
+import { WhatsappButton } from "../../../../../components/whatsapp-button";
 
 function iniciais(nome: string): string {
   return nome.trim().split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
@@ -36,7 +37,7 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
 
   if (!contrato || contrato.motoristaId !== motorista.id) notFound();
 
-  const telefoneLimpo = contrato.pai.user.telefone?.replace(/\D/g, "");
+  const whatsappLiberado = contrato.cobrancas.some((c) => c.paga);
   const liquido = contrato.pagadorTaxa === "MOTORISTA" ? contrato.valorCentavos - contrato.taxaCentavos : contrato.valorCentavos;
   const vencimento = proximoVencimento(contrato.periodicidade, contrato.cobrancas[0]?.competencia ?? contrato.createdAt);
 
@@ -68,16 +69,9 @@ export default async function AlunoDetailPage({ params }: { params: Promise<{ id
               <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {contrato.pai.endereco}
             </p>
           )}
-          {telefoneLimpo && (
-            <a
-              href={`https://wa.me/${telefoneLimpo}`}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-3 flex w-fit items-center gap-1.5 rounded-full border border-sage-soft px-3 py-1.5 text-xs font-semibold text-sage hover:bg-sage-soft/40"
-            >
-              <Phone className="h-3.5 w-3.5" /> Chamar no WhatsApp
-            </a>
-          )}
+          <div className="mt-3">
+            <WhatsappButton telefone={contrato.pai.user.telefone} liberado={whatsappLiberado} />
+          </div>
         </section>
 
         <section className="rounded-2xl border border-cream-line bg-white p-5">

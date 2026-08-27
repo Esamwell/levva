@@ -88,6 +88,7 @@ export async function POST(req: Request) {
     return {
       id: m.id,
       nome: m.user.nome,
+      fotoRosto: m.fotoRosto,
       destaque: m.destaqueAtivo,
       anosExperiencia: m.anosExperiencia,
       temMonitor: m.temMonitor,

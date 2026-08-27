@@ -15,7 +15,11 @@ export default async function LeadsMotoristaPage() {
 
   const leads = await db.lead.findMany({
     where: { motoristaId: motorista.id },
-    include: { pai: { include: { user: true } }, filho: { include: { escola: true } } },
+    include: {
+      pai: { include: { user: true } },
+      filho: { include: { escola: true } },
+      contrato: { include: { cobrancas: { select: { paga: true } } } },
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -40,6 +44,7 @@ export default async function LeadsMotoristaPage() {
               status: l.status,
               paiNome: l.pai.user.nome,
               paiTelefone: l.pai.user.telefone,
+              whatsappLiberado: l.contrato?.cobrancas.some((c) => c.paga) ?? false,
               filhoNome: l.filho.nome,
               escolaNome: l.filho.escola.nome,
             }))}
