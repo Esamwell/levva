@@ -22,7 +22,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { Check, Paperclip, ShieldCheck } from "lucide-react";
+import { Check, Paperclip, ShieldCheck, Camera } from "lucide-react";
 import { Logo } from "../../../components/logo";
 import { TermosModal } from "../../../components/termos-modal";
 import { TAXA_MOVA_PERCENTUAL, DESTAQUE_PRECO_CENTAVOS } from "../../../lib/financeiro";
@@ -47,7 +47,17 @@ const DOCS: { key: DocKey; label: string }[] = [
   { key: "crlv", label: "Documento do veículo (CRLV)" },
 ];
 
-const STEPS = ["Seus dados", "Veículo e rotina", "Documentos", "Revisão"] as const;
+type FotoKey = "rosto" | "veiculo-externa" | "veiculo-interna" | "monitor";
+/** rosto vira o campo fotoRosto; as outras três entram na galeria pública (Motorista.fotos). */
+const FOTOS: { key: FotoKey; label: string; obrigatoria: boolean; categoria: string }[] = [
+  { key: "rosto", label: "Foto do seu rosto, nítida", obrigatoria: true, categoria: "rosto" },
+  { key: "veiculo-externa", label: "Foto do veículo, por fora", obrigatoria: true, categoria: "galeria" },
+  { key: "veiculo-interna", label: "Foto do veículo, por dentro", obrigatoria: true, categoria: "galeria" },
+  { key: "monitor", label: "Foto do monitor, se tiver", obrigatoria: false, categoria: "galeria" },
+];
+type FotoState = Partial<Record<FotoKey, { nome: string; file: File; preview: string }>>;
+
+const STEPS = ["Seus dados", "Veículo e rotina", "Fotos", "Documentos", "Revisão"] as const;
 
 export default function CadastroMotoristaPage() {
   const router = useRouter();
@@ -70,6 +80,7 @@ export default function CadastroMotoristaPage() {
   ]);
 
   const [docs, setDocs] = useState<DocState>({});
+  const [fotos, setFotos] = useState<FotoState>({});
   const [termosAceitos, setTermosAceitos] = useState(false);
   const [termosAbertos, setTermosAbertos] = useState(false);
 
@@ -105,15 +116,32 @@ export default function CadastroMotoristaPage() {
     setDocs((d) => ({ ...d, [key]: { nome: file.name, file } }));
   }
 
+  const TIPOS_FOTO_OK = ["image/jpeg", "image/png", "image/webp"];
+
+  function selecionarFoto(key: FotoKey, file: File) {
+    if (!TIPOS_FOTO_OK.includes(file.type)) {
+      setErro("Aceitamos apenas JPG, PNG ou WEBP pras fotos.");
+      return;
+    }
+    if (file.size > TAMANHO_MAX) {
+      setErro("Arquivo maior que 10MB.");
+      return;
+    }
+    setErro(null);
+    setFotos((f) => ({ ...f, [key]: { nome: file.name, file, preview: URL.createObjectURL(file) } }));
+  }
+
   const emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim());
   const senhaOk = senha.length >= 8 && /[a-zA-Z]/.test(senha) && /[0-9]/.test(senha);
 
   const step0Ok =
     nome.trim().length > 2 && whatsapp.trim().length >= 10 && emailOk && senhaOk;
   const step1Ok = veiculos.every((v) => v.placa && v.modelo && v.capacidade);
-  const step2Ok = cnhNumero.trim().length > 3 && DOCS.every((d) => docs[d.key]?.file);
+  const step2Ok = FOTOS.filter((f) => f.obrigatoria).every((f) => fotos[f.key]?.file);
+  const step3Ok = cnhNumero.trim().length > 3 && DOCS.every((d) => docs[d.key]?.file);
 
-  const podeAvancar = step === 0 ? step0Ok : step === 1 ? step1Ok : step === 2 ? step2Ok : true;
+  const podeAvancar =
+    step === 0 ? step0Ok : step === 1 ? step1Ok : step === 2 ? step2Ok : step === 3 ? step3Ok : true;
 
   async function enviarCadastro() {
     setErro(null);
@@ -149,9 +177,18 @@ export default function CadastroMotoristaPage() {
         );
       }
 
-      // 2) Sobe os documentos, agora autenticado. Cada arquivo é gravado
+      // 2) Sobe fotos e documentos, agora autenticado. Cada arquivo é gravado
       //    direto no cadastro pelo servidor.
       const falhas: string[] = [];
+      for (const { key, label, categoria } of FOTOS) {
+        const foto = fotos[key];
+        if (!foto) continue;
+        const form = new FormData();
+        form.append("file", foto.file);
+        form.append("categoria", categoria);
+        const up = await fetch("/api/upload", { method: "POST", body: form });
+        if (!up.ok) falhas.push(label);
+      }
       for (const { key, label } of DOCS) {
         const doc = docs[key];
         if (!doc) continue;
@@ -405,6 +442,60 @@ export default function CadastroMotoristaPage() {
               transition={{ duration: 0.25, ease: "easeOut" }}
               className="space-y-5"
             >
+              <p className="text-sm text-ink-soft">
+                Perfil sem foto não passa confiança pra nenhuma família. Rosto e veículo são
+                obrigatórios; o do monitor só se você tiver um.
+              </p>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {FOTOS.map(({ key, label, obrigatoria }) => {
+                  const foto = fotos[key];
+                  return (
+                    <label
+                      key={key}
+                      className="relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1.5 overflow-hidden rounded-xl border border-dashed border-cream-line p-2 text-center hover:border-amber"
+                    >
+                      {foto ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={foto.preview} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                      ) : (
+                        <>
+                          <Camera className="h-5 w-5 text-ink-soft" strokeWidth={1.75} />
+                          <span className="text-[11px] leading-tight text-ink-soft">
+                            {label}
+                            {!obrigatoria && <span className="block text-ink-soft/60">(opcional)</span>}
+                          </span>
+                        </>
+                      )}
+                      {foto && (
+                        <span className="relative z-10 mt-auto rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white">
+                          Trocar
+                        </span>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) selecionarFoto(key, file);
+                        }}
+                      />
+                    </label>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+
+          {step === 3 && (
+            <motion.div
+              key="3"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="space-y-5"
+            >
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1 block text-sm font-semibold text-navy">
@@ -473,9 +564,9 @@ export default function CadastroMotoristaPage() {
             </motion.div>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <motion.div
-              key="3"
+              key="4"
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -24 }}
@@ -503,6 +594,12 @@ export default function CadastroMotoristaPage() {
                 <div className="flex justify-between py-2">
                   <dt className="text-ink-soft">Veículos</dt>
                   <dd className="font-semibold text-navy">{numVeiculos}</dd>
+                </div>
+                <div className="flex justify-between py-2">
+                  <dt className="text-ink-soft">Fotos</dt>
+                  <dd className="font-semibold text-navy">
+                    {Object.keys(fotos).length}/{FOTOS.length} anexadas
+                  </dd>
                 </div>
                 <div className="flex justify-between py-2">
                   <dt className="text-ink-soft">Documentos</dt>

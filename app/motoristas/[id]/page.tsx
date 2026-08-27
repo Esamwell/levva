@@ -7,6 +7,7 @@ import { Logo } from "../../../components/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar";
 import { Badge } from "../../../components/ui/badge";
 import { WhatsappButton } from "../../../components/whatsapp-button";
+import { FotoGaleria } from "../../../components/foto-galeria";
 
 function iniciais(nome: string): string {
   return nome.trim().split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
@@ -121,14 +122,7 @@ export default async function PerfilMotoristaPage({ params }: { params: Promise<
           </div>
         )}
 
-        {galeria.length > 0 && (
-          <div className="mt-6 grid grid-cols-3 gap-2 sm:grid-cols-4">
-            {galeria.map((foto, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img key={i} src={foto} alt="" className="aspect-square w-full rounded-xl object-cover" />
-            ))}
-          </div>
-        )}
+        <FotoGaleria fotos={galeria} />
 
         {motorista.videoUrl && (
           <video controls className="mt-4 w-full rounded-2xl border border-cream-line">

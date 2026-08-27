@@ -42,7 +42,7 @@ export const CATEGORIAS_VALIDAS = ["cnh", "curso-transporte", "antecedentes", "c
 // dono/admin via /api/documentos. Foto/vídeo de perfil é material que o
 // motorista quer que a família veja: público, servido por /api/midia, sem
 // checar sessão. Ver salvarArquivo() e as duas rotas de leitura.
-const CATEGORIAS_PUBLICAS = new Set(["galeria", "video"]);
+const CATEGORIAS_PUBLICAS = new Set(["rosto", "galeria", "video"]);
 export function categoriaEhPublica(categoria: string): boolean {
   return CATEGORIAS_PUBLICAS.has(categoria);
 }
